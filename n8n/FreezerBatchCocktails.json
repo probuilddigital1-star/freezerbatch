@@ -274,7 +274,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer re_6MrWnny6_Njcx7c9bxNuPY484YbCCfAHN"
+              "value": "Bearer YOUR_RESEND_API_KEY_HERE"
             },
             {
               "name": "Content-Type",
@@ -302,7 +302,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer re_6MrWnny6_Njcx7c9bxNuPY484YbCCfAHN"
+              "value": "Bearer YOUR_RESEND_API_KEY_HERE"
             },
             {
               "name": "Content-Type",
