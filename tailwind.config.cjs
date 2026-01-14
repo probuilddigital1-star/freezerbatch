@@ -4,33 +4,56 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Modern "Midnight Frost" palette - sophisticated dark mode aesthetic
+        // "Timeless Bar" palette - sophisticated speakeasy aesthetic
         primary: {
-          DEFAULT: '#6366f1', // Indigo
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          DEFAULT: '#1B3A4B', // Navy
+          50: '#f0f5f7',
+          100: '#d9e4e9',
+          200: '#b3c9d3',
+          300: '#8daebd',
+          400: '#5d8a9e',
+          500: '#3d6a7e',
+          600: '#1B3A4B',
+          700: '#162f3d',
+          800: '#11242f',
+          900: '#0c1921',
+          950: '#070d11',
         },
         accent: {
-          DEFAULT: '#f59e0b', // Warm amber for CTAs
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
+          DEFAULT: '#B8860B', // Brass Gold
+          50: '#fdf8eb',
+          100: '#f9ebc7',
+          200: '#f3d78f',
+          300: '#edc357',
+          400: '#d9a820',
+          500: '#B8860B',
+          600: '#946c09',
+          700: '#705207',
+          800: '#4c3805',
+          900: '#281e03',
+        },
+        cognac: {
+          DEFAULT: '#5D4037', // Cognac Brown
+          50: '#f5f0ee',
+          100: '#e6dcd8',
+          200: '#cdb9b1',
+          300: '#b4968a',
+          400: '#8b6b5e',
+          500: '#5D4037',
+          600: '#4a332c',
+          700: '#382721',
+          800: '#251a16',
+          900: '#130d0b',
+        },
+        deepred: {
+          DEFAULT: '#8B0000', // Deep Red
+          500: '#8B0000',
+        },
+        cream: {
+          DEFAULT: '#FDF8F3',
+          50: '#FFFFFF',
+          100: '#FDF8F3',
+          200: '#F5E6D8',
         },
         // Neutral grays with slight warmth
         surface: {
@@ -51,11 +74,11 @@ module.exports = {
         warning: '#f59e0b',
         danger: '#ef4444',
         // Legacy aliases
-        cream: '#fafafa',
         charcoal: '#171717',
         freeze: '#ef4444',
-        slushy: '#f59e0b',
+        slushy: '#B8860B',
         safe: '#10b981',
+        warmgray: '#4A4A4A',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
@@ -66,8 +89,8 @@ module.exports = {
         '2xs': ['0.65rem', { lineHeight: '1rem' }],
       },
       boxShadow: {
-        'glow': '0 0 20px rgba(99, 102, 241, 0.15)',
-        'glow-lg': '0 0 40px rgba(99, 102, 241, 0.2)',
+        'glow': '0 0 20px rgba(27, 58, 75, 0.15)',
+        'glow-lg': '0 0 40px rgba(27, 58, 75, 0.2)',
         'card': '0 1px 3px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02)',
         'card-hover': '0 1px 3px rgba(0,0,0,0.05), 0 25px 30px -5px rgba(0,0,0,0.1), 0 15px 15px -5px rgba(0,0,0,0.04)',
       },

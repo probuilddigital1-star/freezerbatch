@@ -8,18 +8,18 @@ const navLinks = [
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-surface-200/50">
+<header class="sticky top-0 z-50 bg-primary-600/95 backdrop-blur-xl border-b border-primary-700/50">
   <div class="max-w-6xl mx-auto px-4 sm:px-6">
     <nav class="flex items-center justify-between h-16" aria-label="Main navigation">
       <!-- Logo -->
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:shadow-primary-500/30 transition-shadow">
+        <div class="w-9 h-9 bg-gradient-to-br from-accent-400 to-accent-500 rounded-xl flex items-center justify-center shadow-lg shadow-accent-500/20 group-hover:shadow-accent-500/30 transition-shadow">
           <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 3v18M3 12h18M7.5 7.5l9 9M16.5 7.5l-9 9" stroke-linecap="round"/>
           </svg>
         </div>
-        <span class="font-display font-bold text-xl text-surface-900">
-          Freezer<span class="text-primary-600">Batch</span>
+        <span class="font-display font-bold text-xl text-white">
+          Freezer<span class="text-accent-300">Batch</span>
         </span>
       </a>
 
@@ -32,8 +32,8 @@ const currentPath = Astro.url.pathname;
               class:list={[
                 'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                 currentPath === link.href
-                  ? 'bg-primary-50 text-primary-600'
-                  : 'text-surface-600 hover:text-surface-900 hover:bg-surface-100'
+                  ? 'bg-accent-500/20 text-accent-300'
+                  : 'text-white/90 hover:text-white hover:bg-white/10'
               ]}
               aria-current={currentPath === link.href ? 'page' : undefined}
             >
@@ -51,7 +51,7 @@ const currentPath = Astro.url.pathname;
       <!-- Mobile Menu Button -->
       <button
         type="button"
-        class="md:hidden p-2 rounded-xl text-surface-600 hover:bg-surface-100 transition-colors"
+        class="md:hidden p-3 rounded-xl text-white/90 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -73,8 +73,8 @@ const currentPath = Astro.url.pathname;
               class:list={[
                 'block px-4 py-3 rounded-xl font-medium transition-all duration-200',
                 currentPath === link.href
-                  ? 'bg-primary-50 text-primary-600'
-                  : 'text-surface-600 hover:text-surface-900 hover:bg-surface-100'
+                  ? 'bg-accent-500/20 text-accent-300'
+                  : 'text-white/90 hover:text-white hover:bg-white/10'
               ]}
             >
               {link.label}
