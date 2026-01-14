@@ -1,0 +1,721 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-01-07",
+  "cocktails": [
+    {
+      "slug": "negroni",
+      "name": "Negroni",
+      "tagline": "The perfect aperitivo, always ready",
+      "description": "The Negroni is the ideal freezer batch cocktail. Start with a 750ml bottle of gin, pour off 16oz to make room, then add equal parts Campari and sweet vermouth. No water needed - the freezer temperature smooths the alcohol beautifully.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["gin"],
+      "tags": ["bitter", "aperitivo", "classic", "italian", "stirred"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Gin",
+          "pourOff": "16 oz",
+          "addBack": [
+            { "name": "Sweet Vermouth", "amount": "7 oz" },
+            { "name": "Campari", "amount": "7 oz" }
+          ],
+          "extras": "Few dashes orange bitters",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Gin", "volumeMl": 37, "abv": 40 },
+          { "name": "Campari", "volumeMl": 30, "abv": 25 },
+          { "name": "Sweet Vermouth", "volumeMl": 30, "abv": 16 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 28,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use navy-strength gin (57% ABV) for extra insurance against freezing",
+        "Fresh sweet vermouth is critical - if open more than 4 weeks, don't use it",
+        "The bitterness softens beautifully after 48+ hours in the freezer",
+        "Express a fresh orange peel over the glass when serving"
+      ],
+      "serve": "Pour into a rocks glass. Express orange peel over drink and drop in.",
+      "commonMistakes": [
+        "Using old, oxidized vermouth",
+        "Forgetting to stir/shake bottle before pouring"
+      ],
+      "affiliateProducts": [
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" },
+        { "name": "Rocks Glasses Set", "asin": "B07X89FYQ1", "category": "glassware" }
+      ],
+      "relatedCocktails": ["boulevardier", "manhattan", "americano"],
+      "seo": {
+        "title": "Freezer Batch Negroni Recipe & Calculator",
+        "description": "Calculate the perfect freezer batch Negroni. Pre-batch this classic Italian aperitivo for ready-to-pour cocktails straight from your freezer.",
+        "keywords": ["negroni freezer", "batch negroni", "freezer batch negroni", "negroni recipe"]
+      }
+    },
+    {
+      "slug": "manhattan",
+      "name": "Manhattan",
+      "tagline": "Sophisticated sipping, zero wait time",
+      "description": "The Manhattan is an outstanding freezer batch candidate. Using the Milk Street method, pour off just 4.5oz from a bottle of rye, add vermouth and cherry syrup. The cold temperature tames the rye's spice beautifully.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["rye", "bourbon"],
+      "tags": ["whiskey", "classic", "stirred", "sophisticated"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Rye Whiskey",
+          "pourOff": "4.5 oz",
+          "addBack": [
+            { "name": "Sweet Vermouth", "amount": "4 oz" },
+            { "name": "Cherry Syrup (from Luxardo jar)", "amount": "0.5 oz" }
+          ],
+          "extras": "Dash or two Angostura bitters",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Rye Whiskey", "volumeMl": 75, "abv": 45 },
+          { "name": "Sweet Vermouth", "volumeMl": 15, "abv": 16 },
+          { "name": "Cherry Syrup", "volumeMl": 2, "abv": 0 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 38,
+      "freezeStatus": "safe",
+      "tips": [
+        "Ensure the vermouth is fresh - open less than 4-6 weeks",
+        "Rye whiskey is traditional, but bourbon works beautifully too",
+        "The bitters bloom over time - don't overdo it",
+        "Serve in a chilled Nick & Nora or coupe glass"
+      ],
+      "serve": "Pour into a chilled coupe or Nick & Nora glass. Garnish with a brandied cherry.",
+      "commonMistakes": [
+        "Using oxidized vermouth",
+        "Over-pouring bitters"
+      ],
+      "affiliateProducts": [
+        { "name": "Luxardo Maraschino Cherries", "asin": "B00AQB146W", "category": "garnish" },
+        { "name": "Angostura Bitters", "asin": "B00MJ6P774", "category": "bar-tool" },
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" }
+      ],
+      "relatedCocktails": ["old-fashioned", "boulevardier", "vieux-carre"],
+      "seo": {
+        "title": "Freezer Batch Manhattan Recipe & Calculator",
+        "description": "Make the perfect freezer batch Manhattan. Batch this classic whiskey cocktail for ready-to-pour sophistication.",
+        "keywords": ["manhattan freezer", "batch manhattan", "freezer batch manhattan", "manhattan recipe"]
+      }
+    },
+    {
+      "slug": "old-fashioned",
+      "name": "Old Fashioned",
+      "tagline": "Timeless simplicity, perfectly chilled",
+      "description": "The Old Fashioned is the simplest freezer batch - almost pure bourbon. Pour off just 1.33oz from a 750ml bottle, add agave syrup and bitters. The bourbon's vanilla notes become silky smooth at freezer temperatures.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["bourbon", "rye"],
+      "tags": ["whiskey", "classic", "simple", "stirred"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Bourbon or Rye",
+          "pourOff": "1.33 oz",
+          "addBack": [
+            { "name": "Agave or Simple Syrup", "amount": "1 oz" }
+          ],
+          "extras": "0.5 tbsp Angostura bitters",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Bourbon", "volumeMl": 88, "abv": 45 },
+          { "name": "Agave Syrup", "volumeMl": 4, "abv": 0 },
+          { "name": "Angostura Bitters", "volumeMl": 2, "abv": 44 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 42,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use rich simple syrup (2:1 sugar to water) - it dissolves completely",
+        "Never muddle sugar for a batch - it won't dissolve properly",
+        "A pinch of salt in the batch enhances the bourbon's sweetness",
+        "Express fresh orange peel over each pour"
+      ],
+      "serve": "Pour over a large ice cube in a rocks glass. Express orange peel and drop in.",
+      "commonMistakes": [
+        "Using granulated sugar instead of syrup",
+        "Too much bitters - they intensify when cold"
+      ],
+      "affiliateProducts": [
+        { "name": "Large Ice Cube Molds (2-Pack)", "asin": "B010KPESWU", "category": "bar-tool" },
+        { "name": "Angostura Bitters", "asin": "B00MJ6P774", "category": "bar-tool" },
+        { "name": "Rocks Glasses Set", "asin": "B07X89FYQ1", "category": "glassware" }
+      ],
+      "relatedCocktails": ["manhattan", "boulevardier", "toronto"],
+      "seo": {
+        "title": "Freezer Batch Old Fashioned Recipe & Calculator",
+        "description": "Batch the perfect Old Fashioned for your freezer. Ready-to-pour whiskey cocktails whenever you want them.",
+        "keywords": ["old fashioned freezer", "batch old fashioned", "freezer batch old fashioned"]
+      }
+    },
+    {
+      "slug": "boulevardier",
+      "name": "Boulevardier",
+      "tagline": "A whiskey Negroni that improves with time",
+      "description": "The Boulevardier is essentially a bourbon Negroni, and it batches identically well. The bourbon's vanilla notes marry with the Campari over time - this one actually improves after a week in the freezer.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["bourbon"],
+      "tags": ["whiskey", "bitter", "negroni-family", "stirred"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "single": [
+          { "name": "Bourbon", "volumeMl": 45, "abv": 45 },
+          { "name": "Campari", "volumeMl": 30, "abv": 25 },
+          { "name": "Sweet Vermouth", "volumeMl": 30, "abv": 16 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 20
+      },
+      "finalAbv": 28,
+      "freezeStatus": "safe",
+      "tips": [
+        "This improves dramatically after 1+ week in the freezer",
+        "The bourbon-Campari marriage is better than gin-Campari for long storage",
+        "Use a higher-proof bourbon (100 proof) for extra ABV insurance"
+      ],
+      "serve": "Pour into a rocks glass. Orange peel expressed and dropped in.",
+      "commonMistakes": [
+        "Drinking it too soon - patience rewards"
+      ],
+      "affiliateProducts": [
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" },
+        { "name": "Rocks Glasses Set", "asin": "B07X89FYQ1", "category": "glassware" }
+      ],
+      "relatedCocktails": ["negroni", "manhattan", "old-fashioned"],
+      "seo": {
+        "title": "Freezer Batch Boulevardier Recipe & Calculator",
+        "description": "Make a batch Boulevardier for your freezer. This bourbon Negroni variant actually improves with freezer time.",
+        "keywords": ["boulevardier freezer", "batch boulevardier", "bourbon negroni freezer"]
+      }
+    },
+    {
+      "slug": "dirty-martini",
+      "name": "Dirty Martini",
+      "tagline": "Briny, cold, and always ready",
+      "description": "The Dirty Martini is an excellent and often overlooked freezer batch candidate. The olive brine is shelf-stable, and the high vodka ABV keeps everything beautifully liquid. Use quality olive brine for best results.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["vodka", "gin"],
+      "tags": ["vodka", "gin", "savory", "martini", "stirred"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Vodka",
+          "pourOff": "6 oz",
+          "addBack": [
+            { "name": "Dry Vermouth", "amount": "4 oz" },
+            { "name": "Green Olive Brine", "amount": "1.5 oz" }
+          ],
+          "extras": null,
+          "water": "2.5 oz"
+        },
+        "single": [
+          { "name": "Vodka", "volumeMl": 75, "abv": 40 },
+          { "name": "Dry Vermouth", "volumeMl": 15, "abv": 18 },
+          { "name": "Olive Brine", "volumeMl": 15, "abv": 0 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 18
+      },
+      "finalAbv": 31,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use quality olive brine - Filthy Food brand is excellent",
+        "Avoid supermarket olive jar brine - it's too acidic",
+        "Gin works equally well if you prefer botanical notes",
+        "Store olives separately and add to glass when serving"
+      ],
+      "serve": "Pour into a chilled martini glass. Garnish with 2-3 olives on a pick.",
+      "commonMistakes": [
+        "Using cheap olive brine",
+        "Adding olives to the batch (they'll get bloated)"
+      ],
+      "affiliateProducts": [
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" },
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" }
+      ],
+      "relatedCocktails": ["classic-martini", "gibson", "vesper"],
+      "seo": {
+        "title": "Freezer Batch Dirty Martini Recipe & Calculator",
+        "description": "Batch the perfect Dirty Martini for your freezer. Briny, cold, and ready whenever you are.",
+        "keywords": ["dirty martini freezer", "batch dirty martini", "freezer batch martini"]
+      }
+    },
+    {
+      "slug": "margarita",
+      "name": "Margarita",
+      "tagline": "Party-ready lime perfection",
+      "description": "The Margarita batches beautifully using the Milk Street method. Start with a 750ml bottle of tequila, pour off 10oz to make room, then add fresh lime, orange liqueur, and agave. No water needed - the citrus provides the liquid balance.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["tequila"],
+      "tags": ["tequila", "citrus", "party", "shaken", "summer"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "shelfLife": "2-3 weeks",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Tequila Blanco",
+          "pourOff": "10 oz",
+          "addBack": [
+            { "name": "Fresh Lime Juice", "amount": "5 oz" },
+            { "name": "Orange Liqueur (Cointreau)", "amount": "4 oz" },
+            { "name": "Agave Syrup", "amount": "1.5 oz" }
+          ],
+          "extras": "Pinch of salt",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Tequila Blanco", "volumeMl": 60, "abv": 40 },
+          { "name": "Fresh Lime Juice", "volumeMl": 19, "abv": 0 },
+          { "name": "Orange Liqueur", "volumeMl": 15, "abv": 40 },
+          { "name": "Agave Syrup", "volumeMl": 6, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 28,
+      "freezeStatus": "safe",
+      "tips": [
+        "Shake the bottle well before each pour to recombine",
+        "Add a pinch of salt to the bottle - it enhances the tequila",
+        "Use 100% agave tequila for best results",
+        "Fresh lime juice stays delicious for weeks in the freezer",
+        "No water needed - lime juice provides the liquid balance"
+      ],
+      "serve": "Pour over ice, salt rim optional. Garnish with lime wheel.",
+      "commonMistakes": [
+        "Using bottled lime juice",
+        "Adding too much water (the citrus already dilutes)"
+      ],
+      "affiliateProducts": [
+        { "name": "Citrus Juicer (Lemon/Lime)", "asin": "B00YBP918M", "category": "bar-tool" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" },
+        { "name": "Margarita Glasses Set", "asin": "B07X89FYQ1", "category": "glassware" }
+      ],
+      "relatedCocktails": ["paloma", "cosmopolitan", "daiquiri"],
+      "seo": {
+        "title": "Freezer Batch Margarita Recipe & Calculator",
+        "description": "Calculate your perfect freezer Margarita batch. Tips for managing citrus freshness in freezer cocktails.",
+        "keywords": ["margarita freezer", "batch margarita", "freezer batch margarita"]
+      }
+    },
+    {
+      "slug": "cosmopolitan",
+      "name": "Cosmopolitan",
+      "tagline": "Perfectly pink and party-ready",
+      "description": "The Cosmopolitan batches beautifully. The cranberry and lime hold up great in the freezer - just shake the bottle before pouring. The pink color stays vibrant for weeks.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["vodka"],
+      "tags": ["vodka", "citrus", "fruity", "shaken", "party"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "shelfLife": "2-3 weeks",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Vodka",
+          "pourOff": "9 oz",
+          "addBack": [
+            { "name": "Orange Liqueur (Cointreau)", "amount": "3 oz" },
+            { "name": "Agave Syrup", "amount": "1.5 oz" },
+            { "name": "Cranberry Juice Concentrate", "amount": "1 oz" },
+            { "name": "Fresh Lime Juice", "amount": "0.25 oz" }
+          ],
+          "extras": "0.5 tsp orange bitters",
+          "water": "2 oz"
+        },
+        "single": [
+          { "name": "Vodka", "volumeMl": 45, "abv": 40 },
+          { "name": "Cointreau", "volumeMl": 15, "abv": 40 },
+          { "name": "Cranberry Juice", "volumeMl": 30, "abv": 0 },
+          { "name": "Fresh Lime Juice", "volumeMl": 15, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 25
+      },
+      "finalAbv": 22,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use 100% cranberry juice, not cranberry cocktail",
+        "Shake the bottle well before pouring to recombine",
+        "A flamed orange peel at service adds drama",
+        "The pink color stays vibrant for weeks"
+      ],
+      "serve": "Pour into a chilled martini glass. Garnish with flamed orange peel.",
+      "commonMistakes": [
+        "Using cranberry cocktail instead of 100% juice"
+      ],
+      "affiliateProducts": [
+        { "name": "Citrus Juicer (Lemon/Lime)", "asin": "B00YBP918M", "category": "bar-tool" },
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" }
+      ],
+      "relatedCocktails": ["margarita", "cape-codder", "sea-breeze"],
+      "seo": {
+        "title": "Freezer Batch Cosmopolitan Recipe & Calculator",
+        "description": "Batch the perfect Cosmopolitan for your freezer. Pink, sophisticated, and ready to pour.",
+        "keywords": ["cosmopolitan freezer", "batch cosmo", "freezer batch cosmopolitan"]
+      }
+    },
+    {
+      "slug": "moscow-mule",
+      "name": "Moscow Mule",
+      "tagline": "Spicy-sweet base, ready for fizz",
+      "description": "The Moscow Mule requires a partial-batch approach. Batch the vodka, lime, and ginger syrup, then add fresh ginger beer when serving. Never batch the ginger beer - you'll lose all carbonation.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["vodka"],
+      "tags": ["vodka", "ginger", "refreshing", "shaken", "summer"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "shelfLife": "2-3 weeks",
+      "recipe": {
+        "single": [
+          { "name": "Vodka", "volumeMl": 60, "abv": 40 },
+          { "name": "Fresh Lime Juice", "volumeMl": 15, "abv": 0 },
+          { "name": "Ginger Syrup", "volumeMl": 15, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 22,
+        "serveWith": "Top with 60ml ginger beer when serving"
+      },
+      "finalAbv": 25,
+      "freezeStatus": "safe",
+      "tips": [
+        "Never add ginger beer to the batch - it goes flat",
+        "Use ginger syrup to get ginger flavor in the batch",
+        "Top with fresh ginger beer when serving",
+        "Copper mugs aren't necessary but look great"
+      ],
+      "serve": "Pour 2oz batch over ice in a copper mug. Top with ginger beer. Garnish with lime wheel.",
+      "commonMistakes": [
+        "Batching the ginger beer (it goes flat)",
+        "Forgetting the ginger syrup base"
+      ],
+      "affiliateProducts": [
+        { "name": "Moscow Mule Copper Mugs (Set of 4)", "asin": "B01LVYR3WA", "category": "glassware" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["dark-n-stormy", "kentucky-mule", "mexican-mule"],
+      "seo": {
+        "title": "Freezer Batch Moscow Mule Recipe & Calculator",
+        "description": "Make a freezer-ready Moscow Mule base. Add ginger beer fresh for perfect fizz every time.",
+        "keywords": ["moscow mule freezer", "batch moscow mule", "freezer batch mule"]
+      }
+    },
+    {
+      "slug": "espresso-martini",
+      "name": "Espresso Martini",
+      "tagline": "Coffee meets cocktail, chilled and ready",
+      "description": "The Espresso Martini batches perfectly using cold brew concentrate instead of fresh espresso. The cold environment preserves the coffee flavor beautifully, and a hard shake before serving creates the signature foam.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["vodka"],
+      "tags": ["vodka", "coffee", "after-dinner", "shaken"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Vodka",
+          "pourOff": "10 oz",
+          "addBack": [
+            { "name": "Kahlúa", "amount": "9 oz" }
+          ],
+          "extras": "3.5 tbsp instant espresso powder",
+          "water": "1 oz"
+        },
+        "single": [
+          { "name": "Vodka", "volumeMl": 45, "abv": 40 },
+          { "name": "Kahlua", "volumeMl": 30, "abv": 20 },
+          { "name": "Cold Brew Concentrate", "volumeMl": 30, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 22
+      },
+      "finalAbv": 24,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use cold brew concentrate, not fresh espresso (it stays stable)",
+        "Hard shake the bottle before pouring - you want some aeration",
+        "You won't get the fresh espresso crema, but the flavor is great",
+        "A few coffee beans as garnish adds visual appeal"
+      ],
+      "serve": "Hard shake bottle. Pour into a chilled martini glass. Garnish with 3 coffee beans.",
+      "commonMistakes": [
+        "Using fresh espresso (goes stale in hours)",
+        "Expecting the same crema as fresh-made"
+      ],
+      "affiliateProducts": [
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["white-russian", "black-russian", "irish-coffee"],
+      "seo": {
+        "title": "Freezer Batch Espresso Martini Recipe & Calculator",
+        "description": "Batch an Espresso Martini for your freezer. Tips for coffee cocktails that stay fresh.",
+        "keywords": ["espresso martini freezer", "batch espresso martini", "coffee cocktail freezer"]
+      }
+    },
+    {
+      "slug": "paper-plane",
+      "name": "Paper Plane",
+      "tagline": "Modern classic, built for batching",
+      "description": "The Paper Plane is a modern classic that batches beautifully. Equal parts bourbon, Aperol, Amaro Nonino, and lemon create perfect balance. Fresh lemon juice stays delicious for weeks in the freezer - just shake before serving.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["bourbon"],
+      "tags": ["bourbon", "amaro", "modern-classic", "shaken", "bitter-sweet"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "shelfLife": "2-3 weeks",
+      "recipe": {
+        "single": [
+          { "name": "Bourbon", "volumeMl": 22, "abv": 45 },
+          { "name": "Aperol", "volumeMl": 22, "abv": 11 },
+          { "name": "Amaro Nonino", "volumeMl": 22, "abv": 35 },
+          { "name": "Lemon Juice", "volumeMl": 22, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 25
+      },
+      "finalAbv": 20,
+      "freezeStatus": "slushy",
+      "tips": [
+        "This lands in the slushy zone - that's okay, it's still delicious",
+        "For firmer texture, increase bourbon ratio slightly",
+        "Equal parts makes it easy to remember and scale",
+        "Shake well before pouring to recombine ingredients"
+      ],
+      "serve": "Pour into a coupe glass. No garnish needed.",
+      "commonMistakes": [
+        "Expecting it to be fully liquid (it'll be slightly slushy)",
+        "Using a different amaro (Nonino is specific to this drink)"
+      ],
+      "affiliateProducts": [
+        { "name": "Citrus Juicer (Lemon/Lime)", "asin": "B00YBP918M", "category": "bar-tool" },
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" }
+      ],
+      "relatedCocktails": ["last-word", "final-ward", "division-bell"],
+      "seo": {
+        "title": "Freezer Batch Paper Plane Recipe & Calculator",
+        "description": "Batch the modern classic Paper Plane for your freezer. Perfect bitter-sweet balance, ready to pour.",
+        "keywords": ["paper plane freezer", "batch paper plane", "paper plane cocktail recipe"]
+      }
+    },
+    {
+      "slug": "daiquiri",
+      "name": "Daiquiri",
+      "tagline": "The original rum sour, perfected",
+      "description": "The classic Daiquiri batches beautifully using the Milk Street method. Pour off 7oz from a bottle of white rum, add fresh lime, a touch of water, and agave syrup. The freezer mellows the rum while keeping the citrus bright.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["rum"],
+      "tags": ["rum", "citrus", "classic", "shaken", "summer"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "shelfLife": "2-3 weeks",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml White Rum",
+          "pourOff": "7 oz",
+          "addBack": [
+            { "name": "Fresh Lime Juice", "amount": "3.5 oz" },
+            { "name": "Agave/Simple Syrup", "amount": "1.75 oz" }
+          ],
+          "extras": "Dash or two Peychaud's bitters",
+          "water": "2 oz"
+        },
+        "single": [
+          { "name": "White Rum", "volumeMl": 60, "abv": 40 },
+          { "name": "Fresh Lime Juice", "volumeMl": 22, "abv": 0 },
+          { "name": "Simple Syrup", "volumeMl": 15, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 8
+      },
+      "finalAbv": 25,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use fresh lime juice only - bottled won't cut it",
+        "Shake the bottle well before each pour",
+        "Fresh lime stays bright for 2-3 weeks in the freezer",
+        "A dash of Peychaud's bitters adds complexity"
+      ],
+      "serve": "Pour into a chilled coupe glass. Garnish with a lime wheel.",
+      "commonMistakes": [
+        "Using bottled lime juice",
+        "Skipping the small amount of water dilution"
+      ],
+      "affiliateProducts": [
+        { "name": "Citrus Juicer (Lemon/Lime)", "asin": "B00YBP918M", "category": "bar-tool" },
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" }
+      ],
+      "relatedCocktails": ["margarita", "mojito", "hemingway-daiquiri"],
+      "seo": {
+        "title": "Freezer Batch Daiquiri Recipe & Calculator",
+        "description": "Calculate your perfect freezer Daiquiri batch. The classic rum sour, ready whenever you are.",
+        "keywords": ["daiquiri freezer", "batch daiquiri", "freezer daiquiri recipe"]
+      }
+    },
+    {
+      "slug": "vesper",
+      "name": "Vesper",
+      "tagline": "Bond's drink, from your freezer",
+      "description": "The Vesper is James Bond's signature cocktail and an excellent freezer batch candidate. Using the Milk Street method, pour off 10oz from a gin bottle, add vodka and Cocchi Americano. The high ABV keeps it perfectly pourable.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["gin", "vodka"],
+      "tags": ["gin", "vodka", "martini", "classic", "stirred"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Gin",
+          "pourOff": "10 oz",
+          "addBack": [
+            { "name": "Vodka", "amount": "2.5 oz" },
+            { "name": "Cocchi Americano", "amount": "5 oz" }
+          ],
+          "extras": null,
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Gin", "volumeMl": 60, "abv": 40 },
+          { "name": "Vodka", "volumeMl": 15, "abv": 40 },
+          { "name": "Cocchi Americano", "volumeMl": 22, "abv": 16.5 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 32,
+      "freezeStatus": "safe",
+      "tips": [
+        "Cocchi Americano is the proper substitute for discontinued Kina Lillet",
+        "No water needed - this is meant to be spirit-forward",
+        "Express a lemon peel over the glass when serving",
+        "Use a quality London Dry gin"
+      ],
+      "serve": "Pour into a chilled martini glass. Express lemon peel over drink.",
+      "commonMistakes": [
+        "Using Lillet Blanc (it's sweeter than original Kina Lillet)",
+        "Adding water or over-diluting"
+      ],
+      "affiliateProducts": [
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["dirty-martini", "classic-martini", "gibson"],
+      "seo": {
+        "title": "Freezer Batch Vesper Recipe & Calculator",
+        "description": "Make James Bond's signature cocktail in a freezer batch. The Vesper, perfectly chilled and always ready.",
+        "keywords": ["vesper freezer", "batch vesper", "james bond cocktail freezer"]
+      }
+    },
+    {
+      "slug": "mint-julep",
+      "name": "Mint Julep",
+      "tagline": "Kentucky's finest, freezer-ready",
+      "description": "The Mint Julep adapts beautifully to freezer batching by using a homemade mint syrup. Pour off just 3.25oz from your bourbon bottle and add the mint syrup. The result is a smooth, minty bourbon that's ready for Derby Day or any day.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["bourbon"],
+      "tags": ["bourbon", "mint", "southern", "classic", "stirred"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "20 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Bourbon",
+          "pourOff": "3.25 oz",
+          "addBack": [
+            { "name": "Mint Syrup", "amount": "3 oz" }
+          ],
+          "extras": "Mint syrup: Blend 2 cups fresh mint + 0.5 cup sugar + 0.5 cup water, then strain",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Bourbon", "volumeMl": 75, "abv": 45 },
+          { "name": "Mint Syrup", "volumeMl": 15, "abv": 0 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 38,
+      "freezeStatus": "safe",
+      "tips": [
+        "Make mint syrup by blending fresh mint with simple syrup, then straining",
+        "Use a high-proof bourbon (100 proof) for best results",
+        "Serve over crushed ice for the traditional experience",
+        "Garnish with a generous bouquet of fresh mint"
+      ],
+      "serve": "Pour over crushed ice in a julep cup or rocks glass. Garnish with fresh mint sprig.",
+      "commonMistakes": [
+        "Using mint extract instead of fresh mint syrup",
+        "Skipping the crushed ice when serving"
+      ],
+      "affiliateProducts": [
+        { "name": "Large Ice Cube Molds (2-Pack)", "asin": "B010KPESWU", "category": "bar-tool" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["old-fashioned", "whiskey-smash", "mojito"],
+      "seo": {
+        "title": "Freezer Batch Mint Julep Recipe & Calculator",
+        "description": "Make a freezer-ready Mint Julep batch. Kentucky's classic, perfectly chilled and always ready.",
+        "keywords": ["mint julep freezer", "batch mint julep", "freezer mint julep recipe"]
+      }
+    }
+  ],
+  "reliabilityTiers": {
+    "bulletproof": "These cocktails batch perfectly and stay delicious for weeks in the freezer. Just shake well before serving.",
+    "needs-attention": "These work great but require specific handling - usually adding carbonation when serving."
+  },
+  "commonIngredients": {
+    "gin": { "defaultAbv": 40, "category": "spirit" },
+    "vodka": { "defaultAbv": 40, "category": "spirit" },
+    "bourbon": { "defaultAbv": 45, "category": "spirit" },
+    "rye": { "defaultAbv": 45, "category": "spirit" },
+    "tequila": { "defaultAbv": 40, "category": "spirit" },
+    "rum": { "defaultAbv": 40, "category": "spirit" },
+    "campari": { "defaultAbv": 25, "category": "liqueur" },
+    "aperol": { "defaultAbv": 11, "category": "liqueur" },
+    "cointreau": { "defaultAbv": 40, "category": "liqueur" },
+    "kahlua": { "defaultAbv": 20, "category": "liqueur" },
+    "sweet-vermouth": { "defaultAbv": 16, "category": "fortified" },
+    "dry-vermouth": { "defaultAbv": 18, "category": "fortified" },
+    "simple-syrup": { "defaultAbv": 0, "category": "syrup" },
+    "lime-juice": { "defaultAbv": 0, "category": "citrus" },
+    "lemon-juice": { "defaultAbv": 0, "category": "citrus" }
+  }
+}

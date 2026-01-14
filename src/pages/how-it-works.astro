@@ -1,0 +1,324 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AffiliateLink from '../components/AffiliateLink.astro';
+
+const title = 'How Freezer Batch Cocktails Work';
+const description = 'Learn the science behind freezer batch cocktails. Understand ABV thresholds, dilution ratios, and why your batched drinks stay perfectly pourable.';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Make Freezer Batch Cocktails",
+  "description": description,
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Calculate Your Recipe",
+      "text": "Use our calculator to determine exact measurements for your batch, including how much spirit to pour off and how much dilution water to add."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Pour Off Spirit",
+      "text": "Remove the calculated amount of base spirit from the bottle to make room for other ingredients."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Add Ingredients",
+      "text": "Add your measured ingredients to the bottle using a funnel. Include dilution water to replace what ice would normally add."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Seal and Shake",
+      "text": "Cap the bottle tightly and shake well to combine all ingredients."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Freeze",
+      "text": "Place in freezer for at least 4 hours, preferably overnight. Spirit-forward cocktails will stay liquid; lower ABV drinks may become slushy."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Serve",
+      "text": "Pour directly into a chilled glass. No ice needed. The drink is already perfectly cold."
+    }
+  ]
+};
+---
+
+<Layout title={title} description={description} schema={schema}>
+  <article class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <!-- Header -->
+      <header class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-charcoal mb-4">
+          How Freezer Batch Cocktails Work
+        </h1>
+        <p class="text-xl text-gray-600">
+          The science is simple. The results are delicious.
+        </p>
+      </header>
+
+      <!-- The Science -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-bold text-charcoal mb-6">The Science of Not Freezing</h2>
+
+        <div class="prose prose-lg max-w-none">
+          <p>
+            Water freezes at 0°C (32°F). Pure ethanol (alcohol) freezes at -114°C (-173°F).
+            Your standard home freezer sits around <strong>-18°C (0°F)</strong>.
+          </p>
+
+          <p>
+            When you mix water and alcohol together, the freezing point lands somewhere in between,
+            depending on the ratio. This is why vodka stays liquid in your freezer but beer turns to ice.
+          </p>
+        </div>
+
+        <!-- ABV Chart -->
+        <div class="my-8 card">
+          <h3 class="font-bold text-lg mb-4">Freezing Point by ABV</h3>
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-24 text-right font-mono font-semibold">5% ABV</div>
+              <div class="flex-1 h-8 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-freeze rounded-full" style="width: 90%"></div>
+              </div>
+              <div class="w-24 text-sm text-gray-500">-2°C / Will freeze</div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-24 text-right font-mono font-semibold">15% ABV</div>
+              <div class="flex-1 h-8 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-slushy rounded-full" style="width: 65%"></div>
+              </div>
+              <div class="w-24 text-sm text-gray-500">-9°C / Borderline</div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-24 text-right font-mono font-semibold text-primary">22% ABV</div>
+              <div class="flex-1 h-8 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-safe rounded-full" style="width: 50%"></div>
+              </div>
+              <div class="w-24 text-sm text-gray-500">-12°C / Target</div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-24 text-right font-mono font-semibold">40% ABV</div>
+              <div class="flex-1 h-8 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-safe rounded-full" style="width: 25%"></div>
+              </div>
+              <div class="w-24 text-sm text-gray-500">-27°C / Safe</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prose prose-lg max-w-none">
+          <p>
+            <strong>The magic number is around 22% ABV.</strong> Below this, your cocktail may become
+            slushy or freeze solid. Above it, you're safely pourable. Most well-designed cocktails
+            naturally land in this range when properly diluted.
+          </p>
+        </div>
+      </section>
+
+      <!-- Why Dilution -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-bold text-charcoal mb-6">Why Add Water? The Dilution Factor</h2>
+
+        <div class="prose prose-lg max-w-none">
+          <p>
+            When you shake or stir a cocktail with ice, you're not just chilling it. You're adding water.
+            The ice melts, typically adding <strong>20-25% water by volume</strong> to your drink.
+          </p>
+
+          <p>
+            This dilution isn't a flaw; it's a feature. It opens up flavors, softens the alcohol burn,
+            and brings the cocktail into balance. A Negroni without dilution is harsh and
+            alcohol-forward. Properly diluted, it's smooth and complex.
+          </p>
+
+          <p>
+            For freezer batches, we need to add this water upfront since there's no ice melting
+            at service time. The rule of thumb:
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 my-8">
+          <div class="card text-center">
+            <span class="block text-4xl font-bold text-primary mb-2">20%</span>
+            <span class="font-medium">Stirred Drinks</span>
+            <p class="text-sm text-gray-500 mt-2">
+              Spirit-forward cocktails like Manhattan, Negroni, Old Fashioned
+            </p>
+          </div>
+          <div class="card text-center">
+            <span class="block text-4xl font-bold text-secondary mb-2">25%</span>
+            <span class="font-medium">Shaken Drinks</span>
+            <p class="text-sm text-gray-500 mt-2">
+              Citrus cocktails like Margarita, Daiquiri, Cosmopolitan
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step by Step -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-bold text-charcoal mb-6">Step-by-Step Process</h2>
+
+        <ol class="space-y-8">
+          <li class="flex gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">1</span>
+            <div>
+              <h3 class="font-bold text-lg mb-2">Calculate Your Batch</h3>
+              <p class="text-gray-600">
+                Use our calculator or a pre-made recipe. The calculator tells you exactly how much to
+                pour off from your base spirit bottle and how much of each ingredient to add back.
+              </p>
+            </div>
+          </li>
+
+          <li class="flex gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">2</span>
+            <div>
+              <h3 class="font-bold text-lg mb-2">Pour Off the Excess</h3>
+              <p class="text-gray-600">
+                A 750ml bottle is too full to fit all your ingredients. Pour off the calculated amount
+                of base spirit into a jar (save it for later use).
+              </p>
+            </div>
+          </li>
+
+          <li class="flex gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">3</span>
+            <div>
+              <h3 class="font-bold text-lg mb-2">Add Your Ingredients</h3>
+              <p class="text-gray-600">
+                Using a funnel, add each ingredient in the calculated amounts. Finish with the
+                dilution water. Use filtered water for best results.
+              </p>
+            </div>
+          </li>
+
+          <li class="flex gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">4</span>
+            <div>
+              <h3 class="font-bold text-lg mb-2">Seal, Shake, Label</h3>
+              <p class="text-gray-600">
+                Cap tightly and shake vigorously to combine. Label the bottle with what it is
+                and the date you made it.
+              </p>
+            </div>
+          </li>
+
+          <li class="flex gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">5</span>
+            <div>
+              <h3 class="font-bold text-lg mb-2">Freeze (4+ Hours)</h3>
+              <p class="text-gray-600">
+                Place in your freezer for at least 4 hours, preferably overnight. Store in the back
+                of the freezer (not the door) for consistent temperature.
+              </p>
+            </div>
+          </li>
+
+          <li class="flex gap-4">
+            <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">6</span>
+            <div>
+              <h3 class="font-bold text-lg mb-2">Serve</h3>
+              <p class="text-gray-600">
+                Give the bottle a shake before pouring. Pour directly into a chilled glass. No ice needed.
+                Add your fresh garnish at this point (never batch the garnish).
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Pro Tips -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-bold text-charcoal mb-6">Pro Tips from 30 Years of Bartending</h2>
+
+        <div class="space-y-4">
+          <div class="card">
+            <h3 class="font-bold mb-2">Rest Your Batch 24-48 Hours</h3>
+            <p class="text-gray-600">
+              Freshly assembled batches taste like their individual components. Give them time to
+              marry and meld. A Negroni after two days is noticeably better than one made that morning.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">Fresh Vermouth is Non-Negotiable</h3>
+            <p class="text-gray-600">
+              Vermouth is wine. It oxidizes. If your sweet vermouth has been open more than 4-6 weeks,
+              it's garbage. Store open bottles in the refrigerator and replace regularly.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">Citrus Note</h3>
+            <p class="text-gray-600">
+              Fresh citrus juice is at its brightest for the first 24-48 hours. Your batch will still taste great after that, but the citrus flavor will mellow over time. For peak brightness, consider smaller batches or refreshing the juice portion.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">Measure Precisely</h3>
+            <p class="text-gray-600">
+              A quarter-ounce mistake in a single drink is barely noticeable. That same ratio error
+              across a 750ml batch is disastrous. Use a scale and measure in milliliters.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">Garnish Fresh, Always</h3>
+            <p class="text-gray-600">
+              Never add citrus peels, olives, or cherries to your batch. They'll become soggy and
+              bitter. Prepare garnishes fresh when you serve each drink.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Equipment -->
+      <section class="mb-16">
+        <h2 class="text-2xl font-bold text-charcoal mb-6">Essential Equipment</h2>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="card">
+            <h3 class="font-bold mb-2">Jigger or Scale</h3>
+            <p class="text-gray-600 mb-3">Precise measuring is critical for batching.</p>
+            <AffiliateLink asin="B0754FQS9H" text="OXO Steel Jigger" category="bar-tool" />
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">Funnel</h3>
+            <p class="text-gray-600 mb-3">For cleanly adding ingredients to bottles.</p>
+            <AffiliateLink asin="B07PP7BNQW" text="Stainless Steel Funnel Set" category="bar-tool" />
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">Fine Mesh Strainer</h3>
+            <p class="text-gray-600 mb-3">For straining citrus juice and catching seeds.</p>
+            <AffiliateLink asin="B00004OCLJ" text="OXO Fine Mesh Strainer" category="bar-tool" />
+          </div>
+
+          <div class="card">
+            <h3 class="font-bold mb-2">The Book</h3>
+            <p class="text-gray-600 mb-3">The definitive guide to freezer door cocktails.</p>
+            <AffiliateLink asin="0316568988" text="Freezer Door Cocktails by J.M. Hirsch" category="book" />
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="text-center">
+        <h2 class="text-2xl font-bold text-charcoal mb-4">Ready to Make Your First Batch?</h2>
+        <p class="text-gray-600 mb-8">
+          Start with a Negroni. It's equal parts, bulletproof, and improves with freezer time.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="/" class="btn-primary">Open Calculator</a>
+          <a href="/cocktails/negroni" class="btn-secondary">Try the Negroni</a>
+        </div>
+      </section>
+    </div>
+  </article>
+</Layout>

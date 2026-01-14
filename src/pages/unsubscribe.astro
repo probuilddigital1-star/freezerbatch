@@ -1,0 +1,181 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = 'Unsubscribe';
+const description = 'Unsubscribe from FreezerBatchCocktails.com emails';
+
+// n8n webhook URL for unsubscribe
+const webhookUrl = "https://zax76.app.n8n.cloud/webhook/freezerbatch-email";
+---
+
+<Layout title={title} description={description}>
+  <article class="py-12">
+    <div class="max-w-md mx-auto px-4 sm:px-6">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-charcoal mb-2">Unsubscribe</h1>
+        <p class="text-gray-600">We're sorry to see you go!</p>
+      </div>
+
+      <unsubscribe-form class="block" data-webhook={webhookUrl}>
+        <form id="unsubscribe-form" class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <div class="mb-4">
+            <label for="email-input" class="block text-sm font-medium text-gray-700 mb-2">
+              Enter your email address
+            </label>
+            <input
+              type="email"
+              id="email-input"
+              name="email"
+              required
+              placeholder="you@example.com"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <span id="btn-text">Unsubscribe</span>
+            <svg id="btn-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Success Message -->
+        <div id="success-message" class="hidden mt-6 p-6 bg-green-50 rounded-xl border border-green-200 text-center">
+          <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 class="text-lg font-semibold text-green-800 mb-1">You've been unsubscribed</h2>
+          <p class="text-green-600 text-sm">You won't receive any more emails from us.</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="hidden mt-6 p-4 bg-red-50 rounded-xl border border-red-200">
+          <p class="text-red-700 text-sm text-center" id="error-text">Something went wrong. Please try again.</p>
+        </div>
+      </unsubscribe-form>
+
+      <div class="mt-8 text-center">
+        <p class="text-gray-500 text-sm mb-4">Changed your mind?</p>
+        <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">
+          Return to FreezerBatch
+        </a>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<script>
+  class UnsubscribeForm extends HTMLElement {
+    private form: HTMLFormElement | null;
+    private emailInput: HTMLInputElement | null;
+    private submitBtn: HTMLButtonElement | null;
+    private btnText: HTMLElement | null;
+    private btnSpinner: HTMLElement | null;
+    private successMessage: HTMLElement | null;
+    private errorMessage: HTMLElement | null;
+    private errorText: HTMLElement | null;
+    private webhookUrl: string;
+
+    constructor() {
+      super();
+      this.form = null;
+      this.emailInput = null;
+      this.submitBtn = null;
+      this.btnText = null;
+      this.btnSpinner = null;
+      this.successMessage = null;
+      this.errorMessage = null;
+      this.errorText = null;
+      this.webhookUrl = '';
+    }
+
+    connectedCallback() {
+      this.form = this.querySelector('#unsubscribe-form');
+      this.emailInput = this.querySelector('#email-input');
+      this.submitBtn = this.querySelector('#submit-btn');
+      this.btnText = this.querySelector('#btn-text');
+      this.btnSpinner = this.querySelector('#btn-spinner');
+      this.successMessage = this.querySelector('#success-message');
+      this.errorMessage = this.querySelector('#error-message');
+      this.errorText = this.querySelector('#error-text');
+      this.webhookUrl = this.dataset.webhook || '';
+
+      this.form?.addEventListener('submit', (e) => this.handleSubmit(e));
+    }
+
+    private async handleSubmit(e: Event) {
+      e.preventDefault();
+
+      const email = this.emailInput?.value.trim();
+      if (!email) return;
+
+      this.setLoading(true);
+      this.hideMessages();
+
+      try {
+        const response = await fetch(this.webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            action: 'unsubscribe',
+            source: 'freezerbatchcocktails.com',
+            timestamp: new Date().toISOString()
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Unsubscribe failed');
+        }
+
+        this.showSuccess();
+        this.form?.classList.add('hidden');
+
+      } catch (error) {
+        console.error('Unsubscribe error:', error);
+        this.showError('Something went wrong. Please try again or email us directly.');
+      } finally {
+        this.setLoading(false);
+      }
+    }
+
+    private setLoading(loading: boolean) {
+      if (!this.submitBtn || !this.btnText || !this.btnSpinner) return;
+
+      this.submitBtn.disabled = loading;
+      this.btnText.textContent = loading ? 'Processing...' : 'Unsubscribe';
+      this.btnSpinner.classList.toggle('hidden', !loading);
+    }
+
+    private hideMessages() {
+      this.successMessage?.classList.add('hidden');
+      this.errorMessage?.classList.add('hidden');
+    }
+
+    private showSuccess() {
+      this.successMessage?.classList.remove('hidden');
+    }
+
+    private showError(message: string) {
+      if (this.errorText) this.errorText.textContent = message;
+      this.errorMessage?.classList.remove('hidden');
+    }
+  }
+
+  customElements.define('unsubscribe-form', UnsubscribeForm);
+</script>

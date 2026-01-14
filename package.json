@@ -1,0 +1,27 @@
+{
+  "name": "freezer-batch-cocktails",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Calculate exact measurements for freezer door cocktails",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "astro": "^4.16.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "@astrojs/sitemap": "^3.2.0",
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0",
+    "@playwright/test": "^1.48.0"
+  }
+}

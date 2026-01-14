@@ -1,0 +1,150 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CocktailCard from '../../components/CocktailCard.astro';
+import cocktailsData from '../../data/cocktails.json';
+
+const title = 'All Freezer Cocktail Recipes';
+const description = 'Browse our collection of freezer-ready cocktail recipes. Each recipe is calculated for perfect batching with ABV and freeze status.';
+
+// Separate by reliability
+const bulletproof = cocktailsData.cocktails.filter(c => c.reliability === 'bulletproof');
+const needsAttention = cocktailsData.cocktails.filter(c => c.reliability === 'needs-attention');
+
+// Get all unique base spirits
+const allSpirits = [...new Set(cocktailsData.cocktails.flatMap(c => c.baseSpirit))].sort();
+---
+
+<Layout title={title} description={description}>
+  <section class="py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-charcoal mb-4">Freezer Cocktail Recipes</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Every recipe calculated for perfect freezer storage. Click any cocktail to see the full batch recipe and calculator.
+        </p>
+      </div>
+
+      <!-- Filter by Spirit -->
+      <div class="mb-12">
+        <div class="flex flex-wrap justify-center gap-2">
+          <button
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium border transition-colors active"
+            data-spirit="all"
+          >
+            All
+          </button>
+          {allSpirits.map(spirit => (
+            <button
+              class="filter-btn px-4 py-2 rounded-full text-sm font-medium border transition-colors capitalize"
+              data-spirit={spirit}
+            >
+              {spirit}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Bulletproof Section -->
+      <div class="mb-16">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-2xl">✓</span>
+          <div>
+            <h2 class="text-2xl font-bold text-charcoal">Bulletproof Batches</h2>
+            <p class="text-gray-500">These last 2-3 months in the freezer</p>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="bulletproof-grid">
+          {bulletproof.map(cocktail => (
+            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')}>
+              <CocktailCard
+                slug={cocktail.slug}
+                name={cocktail.name}
+                tagline={cocktail.tagline}
+                baseSpirit={cocktail.baseSpirit}
+                reliability={cocktail.reliability as 'bulletproof' | 'needs-attention'}
+                finalAbv={cocktail.finalAbv}
+                freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
+                servings={cocktail.servings}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Needs Attention Section -->
+      <div>
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-2xl">⚠</span>
+          <div>
+            <h2 class="text-2xl font-bold text-charcoal">Needs Attention</h2>
+            <p class="text-gray-500">Best within 3-5 days (citrus or coffee)</p>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="attention-grid">
+          {needsAttention.map(cocktail => (
+            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')}>
+              <CocktailCard
+                slug={cocktail.slug}
+                name={cocktail.name}
+                tagline={cocktail.tagline}
+                baseSpirit={cocktail.baseSpirit}
+                reliability={cocktail.reliability as 'bulletproof' | 'needs-attention'}
+                finalAbv={cocktail.finalAbv}
+                freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
+                servings={cocktail.servings}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Tip Box -->
+      <div class="mt-16 bg-primary-50 rounded-xl p-6 border border-primary-100">
+        <h3 class="font-bold text-lg text-charcoal mb-2">Pro Tip: Fresh Vermouth Matters</h3>
+        <p class="text-gray-600">
+          Vermouth is wine and it oxidizes. For the best batches, use vermouth that's been open less than
+          4-6 weeks. Store open bottles in the refrigerator. Old vermouth is the #1 cause of
+          disappointing batch cocktails.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .filter-btn.active {
+    @apply bg-primary text-white border-primary;
+  }
+  .filter-btn:not(.active) {
+    @apply bg-white text-gray-600 border-gray-200 hover:border-gray-300;
+  }
+  .cocktail-item.hidden {
+    display: none;
+  }
+</style>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cocktailItems = document.querySelectorAll('.cocktail-item');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update active state
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const spirit = btn.getAttribute('data-spirit') || 'all';
+
+      // Filter cocktails
+      cocktailItems.forEach(item => {
+        const spirits = item.getAttribute('data-spirits')?.split(',') || [];
+        if (spirit === 'all' || spirits.includes(spirit)) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>

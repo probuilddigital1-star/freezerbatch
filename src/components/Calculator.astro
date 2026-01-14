@@ -1,0 +1,1275 @@
+---
+/**
+ * Interactive Batch Calculator Component
+ *
+ * REDESIGNED: When a preset recipe is selected, shows clean batch instructions.
+ * The ingredient form only appears in "Build My Own" mode.
+ */
+
+export interface Props {
+  /** Pre-fill with a specific cocktail slug */
+  cocktailSlug?: string;
+  /** Simplified mode (hides advanced options) */
+  simple?: boolean;
+}
+
+const { cocktailSlug, simple = false } = Astro.props;
+---
+
+<batch-calculator
+  class="calculator-wrapper block"
+  data-cocktail={cocktailSlug}
+  data-simple={simple}
+>
+  <div class="card">
+    <!-- Entry Mode Toggle -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+      <button
+        type="button"
+        class="entry-mode-btn flex-1 py-4 px-5 rounded-xl border-2 font-medium transition-all"
+        data-mode="custom"
+        aria-pressed="true"
+      >
+        <span class="block text-lg font-semibold">Build My Own</span>
+        <span class="text-sm opacity-70">Enter custom recipe</span>
+      </button>
+      <button
+        type="button"
+        class="entry-mode-btn flex-1 py-4 px-5 rounded-xl border-2 font-medium transition-all"
+        data-mode="preset"
+        aria-pressed="false"
+      >
+        <span class="block text-lg font-semibold">Choose a Classic</span>
+        <span class="text-sm opacity-70">Pre-made batch recipes</span>
+      </button>
+    </div>
+
+    <!-- Preset Recipe Selector (hidden by default) -->
+    <div id="preset-selector" class="hidden mb-6">
+      <label for="recipe-select" class="block text-sm font-medium text-gray-700 mb-2">
+        Choose a cocktail
+      </label>
+      <select id="recipe-select" class="input-field text-lg">
+        <option value="">Select a recipe...</option>
+        <option value="negroni">Negroni</option>
+        <option value="margarita">Margarita</option>
+        <option value="manhattan">Manhattan</option>
+        <option value="old-fashioned">Old Fashioned</option>
+        <option value="daiquiri">Daiquiri</option>
+        <option value="dirty-martini">Dirty Martini</option>
+        <option value="cosmopolitan">Cosmopolitan</option>
+        <option value="espresso-martini">Espresso Martini</option>
+        <option value="vesper">Vesper</option>
+        <option value="mint-julep">Mint Julep</option>
+        <option value="boulevardier">Boulevardier</option>
+        <option value="moscow-mule">Moscow Mule</option>
+        <option value="paper-plane">Paper Plane</option>
+      </select>
+    </div>
+
+    <!-- Bottle Size -->
+    <div id="bottle-size-section" class="mb-6">
+      <label for="bottle-size" class="block text-sm font-medium text-gray-700 mb-2">
+        Bottle Size
+      </label>
+      <div class="flex gap-2">
+        <button type="button" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-size="375">375ml</button>
+        <button type="button" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium active" data-size="750">750ml</button>
+        <button type="button" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-size="1000">1L</button>
+        <input
+          type="number"
+          id="bottle-size"
+          class="w-20 py-2 px-2 rounded-lg border-2 border-gray-200 text-sm text-center"
+          value="750"
+          min="100"
+          max="3000"
+          inputmode="numeric"
+          aria-label="Custom bottle size in ml"
+        />
+        <span class="flex-shrink-0 self-center text-sm font-medium text-gray-600">ml</span>
+      </div>
+    </div>
+
+    <!-- Unit Toggle -->
+    <div id="unit-toggle" class="mb-6 flex items-center gap-4">
+      <span class="text-sm font-medium text-gray-700">Display units:</span>
+      <div class="flex rounded-lg border-2 border-gray-200 overflow-hidden">
+        <button type="button" class="unit-btn px-4 py-2 text-sm font-medium active" data-unit="oz">oz</button>
+        <button type="button" class="unit-btn px-4 py-2 text-sm font-medium" data-unit="ml">ml</button>
+      </div>
+    </div>
+
+    <!-- Dilution Setting (available in both modes) -->
+    {!simple && (
+      <div id="dilution-section" class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Dilution (water from ice melt)
+        </label>
+        <div class="flex gap-2">
+          <button type="button" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-dilution="20">
+            20% <span class="text-xs text-gray-500">Stirred</span>
+          </button>
+          <button type="button" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium active" data-dilution="22">
+            22% <span class="text-xs text-gray-500">Standard</span>
+          </button>
+          <button type="button" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-dilution="25">
+            25% <span class="text-xs text-gray-500">Shaken</span>
+          </button>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">
+          Shaken drinks need more dilution. Spirit-forward stirred drinks need less.
+        </p>
+      </div>
+    )}
+
+    <!-- ============================================ -->
+    <!-- PRESET MODE: Batch Instructions (hidden by default) -->
+    <!-- ============================================ -->
+    <div id="preset-batch-instructions" class="hidden">
+      <!-- This gets populated by JavaScript when a preset is selected -->
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CUSTOM MODE: Ingredient Input Form -->
+    <!-- ============================================ -->
+    <div id="custom-recipe-form">
+      <fieldset class="mb-6">
+        <legend class="block text-sm font-medium text-gray-700 mb-1">Your Recipe (single drink)</legend>
+        <p class="text-xs text-gray-500 mb-3">Enter a single cocktail recipe. We'll calculate the batch.</p>
+        <!-- Column Headers -->
+        <div class="grid grid-cols-12 gap-2 mb-2 text-xs text-gray-500 font-medium">
+          <span class="col-span-5">Ingredient</span>
+          <span class="col-span-3 text-center">Amount (oz)</span>
+          <span class="col-span-3 text-center">ABV %</span>
+          <span class="col-span-1"></span>
+        </div>
+        <div id="ingredients-container" class="space-y-3">
+          <!-- Ingredient rows added dynamically -->
+        </div>
+        <button
+          type="button"
+          id="add-ingredient"
+          class="mt-3 inline-flex items-center gap-1 text-primary hover:text-primary-600 font-medium text-sm"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Ingredient
+        </button>
+      </fieldset>
+
+      <!-- Results Panel (custom mode) -->
+      <div id="results-panel" class="mt-8 p-6 rounded-xl bg-gray-50 border-2 border-gray-200">
+        <h2 class="text-lg font-semibold text-charcoal mb-4">Your Batch</h2>
+
+        <!-- Main Stats -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="text-center">
+            <span id="final-abv" class="block text-3xl font-bold font-mono text-charcoal">0</span>
+            <span class="text-sm text-gray-500">Final ABV %</span>
+          </div>
+          <div class="text-center">
+            <span id="total-volume" class="block text-3xl font-bold font-mono text-charcoal">0</span>
+            <span id="volume-unit" class="text-sm text-gray-500">oz</span>
+          </div>
+          <div class="text-center">
+            <span id="servings" class="block text-3xl font-bold font-mono text-charcoal">0</span>
+            <span class="text-sm text-gray-500">Drinks</span>
+          </div>
+        </div>
+
+        <!-- Freeze Status -->
+        <div id="freeze-status" class="p-4 rounded-lg border-2 mb-6 status-freeze">
+          <div class="flex items-center gap-2">
+            <span id="status-icon" class="text-2xl">?</span>
+            <div>
+              <span id="status-label" class="font-semibold">Add Ingredients</span>
+              <p id="status-message" class="text-sm opacity-80">Add ingredients to calculate freeze status</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe Output -->
+        <div id="recipe-output" class="space-y-3">
+          <div class="py-2 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+              <span class="font-medium">Pour off from bottle:</span>
+              <span id="pour-off" class="font-mono font-semibold">0 oz</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Remove this much spirit to make room. Save it for later.</p>
+          </div>
+          <div id="ingredients-output" class="space-y-2">
+            <!-- Filled dynamically -->
+          </div>
+          <div class="flex justify-between items-center py-2 border-t border-gray-200">
+            <span class="font-medium">Water to add:</span>
+            <span id="water-add" class="font-mono font-semibold">0 oz</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+          <button type="button" id="email-btn" class="btn-primary flex-1 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Email Recipe
+          </button>
+          <button type="button" id="share-btn" class="btn-secondary flex-1 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share Link
+          </button>
+          <button type="button" id="print-btn" class="btn-ghost flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Recipe Modal -->
+  <div id="email-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="email-modal-backdrop"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+        <button type="button" id="email-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div class="text-center mb-6">
+          <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Email This Recipe</h3>
+          <p class="text-gray-500 text-sm mt-1">We'll send the full recipe with instructions</p>
+        </div>
+
+        <form id="email-recipe-form">
+          <div class="mb-4">
+            <label for="recipe-email" class="block text-sm font-medium text-gray-700 mb-1">Your email</label>
+            <input
+              type="email"
+              id="recipe-email"
+              required
+              placeholder="your@email.com"
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all"
+            />
+          </div>
+
+          <div class="mb-6">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="subscribe-checkbox" class="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
+              <span class="text-sm text-gray-600">Also send me new recipes and tips (optional)</span>
+            </label>
+          </div>
+
+          <button type="submit" id="send-email-btn" class="w-full btn-primary">
+            <span id="send-email-text">Send Recipe</span>
+            <svg id="send-email-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Success state -->
+        <div id="email-success" class="hidden text-center py-4">
+          <div class="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h4 class="font-semibold text-gray-900">Recipe Sent!</h4>
+          <p class="text-sm text-gray-500 mt-1">Check your inbox for the full recipe</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="email-error" class="hidden mt-4 p-3 bg-danger/10 rounded-lg text-danger text-sm text-center">
+          Something went wrong. Please try again.
+        </div>
+      </div>
+    </div>
+  </div>
+</batch-calculator>
+
+<!-- Ingredient Row Template -->
+<template id="ingredient-row-template">
+  <div class="ingredient-row grid grid-cols-12 gap-2 items-center">
+    <input
+      type="text"
+      placeholder="Ingredient name"
+      class="col-span-5 input-field py-2 text-sm"
+      name="name"
+      autocomplete="off"
+      list="ingredient-suggestions"
+    />
+    <input
+      type="number"
+      placeholder="2"
+      class="col-span-3 input-field py-2 text-sm text-center"
+      name="amount"
+      min="0"
+      step="0.25"
+      inputmode="decimal"
+    />
+    <input
+      type="number"
+      placeholder="40"
+      class="col-span-3 input-field py-2 text-sm text-center"
+      name="abv"
+      min="0"
+      max="100"
+      step="0.5"
+      inputmode="decimal"
+    />
+    <button
+      type="button"
+      class="col-span-1 p-2 text-gray-400 hover:text-red-500 transition-colors remove-ingredient"
+      aria-label="Remove ingredient"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</template>
+
+<!-- Ingredient Suggestions Datalist -->
+<datalist id="ingredient-suggestions">
+  <option value="Vodka">
+  <option value="Gin">
+  <option value="Bourbon">
+  <option value="Rye Whiskey">
+  <option value="Tequila">
+  <option value="White Rum">
+  <option value="Dark Rum">
+  <option value="Triple Sec">
+  <option value="Cointreau">
+  <option value="Campari">
+  <option value="Sweet Vermouth">
+  <option value="Dry Vermouth">
+  <option value="Kahlua">
+  <option value="Lime Juice">
+  <option value="Lemon Juice">
+  <option value="Simple Syrup">
+  <option value="Orange Juice">
+  <option value="Cranberry Juice">
+  <option value="Olive Brine">
+</datalist>
+
+<style>
+  .entry-mode-btn[aria-pressed="true"] {
+    @apply border-primary bg-primary-50 text-primary;
+  }
+  .entry-mode-btn[aria-pressed="false"] {
+    @apply border-gray-200 bg-white text-gray-600 hover:border-gray-300;
+  }
+  .bottle-size-btn.active,
+  .unit-btn.active,
+  .dilution-btn.active {
+    @apply border-primary bg-primary text-white;
+  }
+  .dilution-btn.active span {
+    @apply text-white/80;
+  }
+  .bottle-size-btn:not(.active),
+  .unit-btn:not(.active),
+  .dilution-btn:not(.active) {
+    @apply border-gray-200 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50;
+  }
+
+  /* Batch step styling */
+  .batch-step {
+    @apply flex gap-4 py-4 border-b border-gray-100 last:border-0;
+  }
+  .batch-step-number {
+    @apply flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm;
+  }
+  .batch-step-content {
+    @apply flex-1;
+  }
+  .batch-step h4 {
+    @apply font-semibold text-charcoal mb-1;
+  }
+  .batch-step p {
+    @apply text-gray-600 text-sm;
+  }
+  .batch-ingredient-item {
+    @apply flex justify-between items-center py-1;
+  }
+</style>
+
+<script>
+  import {
+    calculateBatchFromBottle,
+    calculateMilkStreetBatch,
+    mlToOz,
+    ozToMl,
+    suggestABV,
+    STANDARD_BOTTLE_ML,
+    MILK_STREET_BATCHES,
+    type RecipeIngredient,
+    type BatchResult
+  } from '../lib/calculator';
+
+  class BatchCalculator extends HTMLElement {
+    private unit: 'oz' | 'ml' = 'oz';
+    private bottleSizeMl: number = STANDARD_BOTTLE_ML;
+    private mode: 'custom' | 'preset' = 'custom';
+    private currentPresetId: string | null = null;
+    private dilutionPercent: number = 22;
+
+    connectedCallback() {
+      this.setupEventListeners();
+      this.addIngredientRow();
+      this.addIngredientRow();
+
+      // Check if we have a pre-selected cocktail (from URL or data attribute)
+      const presetSlug = this.dataset.cocktail;
+      if (presetSlug && MILK_STREET_BATCHES[presetSlug]) {
+        // Auto-switch to preset mode and load the recipe
+        this.setMode('preset');
+        const select = this.querySelector('#recipe-select') as HTMLSelectElement;
+        if (select) {
+          select.value = presetSlug;
+        }
+        this.loadPreset(presetSlug);
+      } else {
+        this.recalculate();
+      }
+    }
+
+    private setupEventListeners() {
+      // Mode toggle
+      this.querySelectorAll('.entry-mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLButtonElement;
+          const mode = target.dataset.mode as 'custom' | 'preset';
+          this.setMode(mode);
+        });
+      });
+
+      // Recipe selector
+      this.querySelector('#recipe-select')?.addEventListener('change', (e) => {
+        const select = e.target as HTMLSelectElement;
+        if (select.value) {
+          this.loadPreset(select.value);
+        } else {
+          this.clearPreset();
+        }
+      });
+
+      // Bottle size buttons
+      this.querySelectorAll('.bottle-size-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLButtonElement;
+          this.setBottleSize(parseInt(target.dataset.size || '750'));
+        });
+      });
+
+      // Bottle size input
+      this.querySelector('#bottle-size')?.addEventListener('input', (e) => {
+        const input = e.target as HTMLInputElement;
+        this.setBottleSize(parseInt(input.value) || STANDARD_BOTTLE_ML);
+      });
+
+      // Unit toggle
+      this.querySelectorAll('.unit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLButtonElement;
+          this.setUnit(target.dataset.unit as 'oz' | 'ml');
+        });
+      });
+
+      // Dilution buttons
+      this.querySelectorAll('.dilution-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLButtonElement;
+          this.setDilution(parseInt(target.dataset.dilution || '22'));
+        });
+      });
+
+      // Add ingredient
+      this.querySelector('#add-ingredient')?.addEventListener('click', () => {
+        this.addIngredientRow();
+      });
+
+      // Ingredient inputs (delegated)
+      this.querySelector('#ingredients-container')?.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        if (target.name === 'name') {
+          const suggested = suggestABV(target.value);
+          if (suggested !== null) {
+            const row = target.closest('.ingredient-row');
+            const abvInput = row?.querySelector('[name="abv"]') as HTMLInputElement;
+            if (abvInput && !abvInput.value) {
+              abvInput.value = String(suggested);
+            }
+          }
+        }
+        this.recalculate();
+      });
+
+      // Remove ingredient (delegated)
+      this.querySelector('#ingredients-container')?.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const removeBtn = target.closest('.remove-ingredient');
+        if (removeBtn) {
+          const row = removeBtn.closest('.ingredient-row');
+          row?.remove();
+          this.recalculate();
+        }
+      });
+
+      // Share button
+      this.querySelector('#share-btn')?.addEventListener('click', () => {
+        this.shareRecipe();
+      });
+
+      // Print button
+      this.querySelector('#print-btn')?.addEventListener('click', () => {
+        window.print();
+      });
+
+      // Email button
+      this.querySelector('#email-btn')?.addEventListener('click', () => {
+        this.openEmailModal();
+      });
+
+      // Email modal close
+      this.querySelector('#email-modal-close')?.addEventListener('click', () => {
+        this.closeEmailModal();
+      });
+      this.querySelector('#email-modal-backdrop')?.addEventListener('click', () => {
+        this.closeEmailModal();
+      });
+
+      // Email form submit
+      this.querySelector('#email-recipe-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.sendRecipeEmail();
+      });
+    }
+
+    private setMode(mode: 'custom' | 'preset') {
+      this.mode = mode;
+
+      // Update button states
+      this.querySelectorAll('.entry-mode-btn').forEach(btn => {
+        const btnMode = (btn as HTMLButtonElement).dataset.mode;
+        btn.setAttribute('aria-pressed', String(btnMode === mode));
+      });
+
+      // Show/hide sections based on mode
+      const presetSelector = this.querySelector('#preset-selector');
+      const customForm = this.querySelector('#custom-recipe-form');
+      const presetInstructions = this.querySelector('#preset-batch-instructions');
+
+      if (mode === 'preset') {
+        presetSelector?.classList.remove('hidden');
+        customForm?.classList.add('hidden');
+        // Show instructions if a preset is already selected
+        if (this.currentPresetId) {
+          presetInstructions?.classList.remove('hidden');
+        }
+      } else {
+        presetSelector?.classList.add('hidden');
+        presetInstructions?.classList.add('hidden');
+        customForm?.classList.remove('hidden');
+        this.currentPresetId = null;
+        this.recalculate();
+      }
+    }
+
+    private setBottleSize(sizeMl: number) {
+      this.bottleSizeMl = sizeMl;
+
+      // Update button states
+      this.querySelectorAll('.bottle-size-btn').forEach(btn => {
+        const btnSize = parseInt((btn as HTMLButtonElement).dataset.size || '0');
+        btn.classList.toggle('active', btnSize === sizeMl);
+      });
+
+      // Update input
+      const input = this.querySelector('#bottle-size') as HTMLInputElement;
+      if (input) input.value = String(sizeMl);
+
+      // Refresh display
+      if (this.currentPresetId) {
+        this.loadPreset(this.currentPresetId);
+      } else {
+        this.recalculate();
+      }
+    }
+
+    private setUnit(unit: 'oz' | 'ml') {
+      this.unit = unit;
+
+      // Update button states
+      this.querySelectorAll('.unit-btn').forEach(btn => {
+        const btnUnit = (btn as HTMLButtonElement).dataset.unit;
+        btn.classList.toggle('active', btnUnit === unit);
+      });
+
+      // Update display
+      const volumeUnit = this.querySelector('#volume-unit');
+      if (volumeUnit) volumeUnit.textContent = unit;
+
+      // Refresh display
+      if (this.currentPresetId) {
+        this.loadPreset(this.currentPresetId);
+      } else {
+        this.recalculate();
+      }
+    }
+
+    private setDilution(percent: number) {
+      this.dilutionPercent = percent;
+
+      // Update button states
+      this.querySelectorAll('.dilution-btn').forEach(btn => {
+        const btnDilution = parseInt((btn as HTMLButtonElement).dataset.dilution || '0');
+        btn.classList.toggle('active', btnDilution === percent);
+      });
+
+      // Refresh display based on mode
+      if (this.currentPresetId) {
+        this.loadPreset(this.currentPresetId);
+      } else {
+        this.recalculate();
+      }
+    }
+
+    private addIngredientRow() {
+      const template = document.querySelector('#ingredient-row-template') as HTMLTemplateElement;
+      const container = this.querySelector('#ingredients-container');
+
+      if (template && container) {
+        const clone = template.content.cloneNode(true);
+        container.appendChild(clone);
+      }
+    }
+
+    private clearPreset() {
+      this.currentPresetId = null;
+      const presetInstructions = this.querySelector('#preset-batch-instructions');
+      presetInstructions?.classList.add('hidden');
+      if (presetInstructions) presetInstructions.innerHTML = '';
+    }
+
+    private loadPreset(presetId: string) {
+      const recipe = MILK_STREET_BATCHES[presetId];
+      if (!recipe) return;
+
+      this.currentPresetId = presetId;
+
+      // Calculate the batch
+      const result = calculateMilkStreetBatch(presetId, this.bottleSizeMl);
+      if (!result) return;
+
+      // Build the batch instructions HTML
+      const presetInstructions = this.querySelector('#preset-batch-instructions');
+      if (!presetInstructions) return;
+
+      // Format helpers - use pre-rounded oz values directly, don't convert from ml
+      const formatOz = (oz: number) => `${oz} oz`;
+      const formatMl = (ml: number) => `${Math.round(ml)} ml`;
+
+      // Build ingredients list HTML - use the already-rounded amountOz values
+      let ingredientsHtml = '';
+      result.ingredientsToAdd.forEach(ing => {
+        const display = this.unit === 'oz' ? formatOz(ing.amountOz) : formatMl(ing.amountMl);
+        ingredientsHtml += `
+          <div class="batch-ingredient-item">
+            <span class="text-gray-700">${ing.name}</span>
+            <span class="font-mono font-semibold">${display}</span>
+          </div>
+        `;
+      });
+
+      // Add water if needed - use pre-rounded waterToAddOz
+      if (result.waterToAddMl > 0) {
+        const waterDisplay = this.unit === 'oz' ? formatOz(result.waterToAddOz) : formatMl(result.waterToAddMl);
+        ingredientsHtml += `
+          <div class="batch-ingredient-item">
+            <span class="text-gray-700">Water</span>
+            <span class="font-mono font-semibold">${waterDisplay}</span>
+          </div>
+        `;
+      }
+
+      // Add extras note if present
+      const extrasNote = recipe.extras ? `<p class="text-xs text-gray-500 mt-2 italic">Also add: ${recipe.extras}</p>` : '';
+
+      // Freeze status styling
+      const statusClass = result.freezeStatus === 'safe' ? 'status-safe' : result.freezeStatus === 'slushy' ? 'status-slushy' : 'status-freeze';
+      const statusIcon = result.freezeStatus === 'safe' ? '✓' : result.freezeStatus === 'slushy' ? '⚠' : '✗';
+      const statusLabel = result.freezeStatus === 'safe' ? 'Perfect for Freezer' : result.freezeStatus === 'slushy' ? 'Will Be Slushy' : 'May Freeze Solid';
+
+      presetInstructions.innerHTML = `
+        <div class="bg-gradient-to-br from-primary-50 to-white rounded-xl border-2 border-primary-100 p-6">
+          <h3 class="text-xl font-bold text-charcoal mb-2">${this.getRecipeName(presetId)} Batch</h3>
+          <p class="text-gray-600 mb-6">Follow these steps to make a ${this.bottleSizeMl}ml batch</p>
+
+          <!-- Stats Row -->
+          <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-white rounded-lg">
+            <div class="text-center">
+              <span class="block text-2xl font-bold font-mono text-primary">${result.finalAbv.toFixed(1)}%</span>
+              <span class="text-xs text-gray-500">ABV</span>
+            </div>
+            <div class="text-center">
+              <span class="block text-2xl font-bold font-mono text-primary">${result.servings}</span>
+              <span class="text-xs text-gray-500">Drinks</span>
+            </div>
+            <div class="text-center">
+              <span class="block text-2xl font-bold font-mono text-primary">${statusIcon}</span>
+              <span class="text-xs text-gray-500">${statusLabel}</span>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Instructions -->
+          <div class="space-y-1">
+            <div class="batch-step">
+              <span class="batch-step-number">1</span>
+              <div class="batch-step-content">
+                <h4>Start with a full bottle</h4>
+                <p>${this.bottleSizeMl}ml bottle of <strong>${recipe.baseSpirit}</strong> (${recipe.baseSpiritAbv}% ABV)</p>
+              </div>
+            </div>
+
+            <div class="batch-step">
+              <span class="batch-step-number">2</span>
+              <div class="batch-step-content">
+                <h4>Pour off to make room</h4>
+                <p>Remove <strong class="text-primary font-mono">${this.unit === 'oz' ? formatOz(result.pourOffOz) : formatMl(result.pourOffMl)}</strong> from the bottle (save it for later)</p>
+              </div>
+            </div>
+
+            <div class="batch-step">
+              <span class="batch-step-number">3</span>
+              <div class="batch-step-content">
+                <h4>Add these ingredients</h4>
+                <div class="mt-2 bg-white rounded-lg p-3 border">
+                  ${ingredientsHtml}
+                </div>
+                ${extrasNote}
+              </div>
+            </div>
+
+            <div class="batch-step">
+              <span class="batch-step-number">4</span>
+              <div class="batch-step-content">
+                <h4>Seal, shake, and freeze</h4>
+                <p>Cap tightly, shake well to combine, then freeze for 4+ hours</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-primary-100">
+            <button type="button" class="preset-email-btn btn-primary flex-1 flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email Recipe
+            </button>
+            <button type="button" class="preset-share-btn btn-secondary flex-1 flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Share Link
+            </button>
+            <button type="button" class="preset-print-btn btn-ghost flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Add event listeners for the new buttons
+      presetInstructions.querySelector('.preset-email-btn')?.addEventListener('click', () => {
+        this.openEmailModal();
+      });
+      presetInstructions.querySelector('.preset-share-btn')?.addEventListener('click', () => {
+        this.shareRecipe();
+      });
+      presetInstructions.querySelector('.preset-print-btn')?.addEventListener('click', () => {
+        window.print();
+      });
+
+      // Show the instructions panel
+      presetInstructions.classList.remove('hidden');
+
+      // Also update the hidden results panel elements for test compatibility
+      this.syncResultsPanel(result);
+
+      // Populate ingredient rows with the preset recipe for test compatibility
+      this.populateIngredientRows(recipe);
+    }
+
+    private syncResultsPanel(result: any) {
+      const formatVolume = (ml: number) => {
+        return this.unit === 'oz'
+          ? `${mlToOz(ml)} oz`
+          : `${Math.round(ml)} ml`;
+      };
+
+      // Update main stats
+      const abvEl = this.querySelector('#final-abv');
+      const volumeEl = this.querySelector('#total-volume');
+      const servingsEl = this.querySelector('#servings');
+
+      if (abvEl) abvEl.textContent = result.finalAbv.toFixed(1);
+      if (volumeEl) volumeEl.textContent = this.unit === 'oz'
+        ? mlToOz(this.bottleSizeMl).toFixed(1)
+        : String(this.bottleSizeMl);
+      if (servingsEl) servingsEl.textContent = String(result.servings);
+
+      // Update freeze status
+      const statusEl = this.querySelector('#freeze-status');
+      const statusIcon = this.querySelector('#status-icon');
+      const statusLabel = this.querySelector('#status-label');
+      const statusMessage = this.querySelector('#status-message');
+
+      if (statusEl) {
+        statusEl.className = `p-4 rounded-lg border-2 mb-6 status-${result.freezeStatus}`;
+      }
+
+      if (statusIcon) {
+        statusIcon.textContent = result.freezeStatus === 'safe' ? '✓'
+          : result.freezeStatus === 'slushy' ? '⚠' : '✗';
+      }
+
+      if (statusLabel) {
+        statusLabel.textContent = result.freezeStatus === 'safe' ? 'Safe to Freeze'
+          : result.freezeStatus === 'slushy' ? 'Slushy Zone' : 'Will Freeze!';
+      }
+
+      if (statusMessage) {
+        statusMessage.textContent = result.freezeStatus === 'safe'
+          ? 'This will stay perfectly pourable in your freezer'
+          : result.freezeStatus === 'slushy'
+          ? 'This will get slushy but still be enjoyable'
+          : 'The ABV is too low - this will freeze solid';
+      }
+
+      // Update pour-off and water
+      const pourOffEl = this.querySelector('#pour-off');
+      const waterEl = this.querySelector('#water-add');
+
+      if (pourOffEl) {
+        pourOffEl.textContent = formatVolume(result.pourOffMl);
+      }
+
+      if (waterEl) {
+        waterEl.textContent = formatVolume(result.waterToAddMl);
+      }
+
+      // Update ingredients output for test compatibility
+      const ingredientsOutput = this.querySelector('#ingredients-output');
+      if (ingredientsOutput && result.ingredientsToAdd) {
+        ingredientsOutput.replaceChildren();
+        result.ingredientsToAdd.forEach((ing: any) => {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center py-1 text-sm';
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'text-gray-600';
+          nameSpan.textContent = ing.name;
+          const amountSpan = document.createElement('span');
+          amountSpan.className = 'font-mono';
+          amountSpan.textContent = formatVolume(ing.amountMl);
+          row.appendChild(nameSpan);
+          row.appendChild(amountSpan);
+          ingredientsOutput.appendChild(row);
+        });
+      }
+    }
+
+    private populateIngredientRows(recipe: any) {
+      const container = this.querySelector('#ingredients-container');
+      if (!container) return;
+
+      // Clear existing rows
+      container.innerHTML = '';
+
+      // Add base spirit row
+      this.addIngredientRowWithValues(recipe.baseSpirit, '1', String(recipe.baseSpiritAbv));
+
+      // Add ingredient rows from recipe (uses addBack in MILK_STREET_BATCHES)
+      if (recipe.addBack) {
+        recipe.addBack.forEach((ing: any) => {
+          this.addIngredientRowWithValues(ing.name, String(ing.oz), String(ing.abv || 0));
+        });
+      }
+    }
+
+    private addIngredientRowWithValues(name: string, amount: string, abv: string) {
+      const template = document.querySelector('#ingredient-row-template') as HTMLTemplateElement;
+      const container = this.querySelector('#ingredients-container');
+
+      if (template && container) {
+        const clone = template.content.cloneNode(true) as DocumentFragment;
+        const row = clone.querySelector('.ingredient-row');
+        if (row) {
+          const nameInput = row.querySelector('[name="name"]') as HTMLInputElement;
+          const amountInput = row.querySelector('[name="amount"]') as HTMLInputElement;
+          const abvInput = row.querySelector('[name="abv"]') as HTMLInputElement;
+
+          if (nameInput) nameInput.value = name;
+          if (amountInput) amountInput.value = amount;
+          if (abvInput) abvInput.value = abv;
+        }
+        container.appendChild(clone);
+      }
+    }
+
+    private getRecipeName(presetId: string): string {
+      const names: Record<string, string> = {
+        'margarita': 'Margarita',
+        'negroni': 'Negroni',
+        'manhattan': 'Manhattan',
+        'old-fashioned': 'Old Fashioned',
+        'daiquiri': 'Daiquiri',
+        'dirty-martini': 'Dirty Martini',
+        'cosmopolitan': 'Cosmopolitan',
+        'espresso-martini': 'Espresso Martini',
+        'vesper': 'Vesper',
+        'mint-julep': 'Mint Julep',
+        'boulevardier': 'Boulevardier',
+        'moscow-mule': 'Moscow Mule',
+        'paper-plane': 'Paper Plane'
+      };
+      return names[presetId] || presetId;
+    }
+
+    private getRecipeIngredients(): RecipeIngredient[] {
+      const rows = this.querySelectorAll('.ingredient-row');
+      const ingredients: RecipeIngredient[] = [];
+      let foundBaseSpirit = false;
+
+      rows.forEach((row) => {
+        const nameInput = row.querySelector('[name="name"]') as HTMLInputElement;
+        const amountInput = row.querySelector('[name="amount"]') as HTMLInputElement;
+        const abvInput = row.querySelector('[name="abv"]') as HTMLInputElement;
+
+        const name = nameInput?.value.trim() || 'Ingredient';
+        const amount = parseFloat(amountInput?.value || '0') || 0;
+        const abv = parseFloat(abvInput?.value || '0') || 0;
+
+        if (amount > 0) {
+          // First ingredient with ABV >= 20% is base spirit
+          const isBase = !foundBaseSpirit && abv >= 20;
+          if (isBase) foundBaseSpirit = true;
+
+          ingredients.push({
+            name,
+            amount,
+            unit: this.unit,
+            abv: Math.max(0, Math.min(100, abv)),
+            isBaseSpirit: isBase
+          });
+        }
+      });
+
+      // If no base spirit found, mark highest ABV
+      if (!foundBaseSpirit && ingredients.length > 0) {
+        const maxIng = ingredients.reduce((m, i) => i.abv > m.abv ? i : m, ingredients[0]);
+        maxIng.isBaseSpirit = true;
+      }
+
+      return ingredients;
+    }
+
+    private recalculate() {
+      // Only recalculate in custom mode
+      if (this.mode === 'preset') return;
+
+      const ingredients = this.getRecipeIngredients();
+
+      if (ingredients.length === 0) {
+        this.updateDisplayEmpty();
+        return;
+      }
+
+      const result = calculateBatchFromBottle(
+        ingredients,
+        this.bottleSizeMl,
+        this.dilutionPercent
+      );
+
+      this.updateDisplay(result);
+    }
+
+    private updateDisplayEmpty() {
+      ['#final-abv', '#total-volume', '#servings', '#pour-off', '#water-add'].forEach(sel => {
+        const el = this.querySelector(sel);
+        if (el) el.textContent = '0';
+      });
+      const output = this.querySelector('#ingredients-output');
+      if (output) output.innerHTML = '';
+
+      // Reset freeze status to initial state
+      const statusEl = this.querySelector('#freeze-status');
+      const statusIcon = this.querySelector('#status-icon');
+      const statusLabel = this.querySelector('#status-label');
+      const statusMessage = this.querySelector('#status-message');
+
+      if (statusEl) statusEl.className = 'p-4 rounded-lg border-2 mb-6 status-freeze';
+      if (statusIcon) statusIcon.textContent = '?';
+      if (statusLabel) statusLabel.textContent = 'Add Ingredients';
+      if (statusMessage) statusMessage.textContent = 'Add ingredients to calculate freeze status';
+    }
+
+    private updateDisplay(result: BatchResult) {
+      const formatVolume = (ml: number) => {
+        return this.unit === 'oz'
+          ? `${mlToOz(ml)} oz`
+          : `${Math.round(ml)} ml`;
+      };
+
+      // Main stats
+      const abvEl = this.querySelector('#final-abv');
+      const volumeEl = this.querySelector('#total-volume');
+      const servingsEl = this.querySelector('#servings');
+
+      if (abvEl) abvEl.textContent = result.finalAbv.toFixed(1);
+      if (volumeEl) volumeEl.textContent = this.unit === 'oz'
+        ? result.totalVolumeOz.toFixed(1)
+        : String(result.totalVolumeMl);
+      if (servingsEl) servingsEl.textContent = String(result.servings);
+
+      // Freeze status
+      const statusEl = this.querySelector('#freeze-status');
+      const statusIcon = this.querySelector('#status-icon');
+      const statusLabel = this.querySelector('#status-label');
+      const statusMessage = this.querySelector('#status-message');
+
+      if (statusEl) {
+        statusEl.className = `p-4 rounded-lg border-2 mb-6 status-${result.freezeStatus}`;
+      }
+
+      if (statusIcon) {
+        statusIcon.textContent = result.freezeStatus === 'safe' ? '✓'
+          : result.freezeStatus === 'slushy' ? '⚠' : '✗';
+      }
+
+      if (statusLabel) {
+        statusLabel.textContent = result.freezeStatus === 'safe' ? 'Safe to Freeze'
+          : result.freezeStatus === 'slushy' ? 'Slushy Zone' : 'Will Freeze!';
+      }
+
+      if (statusMessage) {
+        statusMessage.textContent = result.freezeMessage;
+      }
+
+      // Pour off
+      const pourOffEl = this.querySelector('#pour-off');
+      if (pourOffEl) {
+        pourOffEl.textContent = formatVolume(result.pourOffMl);
+      }
+
+      // Ingredients to add
+      const ingredientsOutput = this.querySelector('#ingredients-output');
+      if (ingredientsOutput) {
+        ingredientsOutput.replaceChildren();
+        result.ingredientsToAdd.forEach(ing => {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center py-1 text-sm';
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'text-gray-600';
+          nameSpan.textContent = ing.name;
+          const amountSpan = document.createElement('span');
+          amountSpan.className = 'font-mono';
+          amountSpan.textContent = formatVolume(ing.amountMl);
+          row.appendChild(nameSpan);
+          row.appendChild(amountSpan);
+          ingredientsOutput.appendChild(row);
+        });
+      }
+
+      // Water to add
+      const waterEl = this.querySelector('#water-add');
+      if (waterEl) {
+        waterEl.textContent = formatVolume(result.waterToAddMl);
+      }
+    }
+
+    private async shareRecipe() {
+      const url = new URL(window.location.href);
+
+      if (this.currentPresetId) {
+        url.searchParams.set('recipe', this.currentPresetId);
+      } else {
+        const ingredients = this.getRecipeIngredients();
+        url.searchParams.set('ingredients', JSON.stringify(ingredients));
+      }
+      url.searchParams.set('bottle', String(this.bottleSizeMl));
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'My Freezer Batch Recipe',
+            url: url.toString()
+          });
+        } catch (err) {
+          this.copyToClipboard(url.toString());
+        }
+      } else {
+        this.copyToClipboard(url.toString());
+      }
+    }
+
+    private copyToClipboard(text: string) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.showToast('Recipe link copied to clipboard!', 'success');
+      }).catch(() => {
+        prompt('Copy this link to share your recipe:', text);
+      });
+    }
+
+    private showToast(message: string, type: 'success' | 'error' = 'success') {
+      document.querySelectorAll('.toast').forEach(t => t.remove());
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Email modal methods
+    private openEmailModal() {
+      const modal = this.querySelector('#email-modal');
+      const form = this.querySelector('#email-recipe-form') as HTMLFormElement;
+      const success = this.querySelector('#email-success');
+      const error = this.querySelector('#email-error');
+
+      // Reset modal state
+      form?.classList.remove('hidden');
+      success?.classList.add('hidden');
+      error?.classList.add('hidden');
+
+      modal?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    private closeEmailModal() {
+      const modal = this.querySelector('#email-modal');
+      modal?.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    private async sendRecipeEmail() {
+      const emailInput = this.querySelector('#recipe-email') as HTMLInputElement;
+      const subscribeCheckbox = this.querySelector('#subscribe-checkbox') as HTMLInputElement;
+      const submitBtn = this.querySelector('#send-email-btn') as HTMLButtonElement;
+      const btnText = this.querySelector('#send-email-text');
+      const btnSpinner = this.querySelector('#send-email-spinner');
+      const form = this.querySelector('#email-recipe-form');
+      const success = this.querySelector('#email-success');
+      const error = this.querySelector('#email-error');
+
+      const email = emailInput?.value.trim();
+      if (!email) return;
+
+      // Loading state
+      if (submitBtn) submitBtn.disabled = true;
+      if (btnText) btnText.textContent = 'Sending...';
+      btnSpinner?.classList.remove('hidden');
+      error?.classList.add('hidden');
+
+      // Build recipe data
+      const recipeData = this.buildRecipeData();
+
+      try {
+        // n8n webhook URL for recipe emails
+        const webhookUrl = 'https://zax76.app.n8n.cloud/webhook/freezerbatch-email';
+
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            subscribe: subscribeCheckbox?.checked || false,
+            recipe: recipeData,
+            source: 'freezerbatchcocktails.com',
+            timestamp: new Date().toISOString(),
+            page: window.location.pathname
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to send email');
+        }
+
+        // Show success
+        form?.classList.add('hidden');
+        success?.classList.remove('hidden');
+
+        // Close modal after delay
+        setTimeout(() => {
+          this.closeEmailModal();
+        }, 2000);
+
+      } catch (err) {
+        console.error('Email send error:', err);
+        error?.classList.remove('hidden');
+      } finally {
+        // Reset button
+        if (submitBtn) submitBtn.disabled = false;
+        if (btnText) btnText.textContent = 'Send Recipe';
+        btnSpinner?.classList.add('hidden');
+      }
+    }
+
+    private buildRecipeData() {
+      const abvEl = this.querySelector('#final-abv');
+      const pourOffEl = this.querySelector('#pour-off');
+      const waterEl = this.querySelector('#water-add');
+      const servingsEl = this.querySelector('#servings');
+
+      // Get ingredients from the output panel
+      const ingredientItems = this.querySelectorAll('#ingredients-output > div');
+      const ingredients: Array<{ name: string; amount: string }> = [];
+      ingredientItems.forEach(item => {
+        const name = item.querySelector('.text-gray-600')?.textContent?.trim() || '';
+        const amount = item.querySelector('.font-mono')?.textContent?.trim() || '';
+        if (name && amount) {
+          ingredients.push({ name, amount });
+        }
+      });
+
+      return {
+        name: this.currentPresetId ? this.getRecipeName(this.currentPresetId) : 'Custom Recipe',
+        presetId: this.currentPresetId,
+        bottleSize: `${this.bottleSizeMl}ml`,
+        unit: this.unit,
+        abv: abvEl?.textContent || '0',
+        servings: servingsEl?.textContent || '0',
+        pourOff: pourOffEl?.textContent || '0',
+        waterToAdd: waterEl?.textContent || '0',
+        ingredients,
+        dilution: `${this.dilutionPercent}%`
+      };
+    }
+  }
+
+  customElements.define('batch-calculator', BatchCalculator);
+</script>

@@ -1,0 +1,11 @@
+# Cloudflare Pages Redirects
+# https://developers.cloudflare.com/pages/platform/redirects/
+
+# Redirect www to non-www (if needed)
+# https://www.freezerbatchcocktails.com/* https://freezerbatchcocktails.com/:splat 301
+
+# Common typos or legacy URLs
+/recipe/* /cocktails/:splat 301
+/recipes/* /cocktails/:splat 301
+/calculator / 301
+/calc / 301

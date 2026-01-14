@@ -1,0 +1,435 @@
+{
+  "name": "FreezerBatchCocktails",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "freezerbatch-email",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger-fb",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [80, 1232],
+      "webhookId": "freezerbatch-email-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "websiteUrl",
+              "value": "https://www.freezerbatchcocktails.com",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "unsubscribeUrl",
+              "value": "https://www.freezerbatchcocktails.com/unsubscribe",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "workflow-config-fb",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [304, 1232]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.body.recipe && typeof $json.body.recipe === 'object' }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "check-recipe-fb",
+      "name": "Check Has Recipe",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [528, 1040]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from input\nconst data = $input.first().json;\nconst body = data.body || {};\n\nconst recipe = body.recipe || {};\nconst userEmail = body.email;\nconst websiteUrl = data.websiteUrl || 'https://www.freezerbatchcocktails.com';\nconst unsubscribeUrl = data.unsubscribeUrl || 'https://www.freezerbatchcocktails.com/unsubscribe';\n\n// Build ingredients table\nconst ingredients = recipe.ingredients || [];\nlet ingredientRows = '';\nif (ingredients.length > 0) {\n  ingredientRows = ingredients.map(ing => `\n    <tr>\n      <td style=\"padding: 12px 16px; border-bottom: 1px solid #e5e7eb; color: #374151;\">${ing.name}</td>\n      <td style=\"padding: 12px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; color: #0d9488;\">${ing.amount}</td>\n    </tr>\n  `).join('');\n} else {\n  ingredientRows = '<tr><td colspan=\"2\" style=\"padding: 20px; text-align: center; color: #6b7280;\">No ingredients</td></tr>';\n}\n\nconst htmlContent = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Your Freezer Batch Recipe</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #f3f4f6; padding: 20px;\">\n    <tr>\n      <td align=\"center\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);\">\n          <!-- Teal Gradient Header -->\n          <tr>\n            <td style=\"background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); padding: 40px 30px; text-align: center;\">\n              <h1 style=\"margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;\">Your Freezer Batch Recipe</h1>\n              <p style=\"margin: 10px 0 0 0; color: #ccfbf1; font-size: 16px;\">${recipe.name || 'Custom Recipe'}</p>\n            </td>\n          </tr>\n          \n          <!-- Quick Stats -->\n          <tr>\n            <td style=\"padding: 24px 30px; background-color: #f0fdfa;\">\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                <tr>\n                  <td width=\"25%\" style=\"text-align: center; padding: 10px;\">\n                    <div style=\"font-size: 24px; font-weight: bold; color: #0d9488;\">${recipe.abv || '0%'}</div>\n                    <div style=\"font-size: 12px; color: #6b7280; text-transform: uppercase;\">ABV</div>\n                  </td>\n                  <td width=\"25%\" style=\"text-align: center; padding: 10px;\">\n                    <div style=\"font-size: 24px; font-weight: bold; color: #0d9488;\">${recipe.servings || '0'}</div>\n                    <div style=\"font-size: 12px; color: #6b7280; text-transform: uppercase;\">Drinks</div>\n                  </td>\n                  <td width=\"25%\" style=\"text-align: center; padding: 10px;\">\n                    <div style=\"font-size: 24px; font-weight: bold; color: #0d9488;\">${recipe.bottleSize || '750ml'}</div>\n                    <div style=\"font-size: 12px; color: #6b7280; text-transform: uppercase;\">Bottle</div>\n                  </td>\n                  <td width=\"25%\" style=\"text-align: center; padding: 10px;\">\n                    <div style=\"font-size: 24px; font-weight: bold; color: #0d9488;\">${recipe.dilution || '0%'}</div>\n                    <div style=\"font-size: 12px; color: #6b7280; text-transform: uppercase;\">Dilution</div>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          \n          <!-- Content -->\n          <tr>\n            <td style=\"padding: 30px;\">\n              <!-- Pour Off Notice -->\n              <div style=\"background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin-bottom: 24px; border-radius: 4px;\">\n                <p style=\"margin: 0; color: #92400e; font-size: 14px;\">\n                  <strong>Step 1:</strong> Pour off <strong>${recipe.pourOff || '0ml'}</strong> from your bottle to make room.\n                </p>\n              </div>\n              \n              <!-- Ingredients Table -->\n              <h2 style=\"margin: 0 0 16px 0; color: #111827; font-size: 18px;\">Add These Ingredients</h2>\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse: collapse; margin-bottom: 24px;\">\n                <thead>\n                  <tr style=\"background-color: #f9fafb;\">\n                    <th style=\"padding: 12px 16px; text-align: left; border-bottom: 2px solid #0d9488; color: #374151; font-weight: 600;\">Ingredient</th>\n                    <th style=\"padding: 12px 16px; text-align: right; border-bottom: 2px solid #0d9488; color: #374151; font-weight: 600;\">Amount</th>\n                  </tr>\n                </thead>\n                <tbody>\n                  ${ingredientRows}\n                  <tr style=\"background-color: #f0fdfa;\">\n                    <td style=\"padding: 12px 16px; font-weight: 600; color: #0d9488;\">Water (dilution)</td>\n                    <td style=\"padding: 12px 16px; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; color: #0d9488;\">${recipe.waterToAdd || '0ml'}</td>\n                  </tr>\n                </tbody>\n              </table>\n              \n              <!-- Instructions -->\n              <div style=\"background-color: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 24px;\">\n                <h3 style=\"margin: 0 0 12px 0; color: #111827; font-size: 16px;\">Instructions</h3>\n                <ol style=\"margin: 0; padding-left: 20px; color: #4b5563; line-height: 1.8;\">\n                  <li>Pour off the specified amount from your spirit bottle</li>\n                  <li>Add each ingredient using a funnel</li>\n                  <li>Add the dilution water</li>\n                  <li>Seal and shake well to combine</li>\n                  <li>Freeze for 4+ hours (overnight is best)</li>\n                  <li>Pour and enjoy!</li>\n                </ol>\n              </div>\n              \n              <!-- CTA Button -->\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 30px 0;\">\n                <tr>\n                  <td align=\"center\">\n                    <a href=\"${websiteUrl}/cocktails\" style=\"display: inline-block; background-color: #0d9488; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: bold;\">Browse More Recipes</a>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          \n          <!-- Footer -->\n          <tr>\n            <td style=\"background-color: #f9fafb; padding: 24px 30px; border-top: 1px solid #e5e7eb;\">\n              <p style=\"margin: 0 0 10px 0; color: #6b7280; font-size: 12px; text-align: center;\">© ${new Date().getFullYear()} FreezerBatchCocktails.com</p>\n              <p style=\"margin: 0; color: #9ca3af; font-size: 11px; text-align: center;\">\n                <a href=\"${unsubscribeUrl}\" style=\"color: #0d9488; text-decoration: none;\">Unsubscribe</a>\n              </p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>\n`;\n\nconst subject = `Your ${recipe.name || 'Freezer Batch'} Recipe (${recipe.servings || '?'} drinks)`;\n\nreturn [{\n  json: {\n    html: htmlContent,\n    subject: subject,\n    email: userEmail,\n    recipe: recipe\n  }\n}];"
+      },
+      "id": "generate-recipe-email-fb",
+      "name": "Generate Recipe Email HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [752, 944]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from input\nconst data = $input.first().json;\nconst body = data.body || {};\n\nconst userEmail = body.email;\nconst websiteUrl = data.websiteUrl || 'https://www.freezerbatchcocktails.com';\nconst unsubscribeUrl = data.unsubscribeUrl || 'https://www.freezerbatchcocktails.com/unsubscribe';\n\n// Freezer batch cocktail tips\nconst tips = [\n  {\n    title: \"The 20% ABV Rule\",\n    description: \"Cocktails need at least 20% ABV to stay liquid in the freezer. Lower than that and you'll get slush or solid ice.\"\n  },\n  {\n    title: \"Dilution is Key\",\n    description: \"Add 15-20% water to mimic the dilution you'd get from stirring with ice. Without it, your drink will taste boozy.\"\n  },\n  {\n    title: \"Skip the Citrus Juice\",\n    description: \"Fresh citrus doesn't freeze well - it turns bitter. Stick to spirit-forward classics like Negronis and Manhattans.\"\n  },\n  {\n    title: \"Freeze Time Matters\",\n    description: \"4 hours minimum, but overnight is best. The longer it freezes, the more viscous and silky the pour.\"\n  }\n];\n\nconst htmlContent = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Welcome to FreezerBatch</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f3f4f6;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #f3f4f6;\">\n    <tr>\n      <td align=\"center\" style=\"padding: 20px 0;\">\n        <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);\">\n          <!-- Header with Teal Gradient -->\n          <tr>\n            <td style=\"background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); padding: 40px 30px; text-align: center;\">\n              <h1 style=\"margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;\">Welcome to FreezerBatch!</h1>\n              <p style=\"margin: 10px 0 0 0; color: #ccfbf1; font-size: 16px;\">Your guide to perfect freezer door cocktails</p>\n            </td>\n          </tr>\n          \n          <!-- Content -->\n          <tr>\n            <td style=\"padding: 40px 30px;\">\n              <p style=\"margin: 0 0 30px 0; color: #374151; font-size: 16px; line-height: 1.6;\">\n                Thanks for signing up! Here are 4 essential tips to get you started with freezer batch cocktails:\n              </p>\n              \n              ${tips.map((tip, index) => `\n              <div style=\"margin-bottom: 24px; padding: 20px; background-color: #f0fdfa; border-left: 4px solid #0d9488; border-radius: 4px;\">\n                <h2 style=\"margin: 0 0 8px 0; color: #0d9488; font-size: 18px; font-weight: bold;\">${index + 1}. ${tip.title}</h2>\n                <p style=\"margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;\">${tip.description}</p>\n              </div>\n              `).join('')}\n              \n              <!-- CTA Button -->\n              <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin-top: 30px;\">\n                <tr>\n                  <td align=\"center\">\n                    <a href=\"${websiteUrl}/cocktails\" style=\"display: inline-block; padding: 16px 40px; background-color: #0d9488; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 8px;\">\n                      Browse Recipes\n                    </a>\n                  </td>\n                </tr>\n              </table>\n            </td>\n          </tr>\n          \n          <!-- Footer -->\n          <tr>\n            <td style=\"background-color: #f9fafb; padding: 24px 30px; text-align: center; border-top: 1px solid #e5e7eb;\">\n              <p style=\"margin: 0 0 10px 0; color: #6b7280; font-size: 12px;\">\n                © ${new Date().getFullYear()} FreezerBatchCocktails.com\n              </p>\n              <p style=\"margin: 0; color: #9ca3af; font-size: 11px;\">\n                <a href=\"${unsubscribeUrl}\" style=\"color: #0d9488; text-decoration: none;\">Unsubscribe</a>\n              </p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>\n`;\n\nreturn [{ \n  json: { \n    html: htmlContent,\n    subject: 'Welcome to FreezerBatch - 4 Tips to Get Started',\n    email: userEmail\n  } \n}];"
+      },
+      "id": "generate-welcome-email-fb",
+      "name": "Generate Welcome Tips Email HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [752, 1136]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "unsubscribe",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "check-action-fb",
+      "name": "Check Action Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [752, 1424]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.body.email }}",
+            "Source": "={{ $json.body.recipe ? 'recipe-email' : 'newsletter' }}",
+            "Recipe Name": "={{ $json.body.recipe?.name || '' }}",
+            "Signup Date": "={{ $now.toISO() }}",
+            "Page URL": "={{ $json.body.page }}",
+            "Subscribe to Newsletter": "={{ $json.body.subscribe ? 'yes' : ($json.body.recipe ? 'no' : 'yes') }}",
+            "Status": "subscribed"
+          },
+          "matchingColumns": ["Email"],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recipe Name",
+              "displayName": "Recipe Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Signup Date",
+              "displayName": "Signup Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Page URL",
+              "displayName": "Page URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subscribe to Newsletter",
+              "displayName": "Subscribe to Newsletter",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "add-to-crm-fb",
+      "name": "Add Signup to CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [976, 1328],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UJSSHsLFLaefEEBi",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.body.email }}",
+            "Status": "unsubscribed"
+          },
+          "matchingColumns": ["Email"],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "update-unsubscribe-fb",
+      "name": "Update Unsubscribe Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [976, 1520],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UJSSHsLFLaefEEBi",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer re_KRLeYWXg_zWipr1jKfsywew2qAFFdCY1X"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"from\": \"FreezerBatch <admin@stocktheevent.com>\", \"to\": {{ JSON.stringify($('Generate Recipe Email HTML').item.json.email) }}, \"subject\": {{ JSON.stringify($('Generate Recipe Email HTML').item.json.subject) }}, \"html\": {{ JSON.stringify($('Generate Recipe Email HTML').item.json.html) }}}",
+        "options": {}
+      },
+      "id": "send-recipe-email-fb",
+      "name": "Send Recipe Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [976, 944]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer re_KRLeYWXg_zWipr1jKfsywew2qAFFdCY1X"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"from\": \"FreezerBatch <admin@stocktheevent.com>\", \"to\": {{ JSON.stringify($('Generate Welcome Tips Email HTML').item.json.email) }}, \"subject\": {{ JSON.stringify($('Generate Welcome Tips Email HTML').item.json.subject) }}, \"html\": {{ JSON.stringify($('Generate Welcome Tips Email HTML').item.json.html) }}}",
+        "options": {}
+      },
+      "id": "send-welcome-email-fb",
+      "name": "Send Welcome Tips Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [976, 1136]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Check Has Recipe",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Action Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Has Recipe": {
+      "main": [
+        [
+          {
+            "node": "Generate Recipe Email HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Welcome Tips Email HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Action Type": {
+      "main": [
+        [
+          {
+            "node": "Add Signup to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Unsubscribe Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Recipe Email HTML": {
+      "main": [
+        [
+          {
+            "node": "Send Recipe Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Welcome Tips Email HTML": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Tips Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Recipe Email": {
+      "main": [[]]
+    },
+    "Send Welcome Tips Email": {
+      "main": [[]]
+    },
+    "Add Signup to CRM": {
+      "main": [[]]
+    },
+    "Update Unsubscribe Status": {
+      "main": [[]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "meta": {
+    "instanceId": "freezerbatch-workflow"
+  },
+  "id": "FreezerBatchCocktails",
+  "tags": []
+}

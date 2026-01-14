@@ -1,0 +1,104 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = 'About Freezer Batch Cocktails';
+const description = 'We built this calculator because nobody wants to play bartender at their own party. Learn about our mission to make batch cocktails accessible.';
+---
+
+<Layout title={title} description={description}>
+  <article class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <!-- Header -->
+      <header class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-charcoal mb-4">
+          About This Project
+        </h1>
+        <p class="text-xl text-gray-600">
+          Because nobody wants to play bartender at their own party.
+        </p>
+      </header>
+
+      <!-- Content -->
+      <div class="prose prose-lg max-w-none">
+        <h2>The Problem</h2>
+        <p>
+          You're hosting. Friends are arriving. You want to serve cocktails that aren't
+          embarrassing, but you also want to actually talk to your guests instead of
+          shaking drinks all night.
+        </p>
+
+        <p>
+          The solution has existed for decades in professional bars: batch your cocktails
+          ahead of time. But until recently, the math was either guesswork or required
+          a bartender's intuition built over years.
+        </p>
+
+        <h2>The Solution</h2>
+        <p>
+          We built this calculator to do the math for you. Enter your recipe, and we'll
+          tell you exactly how much to pour off, how much to add back, and whether your
+          creation will actually stay pourable in a standard home freezer.
+        </p>
+
+        <p>
+          No more guessing. No more slushy disasters. Just perfectly chilled cocktails,
+          ready when you are.
+        </p>
+
+        <h2>The Science We Stand On</h2>
+        <p>
+          Everything here is grounded in real chemistry and real bartending experience.
+          We consulted with professional bartenders (30+ years of fine dining experience)
+          to validate our calculations and recommendations.
+        </p>
+
+        <p>Key principles:</p>
+        <ul>
+          <li><strong>22%+ ABV</strong> keeps cocktails pourable at standard freezer temperatures</li>
+          <li><strong>20-25% dilution</strong> replaces what ice would normally contribute</li>
+          <li><strong>Fresh ingredients matter</strong>, especially vermouth and citrus</li>
+        </ul>
+
+        <h2>What We're Not</h2>
+        <p>
+          We're not affiliated with any liquor brands. We're not selling anything except
+          honest recommendations (with affiliate links clearly marked). We're not claiming
+          to have invented freezer door cocktails. That credit goes to bartenders who've
+          been doing this for generations.
+        </p>
+
+        <p>
+          We just built a calculator that does the math correctly.
+        </p>
+
+        <h2>Affiliate Disclosure</h2>
+        <p>
+          Some links on this site are affiliate links to Amazon. If you buy something
+          through these links, we may earn a small commission at no extra cost to you.
+          This helps keep the site running and the calculator free.
+        </p>
+
+        <p>
+          We only recommend products we'd actually use. If something's on this site,
+          it's because it's good, not because the commission is high.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          Found a bug in the calculator? Have a recipe you think we should add?
+          Want to tell us we're wrong about something?
+        </p>
+
+        <p>
+          We'd love to hear from you. Drop us a line at
+          <a href="mailto:hello@freezerbatchcocktails.com">hello@freezerbatchcocktails.com</a>.
+        </p>
+      </div>
+
+      <!-- CTA -->
+      <div class="mt-16 text-center">
+        <a href="/" class="btn-primary">Start Calculating</a>
+      </div>
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,259 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Calculator from '../../components/Calculator.astro';
+import CocktailCard from '../../components/CocktailCard.astro';
+import AffiliateLink from '../../components/AffiliateLink.astro';
+import cocktailsData from '../../data/cocktails.json';
+
+export function getStaticPaths() {
+  return cocktailsData.cocktails.map(cocktail => ({
+    params: { slug: cocktail.slug },
+    props: { cocktail }
+  }));
+}
+
+const { cocktail } = Astro.props;
+
+// Get related cocktails
+const relatedCocktails = cocktailsData.cocktails
+  .filter(c => cocktail.relatedCocktails?.includes(c.slug))
+  .slice(0, 3);
+
+const statusLabels = {
+  safe: { text: 'Freezer Safe', icon: '✓', class: 'status-safe' },
+  slushy: { text: 'Slushy', icon: '⚠', class: 'status-slushy' },
+  freeze: { text: 'Will Freeze', icon: '✗', class: 'status-freeze' }
+};
+
+const status = statusLabels[cocktail.freezeStatus as keyof typeof statusLabels];
+
+// Recipe schema for SEO
+const recipeSchema = {
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  "name": `Freezer Batch ${cocktail.name}`,
+  "description": cocktail.description,
+  "recipeCategory": "Cocktail",
+  "recipeCuisine": "American",
+  "recipeYield": `${cocktail.servings} servings`,
+  "prepTime": `PT${parseInt(cocktail.prepTime)}M`,
+  "totalTime": `PT${parseInt(cocktail.prepTime) + 240}M`,
+  "recipeIngredient": cocktail.recipe.single.map(
+    (ing: any) => `${ing.volumeMl}ml ${ing.name}`
+  ),
+  "recipeInstructions": [
+    {
+      "@type": "HowToStep",
+      "text": "Calculate your batch using the calculator above, or follow the pre-calculated amounts."
+    },
+    {
+      "@type": "HowToStep",
+      "text": "Pour off the calculated amount from your base spirit bottle to make room."
+    },
+    {
+      "@type": "HowToStep",
+      "text": "Add each ingredient to the bottle using a funnel."
+    },
+    {
+      "@type": "HowToStep",
+      "text": "Add the dilution water if specified."
+    },
+    {
+      "@type": "HowToStep",
+      "text": "Seal and shake well to combine."
+    },
+    {
+      "@type": "HowToStep",
+      "text": `Freeze for ${cocktail.freezeTime}.`
+    },
+    {
+      "@type": "HowToStep",
+      "text": cocktail.serve
+    }
+  ],
+  "keywords": cocktail.seo.keywords.join(", "),
+  "nutrition": {
+    "@type": "NutritionInformation",
+    "servingSize": "1 cocktail"
+  }
+};
+---
+
+<Layout
+  title={cocktail.seo.title.replace('Freezer Door', 'Freezer Batch')}
+  description={cocktail.seo.description}
+  schema={recipeSchema}
+>
+  <article class="py-8 sm:py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <!-- Breadcrumb -->
+      <nav class="mb-6 text-sm" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-2">
+          <li><a href="/" class="text-gray-500 hover:text-primary">Home</a></li>
+          <li class="text-gray-400">/</li>
+          <li><a href="/cocktails" class="text-gray-500 hover:text-primary">Cocktails</a></li>
+          <li class="text-gray-400">/</li>
+          <li class="text-charcoal font-medium">{cocktail.name}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <header class="mb-8">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <span class={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${status.class}`}>
+            <span>{status.icon}</span>
+            {status.text}
+          </span>
+          {cocktail.reliability === 'bulletproof' && (
+            <span class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
+              Bulletproof
+            </span>
+          )}
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-bold text-charcoal mb-3">
+          {cocktail.name}
+        </h1>
+        <p class="text-lg text-gray-600">{cocktail.tagline}</p>
+      </header>
+
+      <!-- Quick Stats Bar -->
+      <div class="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-xl mb-8">
+        <div class="text-center">
+          <span class="block text-xl font-bold text-primary">{cocktail.finalAbv}%</span>
+          <span class="text-xs text-gray-500">ABV</span>
+        </div>
+        <div class="text-center">
+          <span class="block text-xl font-bold text-primary">{cocktail.servings}</span>
+          <span class="text-xs text-gray-500">Drinks</span>
+        </div>
+        <div class="text-center">
+          <span class="block text-xl font-bold text-primary">{cocktail.prepTime}</span>
+          <span class="text-xs text-gray-500">Prep</span>
+        </div>
+        <div class="text-center">
+          <span class="block text-xl font-bold text-primary">{cocktail.freezeTime}</span>
+          <span class="text-xs text-gray-500">Freeze</span>
+        </div>
+      </div>
+
+      <!-- Main Calculator Section - THE HERO -->
+      <section class="mb-12">
+        <Calculator cocktailSlug={cocktail.slug} />
+      </section>
+
+      <!-- Description -->
+      <section class="mb-10">
+        <h2 class="text-xl font-bold text-charcoal mb-3">About This Cocktail</h2>
+        <p class="text-gray-600 leading-relaxed">{cocktail.description}</p>
+      </section>
+
+      <!-- How to Serve -->
+      <section class="mb-10 p-6 bg-primary-50 rounded-xl border border-primary-100">
+        <h2 class="text-xl font-bold text-charcoal mb-3">How to Serve</h2>
+        <p class="text-gray-700">{cocktail.serve}</p>
+        {cocktail.shelfLife && (
+          <p class="mt-3 text-sm text-gray-500">
+            <strong>Best within:</strong> {cocktail.shelfLife}
+          </p>
+        )}
+      </section>
+
+      <!-- Tips -->
+      {cocktail.tips && cocktail.tips.length > 0 && (
+        <section class="mb-10">
+          <h2 class="text-xl font-bold text-charcoal mb-4">Pro Tips</h2>
+          <ul class="space-y-3">
+            {cocktail.tips.map((tip: string) => (
+              <li class="flex gap-3">
+                <span class="text-primary flex-shrink-0 font-bold">+</span>
+                <span class="text-gray-600">{tip}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <!-- Common Mistakes -->
+      {cocktail.commonMistakes && cocktail.commonMistakes.length > 0 && (
+        <section class="mb-10">
+          <h2 class="text-xl font-bold text-charcoal mb-4">Avoid These Mistakes</h2>
+          <ul class="space-y-3">
+            {cocktail.commonMistakes.map((mistake: string) => (
+              <li class="flex gap-3 text-gray-600">
+                <span class="text-red-500 flex-shrink-0">-</span>
+                <span>{mistake}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <!-- Event Planning CTA -->
+      <section class="mb-10">
+        <a href="https://www.stocktheevent.com" target="_blank" rel="noopener" class="block group">
+          <div class="p-5 bg-gradient-to-r from-accent-50 to-primary-50 rounded-xl border border-accent-200 hover:border-accent-400 transition-all">
+            <div class="flex items-center gap-4">
+              <div class="text-3xl">🎉</div>
+              <div class="flex-1">
+                <p class="font-semibold text-surface-900 group-hover:text-primary-700 transition-colors">
+                  Batching for a party?
+                </p>
+                <p class="text-sm text-surface-600">
+                  Find out exactly how much wine, beer, and spirits to buy for your guest count.
+                </p>
+              </div>
+              <svg class="w-5 h-5 text-surface-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </a>
+      </section>
+
+      <!-- Recommended Tools (Affiliate Links) -->
+      {cocktail.affiliateProducts && cocktail.affiliateProducts.length > 0 && (
+        <section class="mb-10 p-6 bg-white rounded-xl border border-gray-200">
+          <h2 class="text-xl font-bold text-charcoal mb-4">Recommended Tools</h2>
+          <ul class="space-y-3">
+            {cocktail.affiliateProducts.map((product: any) => (
+              <li>
+                <AffiliateLink
+                  asin={product.asin}
+                  text={product.name}
+                  category={product.category}
+                />
+              </li>
+            ))}
+          </ul>
+          <p class="mt-4 text-xs text-gray-400">
+            As an Amazon Associate we earn from qualifying purchases
+          </p>
+        </section>
+      )}
+    </div>
+
+    <!-- Related Cocktails - Full Width -->
+    {relatedCocktails.length > 0 && (
+      <section class="mt-16 pt-12 border-t bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 class="text-2xl font-bold text-charcoal mb-8">You Might Also Like</h2>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedCocktails.map(related => (
+              <CocktailCard
+                slug={related.slug}
+                name={related.name}
+                tagline={related.tagline}
+                baseSpirit={related.baseSpirit}
+                reliability={related.reliability as 'bulletproof' | 'needs-attention'}
+                finalAbv={related.finalAbv}
+                freezeStatus={related.freezeStatus as 'freeze' | 'slushy' | 'safe'}
+                servings={related.servings}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+</Layout>
