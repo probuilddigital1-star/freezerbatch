@@ -428,6 +428,40 @@ export const MILK_STREET_BATCHES: Record<string, MilkStreetBatch> = {
     ],
     waterOz: 0,
     extras: 'Mint syrup: 2 cups fresh mint + ½ cup sugar + water'
+  },
+  'paper-plane': {
+    baseSpirit: 'Bourbon',
+    baseSpiritAbv: 45,
+    pourOffOz: 19,
+    addBack: [
+      { name: 'Aperol', oz: 6.25, abv: 11 },
+      { name: 'Amaro Nonino', oz: 6.25, abv: 35 },
+      { name: 'Fresh Lemon Juice', oz: 6.25, abv: 0 }
+    ],
+    waterOz: 0,
+    extras: 'Equal parts cocktail - will be slushy due to ~20% ABV'
+  },
+  'moscow-mule': {
+    baseSpirit: 'Vodka',
+    baseSpiritAbv: 40,
+    pourOffOz: 6.5,
+    addBack: [
+      { name: 'Fresh Lime Juice', oz: 3.25, abv: 0 },
+      { name: 'Ginger Syrup', oz: 3.25, abv: 0 }
+    ],
+    waterOz: 0,
+    extras: 'Add 2oz ginger beer per drink when serving (do NOT batch the ginger beer)'
+  },
+  boulevardier: {
+    baseSpirit: 'Bourbon',
+    baseSpiritAbv: 45,
+    pourOffOz: 14,
+    addBack: [
+      { name: 'Sweet Vermouth', oz: 6, abv: 16 },
+      { name: 'Campari', oz: 6, abv: 25 }
+    ],
+    waterOz: 0,
+    extras: 'Few dashes orange bitters'
   }
 };
 
