@@ -10,11 +10,26 @@
   body {
     @apply bg-cream text-warmgray antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Subtle paper texture overlay */
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"),
+      linear-gradient(180deg, #FDF8F3 0%, #F5E6D8 100%);
+    background-blend-mode: overlay, normal;
   }
 
-  /* Modern focus styles */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(184, 134, 11, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Modern focus styles - gold accent for visibility */
   :focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-surface-50;
+    @apply outline-none ring-2 ring-accent-500 ring-offset-2 ring-offset-cream;
+    box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.15);
   }
 
   /* Hide number input spinners */
@@ -28,9 +43,21 @@
     -moz-appearance: textfield;
   }
 
-  /* Better text rendering */
+  /* Better text rendering - display font for headings */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-display;
+  }
+
+  h1 {
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    letter-spacing: -0.02em;
+  }
+
+  h3, h4 {
+    letter-spacing: -0.01em;
   }
 }
 
@@ -43,8 +70,13 @@
            shadow-lg shadow-accent-500/25
            hover:bg-accent-400 hover:shadow-xl hover:shadow-accent-500/30
            hover:-translate-y-0.5
-           active:translate-y-0 active:shadow-md
            transition-all duration-200 ease-out;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97) translateY(0);
+    transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    @apply shadow-md;
   }
 
   /* Modern button - Secondary (Navy) */
@@ -70,12 +102,12 @@
   .input-field {
     @apply w-full px-4 py-3
            bg-white border border-cognac-200 rounded-xl
-           text-primary-600 placeholder:text-cognac-300
+           text-primary-600 placeholder:text-cognac-400
            focus:border-accent-500 focus:ring-4 focus:ring-accent-500/10
            transition-all duration-200;
   }
 
-  /* Modern card */
+  /* Modern card - enhanced hover */
   .card {
     @apply bg-cream rounded-2xl p-6
            border-2 border-cognac-200
@@ -84,7 +116,13 @@
   }
 
   .card:hover {
+    transform: translateY(-4px) scale(1.01);
     @apply shadow-card-hover border-accent-300;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.05),
+      0 25px 30px -5px rgba(0,0,0,0.1),
+      0 15px 15px -5px rgba(0,0,0,0.04),
+      0 0 30px rgba(184, 134, 11, 0.08);
   }
 
   /* Glass effect card */
@@ -116,17 +154,31 @@
     @apply bg-accent-100 text-accent-700;
   }
 
-  /* Status indicator styles */
+  /* Status indicator styles - enhanced with gradients */
   .status-freeze {
-    @apply text-danger bg-danger/10 border-danger/20;
+    @apply text-danger border-l-4 border-danger;
+    background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.05) 100%);
   }
 
   .status-slushy {
-    @apply text-warning bg-warning/10 border-warning/20;
+    @apply text-amber-700 border-l-4 border-amber-500;
+    background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.05) 100%);
   }
 
   .status-safe {
-    @apply text-success bg-success/10 border-success/20;
+    @apply text-success border-l-4 border-success;
+    background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%);
+  }
+
+  /* Status change animation */
+  .status-pulse {
+    animation: statusPulse 0.6s ease-out;
+  }
+
+  @keyframes statusPulse {
+    0% { box-shadow: 0 0 0 0 currentColor; }
+    50% { box-shadow: 0 0 0 8px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
   }
 
   /* Section headings */
@@ -163,6 +215,92 @@
 
   .animate-in {
     animation: slideUp 0.5s ease-out forwards;
+  }
+
+  /* Page load animation orchestration - staggered reveals */
+  .reveal {
+    opacity: 0;
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .reveal-1 { animation-delay: 0ms; }
+  .reveal-2 { animation-delay: 100ms; }
+  .reveal-3 { animation-delay: 200ms; }
+  .reveal-4 { animation-delay: 300ms; }
+  .reveal-5 { animation-delay: 400ms; }
+
+  /* Scale-in variant for CTAs */
+  .reveal-scale {
+    opacity: 0;
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleIn {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  /* Gold foil shimmer effect for premium text */
+  .gold-foil {
+    background: linear-gradient(
+      135deg,
+      #B8860B 0%,
+      #D4AF37 25%,
+      #B8860B 50%,
+      #8B6914 75%,
+      #B8860B 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: goldShimmer 4s ease infinite;
+  }
+
+  @keyframes goldShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Ingredient row animations */
+  .animate-row-in {
+    animation: rowIn 0.3s ease-out forwards;
+  }
+
+  @keyframes rowIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-row-out {
+    animation: rowOut 0.2s ease-in forwards;
+  }
+
+  @keyframes rowOut {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+      max-height: 100px;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.95);
+      max-height: 0;
+      margin: 0;
+      padding: 0;
+    }
   }
 }
 

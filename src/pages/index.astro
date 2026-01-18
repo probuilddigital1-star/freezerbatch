@@ -34,28 +34,28 @@ const schema = {
     <!-- Background Pattern -->
     <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
 
-    <!-- Gradient Orbs (hidden on mobile to prevent overflow) -->
-    <div class="hidden sm:block absolute top-0 left-1/4 w-96 h-96 bg-accent-500 rounded-full blur-3xl opacity-10 -translate-y-1/2"></div>
-    <div class="hidden sm:block absolute top-1/4 right-0 w-80 h-80 bg-cognac rounded-full blur-3xl opacity-10 translate-x-1/2"></div>
+    <!-- Gradient Orbs (hidden on mobile to prevent overflow) - floating animation -->
+    <div class="hidden sm:block absolute top-0 left-1/4 w-96 h-96 bg-accent-500 rounded-full blur-3xl opacity-10 -translate-y-1/2 animate-float"></div>
+    <div class="hidden sm:block absolute top-1/4 right-0 w-80 h-80 bg-cognac rounded-full blur-3xl opacity-10 translate-x-1/2 animate-float-delayed"></div>
 
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-10 sm:pt-20 sm:pb-28">
       <div class="text-center max-w-3xl mx-auto">
         <!-- Badge -->
-        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 sm:mb-8 shadow-sm">
+        <div class="reveal reveal-1 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 sm:mb-8 shadow-sm">
           <span class="w-2 h-2 bg-accent-400 rounded-full animate-pulse"></span>
           <span class="text-sm font-medium text-white/90">Free Calculator - No signup required</span>
         </div>
 
-        <h1 class="text-2xl sm:text-5xl lg:text-6xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
-          Cocktails That <span class="text-accent-300">Wait for You</span>
+        <h1 class="reveal reveal-2 text-2xl sm:text-5xl lg:text-6xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
+          Cocktails That <span class="gold-foil">Wait for You</span>
         </h1>
 
-        <p class="text-base sm:text-xl text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
+        <p class="reveal reveal-3 text-base sm:text-xl text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
           Pre-batch cocktails that stay perfectly pourable in your freezer.
           Do the math once, drink well forever.
         </p>
 
-        <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+        <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
           <a href="#calculator" class="btn-primary text-base">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />

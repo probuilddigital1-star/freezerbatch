@@ -82,7 +82,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Cal Sans', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {
@@ -104,6 +104,8 @@ module.exports = {
         'slide-up': 'slideUp 0.5s ease-out',
         'scale-in': 'scaleIn 0.3s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 8s ease-in-out infinite',
+        'float-delayed': 'floatDelayed 10s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -117,6 +119,17 @@ module.exports = {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
+          '25%': { transform: 'translate(10px, -15px) rotate(2deg)' },
+          '50%': { transform: 'translate(-5px, -25px) rotate(-1deg)' },
+          '75%': { transform: 'translate(-15px, -10px) rotate(1deg)' },
+        },
+        floatDelayed: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '33%': { transform: 'translate(-20px, 15px) scale(1.02)' },
+          '66%': { transform: 'translate(15px, -10px) scale(0.98)' },
         },
       },
       borderRadius: {

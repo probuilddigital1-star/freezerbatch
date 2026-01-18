@@ -22,26 +22,31 @@ const { cocktailSlug, simple = false } = Astro.props;
   data-simple={simple}
 >
   <div class="card">
-    <!-- Entry Mode Toggle -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-6">
-      <button
-        type="button"
-        class="entry-mode-btn flex-1 py-4 px-5 rounded-xl border-2 font-medium transition-all"
-        data-mode="custom"
-        aria-pressed="true"
-      >
-        <span class="block text-lg font-semibold">Build My Own</span>
-        <span class="text-sm opacity-70">Enter custom recipe</span>
-      </button>
-      <button
-        type="button"
-        class="entry-mode-btn flex-1 py-4 px-5 rounded-xl border-2 font-medium transition-all"
-        data-mode="preset"
-        aria-pressed="false"
-      >
-        <span class="block text-lg font-semibold">Choose a Classic</span>
-        <span class="text-sm opacity-70">Pre-made batch recipes</span>
-      </button>
+    <!-- Entry Mode Toggle - Sliding Pill Design -->
+    <div class="mode-toggle-container relative bg-primary-100 rounded-2xl p-1.5 mb-6">
+      <!-- Sliding indicator -->
+      <div class="mode-toggle-indicator absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-3px)] bg-white rounded-xl shadow-lg transition-all duration-300 ease-out"></div>
+
+      <div class="relative flex">
+        <button
+          type="button"
+          class="entry-mode-btn flex-1 py-4 px-5 rounded-xl font-medium transition-all z-10"
+          data-mode="custom"
+          aria-pressed="true"
+        >
+          <span class="block text-lg font-semibold">Build My Own</span>
+          <span class="text-sm opacity-80">Enter custom recipe</span>
+        </button>
+        <button
+          type="button"
+          class="entry-mode-btn flex-1 py-4 px-5 rounded-xl font-medium transition-all z-10"
+          data-mode="preset"
+          aria-pressed="false"
+        >
+          <span class="block text-lg font-semibold">Choose a Classic</span>
+          <span class="text-sm opacity-80">Pre-made batch recipes</span>
+        </button>
+      </div>
     </div>
 
     <!-- Preset Recipe Selector (hidden by default) -->
@@ -303,43 +308,45 @@ const { cocktailSlug, simple = false } = Astro.props;
 
 <!-- Ingredient Row Template -->
 <template id="ingredient-row-template">
-  <div class="ingredient-row grid grid-cols-12 gap-2 items-center">
-    <input
-      type="text"
-      placeholder="Ingredient name"
-      class="col-span-5 input-field py-2 text-sm"
-      name="name"
-      autocomplete="off"
-      list="ingredient-suggestions"
-    />
-    <input
-      type="number"
-      placeholder="2"
-      class="col-span-3 input-field py-2 text-sm text-center"
-      name="amount"
-      min="0"
-      step="0.25"
-      inputmode="decimal"
-    />
-    <input
-      type="number"
-      placeholder="40"
-      class="col-span-3 input-field py-2 text-sm text-center"
-      name="abv"
-      min="0"
-      max="100"
-      step="0.5"
-      inputmode="decimal"
-    />
-    <button
-      type="button"
-      class="col-span-1 p-2 text-gray-400 hover:text-red-500 transition-colors remove-ingredient"
-      aria-label="Remove ingredient"
-    >
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
+  <div class="ingredient-row group relative bg-white/60 border border-cognac-200 rounded-xl p-3 mb-2 transition-all duration-200 hover:border-cognac-300 hover:shadow-sm animate-row-in">
+    <div class="grid grid-cols-12 gap-2 items-center">
+      <input
+        type="text"
+        placeholder="Ingredient name"
+        class="col-span-5 input-field py-2 text-sm border-0 bg-white/80"
+        name="name"
+        autocomplete="off"
+        list="ingredient-suggestions"
+      />
+      <input
+        type="number"
+        placeholder="2"
+        class="col-span-3 input-field py-2 text-sm text-center border-0 bg-white/80"
+        name="amount"
+        min="0"
+        step="0.25"
+        inputmode="decimal"
+      />
+      <input
+        type="number"
+        placeholder="40"
+        class="col-span-3 input-field py-2 text-sm text-center border-0 bg-white/80"
+        name="abv"
+        min="0"
+        max="100"
+        step="0.5"
+        inputmode="decimal"
+      />
+      <button
+        type="button"
+        class="col-span-1 p-2 text-cognac-300 hover:text-danger opacity-0 group-hover:opacity-100 transition-all remove-ingredient"
+        aria-label="Remove ingredient"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -367,11 +374,21 @@ const { cocktailSlug, simple = false } = Astro.props;
 </datalist>
 
 <style>
+  /* Mode toggle sliding pill styles */
+  .mode-toggle-container {
+    @apply border-2 border-primary-200;
+  }
+
   .entry-mode-btn[aria-pressed="true"] {
-    @apply border-primary bg-primary-50 text-primary;
+    @apply text-primary-700 bg-transparent;
   }
   .entry-mode-btn[aria-pressed="false"] {
-    @apply border-gray-200 bg-white text-gray-600 hover:border-gray-300;
+    @apply text-primary-400 bg-transparent hover:text-primary-600;
+  }
+
+  /* Slide indicator to right when preset is active */
+  .mode-toggle-container:has(.entry-mode-btn[data-mode="preset"][aria-pressed="true"]) .mode-toggle-indicator {
+    left: calc(50% + 3px);
   }
   .bottle-size-btn.active,
   .unit-btn.active,
