@@ -72,5 +72,32 @@ const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
     </main>
 
     <Footer />
+
+    <!-- Scroll Reveal Observer -->
+    <script>
+      // Only run if reduced motion is not preferred
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                observer.unobserve(entry.target); // Only animate once
+              }
+            });
+          },
+          { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+        );
+
+        document.querySelectorAll('.scroll-reveal, .scroll-reveal-stagger').forEach((el) => {
+          observer.observe(el);
+        });
+      } else {
+        // If reduced motion preferred, show everything immediately
+        document.querySelectorAll('.scroll-reveal, .scroll-reveal-stagger').forEach((el) => {
+          el.classList.add('in-view');
+        });
+      }
+    </script>
   </body>
 </html>

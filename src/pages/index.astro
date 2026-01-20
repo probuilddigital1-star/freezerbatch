@@ -30,56 +30,100 @@ const schema = {
 
 <Layout title={title} description={description} schema={schema}>
   <!-- Hero Section -->
-  <section class="relative overflow-hidden bg-gradient-to-b from-primary-600 via-primary-700 to-primary-800">
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary-800 via-primary-900 to-surface-950 grain-overlay">
     <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
 
-    <!-- Gradient Orbs (hidden on mobile to prevent overflow) - floating animation -->
-    <div class="hidden sm:block absolute top-0 left-1/4 w-96 h-96 bg-accent-500 rounded-full blur-3xl opacity-10 -translate-y-1/2 animate-float"></div>
-    <div class="hidden sm:block absolute top-1/4 right-0 w-80 h-80 bg-cognac rounded-full blur-3xl opacity-10 translate-x-1/2 animate-float-delayed"></div>
+    <!-- Ambient glow from image side -->
+    <div class="hidden lg:block absolute top-1/2 right-0 w-[600px] h-[600px] bg-amber-900/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4"></div>
+    <div class="hidden lg:block absolute bottom-0 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-[80px]"></div>
 
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-10 sm:pt-20 sm:pb-28">
-      <div class="text-center max-w-3xl mx-auto">
-        <!-- Badge -->
-        <div class="reveal reveal-1 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 sm:mb-8 shadow-sm">
-          <span class="w-2 h-2 bg-accent-400 rounded-full animate-pulse"></span>
-          <span class="text-sm font-medium text-white/90">Free Calculator - No signup required</span>
+    <div class="relative max-w-7xl mx-auto">
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-0 items-center min-h-[500px] lg:min-h-[600px]">
+
+        <!-- Text Content -->
+        <div class="px-4 sm:px-6 lg:px-12 pt-10 pb-6 sm:pt-16 sm:pb-10 lg:py-20">
+          <!-- Badge -->
+          <div class="reveal reveal-1 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 sm:mb-8 shadow-sm">
+            <span class="w-2 h-2 bg-accent-400 rounded-full animate-pulse"></span>
+            <span class="text-sm font-medium text-white/90">Free Calculator - No signup required</span>
+          </div>
+
+          <h1 class="reveal reveal-2 text-3xl sm:text-5xl lg:text-6xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
+            Cocktails That <span class="gold-foil">Wait for You</span>
+          </h1>
+
+          <p class="reveal reveal-3 text-base sm:text-xl text-white/80 mb-8 sm:mb-10 max-w-xl">
+            Pre-batch cocktails that stay perfectly pourable in your freezer.
+            Do the math once, drink well forever.
+          </p>
+
+          <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <a href="#calculator" class="btn-primary text-base">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Start Calculating
+            </a>
+            <a href="/cocktails" class="btn-secondary bg-white/10 hover:bg-white/20 text-base">
+              Browse {cocktailsData.cocktails.length} Recipes
+            </a>
+          </div>
         </div>
 
-        <h1 class="reveal reveal-2 text-2xl sm:text-5xl lg:text-6xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
-          Cocktails That <span class="gold-foil">Wait for You</span>
-        </h1>
+        <!-- Hero Image -->
+        <div class="relative lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-1/2 overflow-hidden">
+          <!-- Gradient overlay to blend image into background -->
+          <div class="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/80 to-transparent z-10 hidden lg:block"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-primary-900 via-transparent to-primary-900/50 z-10 hidden lg:block"></div>
 
-        <p class="reveal reveal-3 text-base sm:text-xl text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto">
-          Pre-batch cocktails that stay perfectly pourable in your freezer.
-          Do the math once, drink well forever.
-        </p>
+          <!-- Mobile gradient overlay -->
+          <div class="absolute inset-0 bg-gradient-to-t from-primary-900 via-transparent to-primary-900/80 z-10 lg:hidden"></div>
 
-        <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-          <a href="#calculator" class="btn-primary text-base">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            Start Calculating
-          </a>
-          <a href="/cocktails" class="btn-secondary bg-white/10 hover:bg-white/20 text-base">
-            Browse {cocktailsData.cocktails.length} Recipes
-          </a>
+          <img
+            src="/images/hero-decanters.jpg"
+            alt="Elegant glass decanters with amber spirits"
+            class="w-full h-64 sm:h-80 lg:h-full object-cover object-center lg:object-right ken-burns"
+            loading="eager"
+          />
+
+          <!-- Subtle vignette -->
+          <div class="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] z-20 pointer-events-none"></div>
         </div>
+
       </div>
-
     </div>
   </section>
+
+  <!-- Art Deco Divider -->
+  <div class="relative bg-cream py-6 overflow-hidden">
+    <div class="max-w-4xl mx-auto px-4">
+      <svg class="w-full h-8" viewBox="0 0 400 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Left line -->
+        <line x1="0" y1="16" x2="160" y2="16" stroke="#B8860B" stroke-width="1" stroke-opacity="0.4"/>
+        <!-- Center diamond ornament -->
+        <g transform="translate(200, 16)">
+          <rect x="-8" y="-8" width="16" height="16" transform="rotate(45)" fill="none" stroke="#B8860B" stroke-width="1.5"/>
+          <circle cx="0" cy="0" r="3" fill="#B8860B"/>
+        </g>
+        <!-- Right line -->
+        <line x1="240" y1="16" x2="400" y2="16" stroke="#B8860B" stroke-width="1" stroke-opacity="0.4"/>
+        <!-- Decorative end caps -->
+        <circle cx="160" cy="16" r="2" fill="#B8860B" fill-opacity="0.6"/>
+        <circle cx="240" cy="16" r="2" fill="#B8860B" fill-opacity="0.6"/>
+      </svg>
+    </div>
+  </div>
 
   <!-- How It Works (moved before Calculator) -->
   <section class="py-10 md:py-16 bg-cream">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-10 md:mb-16">
+      <div class="text-center mb-10 md:mb-16 scroll-reveal">
         <h2 class="section-title">How It Works</h2>
         <p class="section-subtitle">Three simple steps to cocktail freedom</p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-6 lg:gap-12">
+      <div class="grid md:grid-cols-3 gap-6 lg:gap-12 scroll-reveal-stagger">
         <!-- Step 1 -->
         <div class="flex flex-col items-center text-center">
           <div class="relative mb-4 md:mb-6">
@@ -146,13 +190,15 @@ const schema = {
   <!-- Calculator Section -->
   <section id="calculator" class="py-10 md:py-16 scroll-mt-20 bg-white">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-8 md:mb-10">
+      <div class="text-center mb-8 md:mb-10 scroll-reveal">
         <h2 class="section-title">Let's Batch This</h2>
         <p class="section-subtitle">
           Choose a classic recipe or build your own. We'll do the math.
         </p>
       </div>
-      <Calculator />
+      <div class="scroll-reveal">
+        <Calculator />
+      </div>
     </div>
   </section>
 
@@ -196,7 +242,7 @@ const schema = {
   <!-- Featured Cocktails (moved before Email Signup) -->
   <section class="py-12 md:py-20 bg-cream">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 md:mb-10">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 md:mb-10 scroll-reveal">
         <div>
           <h2 class="section-title">Bulletproof Batches</h2>
           <p class="section-subtitle">These cocktails batch perfectly every time</p>
@@ -209,7 +255,7 @@ const schema = {
         </a>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 scroll-reveal-stagger">
         {featuredCocktails.map(cocktail => (
           <CocktailCard
             slug={cocktail.slug}
@@ -239,10 +285,10 @@ const schema = {
   </section>
 
   <!-- The Science -->
-  <section class="py-12 md:py-20 bg-primary-700 text-white overflow-hidden">
+  <section class="py-12 md:py-20 bg-primary-700 text-white overflow-hidden grain-overlay">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-        <div>
+        <div class="scroll-reveal">
           <span class="badge bg-accent-500/20 text-accent-300 mb-4 md:mb-6">The Science</span>
           <h2 class="text-2xl sm:text-4xl font-display font-bold mb-4 md:mb-6">
             Why It Stays Pourable
