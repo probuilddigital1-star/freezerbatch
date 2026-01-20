@@ -80,12 +80,27 @@ const schema = {
           <!-- Mobile gradient overlay -->
           <div class="absolute inset-0 bg-gradient-to-t from-primary-900 via-transparent to-primary-900/80 z-10 lg:hidden"></div>
 
-          <img
-            src="/images/hero-decanters.jpg"
-            alt="Elegant glass decanters with amber spirits"
-            class="w-full h-64 sm:h-80 lg:h-full object-cover object-center lg:object-right ken-burns"
-            loading="eager"
-          />
+          <picture>
+            <source
+              media="(max-width: 639px)"
+              srcset="/images/hero-decanters-mobile.webp"
+              type="image/webp"
+            />
+            <source
+              media="(min-width: 640px)"
+              srcset="/images/hero-decanters.webp"
+              type="image/webp"
+            />
+            <img
+              src="/images/hero-decanters.jpg"
+              alt="Elegant glass decanters with amber spirits"
+              class="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-full object-cover object-center ken-burns"
+              loading="eager"
+              fetchpriority="high"
+              width="1400"
+              height="933"
+            />
+          </picture>
 
           <!-- Subtle vignette -->
           <div class="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] z-20 pointer-events-none"></div>
