@@ -4,11 +4,24 @@ import Calculator from '../components/Calculator.astro';
 import CocktailCard from '../components/CocktailCard.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import cocktailsData from '../data/cocktails.json';
+import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../lib/calculator';
 
 const title = 'Freezer Batch Cocktails';
 const description = 'Calculate exact measurements for freezer batch cocktails. Do the math once, drink well forever. Free batch calculator for pre-mixed cocktails.';
 
-const featuredCocktails = cocktailsData.cocktails
+// Derive ABV/freeze-status/servings from the same calculator users interact with,
+// so the cards never disagree with the calculator output.
+const enriched = cocktailsData.cocktails.map(c => {
+  const batch = MILK_STREET_BATCHES[c.slug] ? calculateMilkStreetBatch(c.slug, 750) : null;
+  return {
+    ...c,
+    finalAbv: batch ? Math.round(batch.finalAbv) : c.finalAbv,
+    servings: batch ? batch.servings : c.servings,
+    freezeStatus: batch ? batch.freezeStatus : c.freezeStatus,
+  };
+});
+
+const featuredCocktails = enriched
   .filter(c => c.reliability === 'bulletproof')
   .slice(0, 6);
 
@@ -39,34 +52,33 @@ const schema = {
     <div class="hidden lg:block absolute bottom-0 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-[80px]"></div>
 
     <div class="relative max-w-7xl mx-auto">
-      <div class="grid lg:grid-cols-2 gap-8 lg:gap-0 items-center min-h-[500px] lg:min-h-[600px]">
+      <div class="grid lg:grid-cols-2 gap-6 lg:gap-0 items-center min-h-[360px] lg:min-h-[440px]">
 
         <!-- Text Content -->
-        <div class="px-4 sm:px-6 lg:px-12 pt-10 pb-6 sm:pt-16 sm:pb-10 lg:py-20">
+        <div class="px-4 sm:px-6 lg:px-12 pt-8 pb-4 sm:pt-12 sm:pb-8 lg:py-14">
           <!-- Badge -->
-          <div class="reveal reveal-1 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6 sm:mb-8 shadow-sm">
-            <span class="w-2 h-2 bg-accent-400 rounded-full animate-pulse"></span>
-            <span class="text-sm font-medium text-white/90">Free Calculator - No signup required</span>
+          <div class="reveal reveal-1 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5 mb-4 sm:mb-5 shadow-sm">
+            <span class="w-1.5 h-1.5 bg-accent-400 rounded-full animate-pulse"></span>
+            <span class="text-xs font-medium text-white/90">Free · No signup · Recipes from Milk Street</span>
           </div>
 
-          <h1 class="reveal reveal-2 text-3xl sm:text-5xl lg:text-6xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight">
+          <h1 class="reveal reveal-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-3 sm:mb-4 leading-[1.05]">
             Cocktails That <span class="gold-foil">Wait for You</span>
           </h1>
 
-          <p class="reveal reveal-3 text-base sm:text-xl text-white/80 mb-8 sm:mb-10 max-w-xl">
-            Pre-batch cocktails that stay perfectly pourable in your freezer.
-            Do the math once, drink well forever.
+          <p class="reveal reveal-3 text-base sm:text-lg text-white/80 mb-6 sm:mb-7 max-w-xl">
+            Pre-batch the math, freeze the bottle, pour a perfect drink straight from the freezer.
           </p>
 
-          <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <a href="#calculator" class="btn-primary text-base">
+          <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <a href="#calculator" class="btn-primary text-base self-start sm:self-auto">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
               </svg>
-              Start Calculating
+              Pick a recipe
             </a>
-            <a href="/cocktails" class="btn-secondary bg-white/10 hover:bg-white/20 text-base">
-              Browse {cocktailsData.cocktails.length} Recipes
+            <a href="/cocktails" class="text-sm sm:text-base text-white/70 hover:text-white inline-flex items-center gap-1 self-start sm:self-auto px-2">
+              or browse all {enriched.length} →
             </a>
           </div>
         </div>
@@ -130,22 +142,37 @@ const schema = {
     </div>
   </div>
 
-  <!-- How It Works (moved before Calculator) -->
+  <!-- Calculator section — comes first so the product is the second thing
+       a visitor sees after the hero. -->
+  <section id="calculator" class="py-8 md:py-12 scroll-mt-20 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-6 md:mb-8 scroll-reveal">
+        <h2 class="section-title">Pick a recipe to batch</h2>
+        <p class="section-subtitle">
+          We'll do the math — pour amounts, ABV, freeze status.
+        </p>
+      </div>
+      <div class="scroll-reveal">
+        <Calculator />
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works — context for what just happened in the calculator above. -->
   <section class="py-10 md:py-16 bg-cream">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-10 md:mb-16 scroll-reveal">
         <h2 class="section-title">How It Works</h2>
-        <p class="section-subtitle">Three simple steps to cocktail freedom</p>
+        <p class="section-subtitle">Three steps from spirit to cocktail</p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-6 lg:gap-12 scroll-reveal-stagger">
-        <!-- Step 1 -->
+        <!-- Step 1: Calculate -->
         <div class="flex flex-col items-center text-center">
           <div class="relative mb-4 md:mb-6">
-            <!-- Step number badge -->
-            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg z-10">1</div>
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-primary-100 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-100/50">
-              <svg class="w-8 h-8 md:w-10 md:h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md shadow-accent-500/30 z-10">1</div>
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-50 rounded-2xl flex items-center justify-center shadow-md shadow-accent-100/40">
+              <svg class="w-8 h-8 md:w-10 md:h-10 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
             </div>
@@ -156,12 +183,11 @@ const schema = {
           </p>
         </div>
 
-        <!-- Step 2 -->
+        <!-- Step 2: Batch -->
         <div class="flex flex-col items-center text-center">
           <div class="relative mb-4 md:mb-6">
-            <!-- Step number badge -->
-            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg z-10">2</div>
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-100 rounded-2xl flex items-center justify-center shadow-lg shadow-accent-100/50">
+            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md shadow-accent-500/30 z-10">2</div>
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-50 rounded-2xl flex items-center justify-center shadow-md shadow-accent-100/40">
               <svg class="w-8 h-8 md:w-10 md:h-10 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
               </svg>
@@ -173,18 +199,25 @@ const schema = {
           </p>
         </div>
 
-        <!-- Step 3 -->
+        <!-- Step 3: Freeze & Serve — final step gets a deeper brass tile to
+             cap the progression visually. -->
         <div class="flex flex-col items-center text-center">
           <div class="relative mb-4 md:mb-6">
-            <!-- Step number badge -->
-            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-success text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg z-10">3</div>
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-success/10 rounded-2xl flex items-center justify-center shadow-lg shadow-success/20">
-              <svg class="w-8 h-8 md:w-10 md:h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md shadow-accent-500/30 z-10">3</div>
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-100 rounded-2xl flex items-center justify-center shadow-md shadow-accent-200/40">
+              <svg class="w-8 h-8 md:w-10 md:h-10 text-accent-700" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
+                <!-- Six-point snowflake -->
+                <path d="M12 3v18"/>
+                <path d="M3.34 7.5l17.32 9"/>
+                <path d="M3.34 16.5l17.32-9"/>
+                <path d="M9 5l3 1.6L15 5"/>
+                <path d="M9 19l3-1.6L15 19"/>
+                <path d="M5 9.5l1 3-1 3"/>
+                <path d="M19 9.5l-1 3 1 3"/>
               </svg>
             </div>
           </div>
-          <h3 class="font-display font-bold text-lg md:text-xl mb-2 md:mb-3 text-primary-600">Freeze & Serve</h3>
+          <h3 class="font-display font-bold text-lg md:text-xl mb-2 md:mb-3 text-primary-600">Freeze &amp; Serve</h3>
           <p class="text-cognac text-sm md:text-base">
             Store for 4+ hours. Pour straight into a glass. Perfectly chilled, zero effort.
           </p>
@@ -198,21 +231,6 @@ const schema = {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Calculator Section -->
-  <section id="calculator" class="py-10 md:py-16 scroll-mt-20 bg-white">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-8 md:mb-10 scroll-reveal">
-        <h2 class="section-title">Let's Batch This</h2>
-        <p class="section-subtitle">
-          Choose a classic recipe or build your own. We'll do the math.
-        </p>
-      </div>
-      <div class="scroll-reveal">
-        <Calculator />
       </div>
     </div>
   </section>
@@ -259,8 +277,8 @@ const schema = {
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 md:mb-10 scroll-reveal">
         <div>
-          <h2 class="section-title">Bulletproof Batches</h2>
-          <p class="section-subtitle">These cocktails batch perfectly every time</p>
+          <h2 class="section-title">Batches that last in the freezer</h2>
+          <p class="section-subtitle">Spirit-forward recipes — keep for months, ready any time</p>
         </div>
         <a href="/cocktails" class="btn-ghost">
           View all recipes
@@ -281,6 +299,7 @@ const schema = {
             finalAbv={cocktail.finalAbv}
             freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
             servings={cocktail.servings}
+            technique={cocktail.recipe?.dilutionType}
           />
         ))}
       </div>

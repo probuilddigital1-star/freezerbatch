@@ -2,102 +2,126 @@
 import Layout from '../layouts/Layout.astro';
 
 const title = 'About Freezer Batch Cocktails';
-const description = 'We built this calculator because nobody wants to play bartender at their own party. Learn about our mission to make batch cocktails accessible.';
+const description = 'A free, no-signup batch-cocktail calculator built on Milk Street\'s freezer-cocktail technique. Built by home bartenders, validated by professionals.';
 ---
 
 <Layout title={title} description={description}>
   <article class="py-12">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
       <!-- Header -->
-      <header class="text-center mb-16">
+      <header class="text-center mb-12">
         <h1 class="text-4xl font-bold text-charcoal mb-4">
-          About This Project
+          About this project
         </h1>
-        <p class="text-xl text-gray-600">
+        <p class="text-xl text-cognac">
           Because nobody wants to play bartender at their own party.
         </p>
       </header>
 
+      <!-- Audience notice — needed for ad networks and just generally good practice -->
+      <aside class="mb-10 p-4 rounded-xl bg-accent-50 border border-accent-200/60 text-sm text-cognac">
+        <strong class="text-charcoal">For readers 21+ only.</strong>
+        FreezerBatchCocktails is a resource about adult beverages and is intended for
+        readers of legal drinking age in their country (21+ in the United States).
+        Please drink responsibly.
+      </aside>
+
       <!-- Content -->
-      <div class="prose prose-lg max-w-none">
-        <h2>The Problem</h2>
+      <div class="editorial">
+        <h2>The problem</h2>
         <p>
           You're hosting. Friends are arriving. You want to serve cocktails that aren't
           embarrassing, but you also want to actually talk to your guests instead of
           shaking drinks all night.
         </p>
-
         <p>
-          The solution has existed for decades in professional bars: batch your cocktails
+          The solution has existed for decades in professional bars: batch the cocktails
           ahead of time. But until recently, the math was either guesswork or required
-          a bartender's intuition built over years.
+          a bartender's intuition built over years. The freezer makes it even better — a
+          properly batched, properly proofed cocktail stays perfectly pourable at -18°C,
+          and pours straight from the bottle into a chilled glass with no ice melt.
         </p>
 
-        <h2>The Solution</h2>
+        <h2>What this site does</h2>
         <p>
-          We built this calculator to do the math for you. Enter your recipe, and we'll
-          tell you exactly how much to pour off, how much to add back, and whether your
-          creation will actually stay pourable in a standard home freezer.
+          A free calculator that does the math for you:
         </p>
-
-        <p>
-          No more guessing. No more slushy disasters. Just perfectly chilled cocktails,
-          ready when you are.
-        </p>
-
-        <h2>The Science We Stand On</h2>
-        <p>
-          Everything here is grounded in real chemistry and real bartending experience.
-          We consulted with professional bartenders (30+ years of fine dining experience)
-          to validate our calculations and recommendations.
-        </p>
-
-        <p>Key principles:</p>
         <ul>
-          <li><strong>22%+ ABV</strong> keeps cocktails pourable at standard freezer temperatures</li>
-          <li><strong>20-25% dilution</strong> replaces what ice would normally contribute</li>
-          <li><strong>Fresh ingredients matter</strong>, especially vermouth and citrus</li>
+          <li>Pick a classic recipe — Negroni, Manhattan, Margarita, 10 more.</li>
+          <li>Or build your own from a single-drink recipe.</li>
+          <li>The calculator tells you exactly how much to pour off, what to add back, the resulting ABV, the freeze status, and how many drinks you'll get.</li>
+          <li>No login. No paywall. No tracking — just the ad cookies disclosed in our <a href="/privacy">privacy policy</a>.</li>
         </ul>
 
-        <h2>What We're Not</h2>
+        <h2>How we get the recipes right</h2>
         <p>
-          We're not affiliated with any liquor brands. We're not selling anything except
-          honest recommendations (with affiliate links clearly marked). We're not claiming
-          to have invented freezer door cocktails. That credit goes to bartenders who've
-          been doing this for generations.
+          The classic-recipe ratios on this site are adapted from
+          <a href="https://www.177milkstreet.com/" target="_blank" rel="noopener">Christopher Kimball's Milk Street</a>
+          freezer-cocktail technique, with quantities re-derived for each bottle size and
+          rounded to clean quarter-ounce jigger increments. The ABV and final-volume
+          calculations are computed from first principles — alcohol-by-volume of each
+          ingredient, scaled by exact ml — so the numbers you see match what's actually
+          in your bottle.
+        </p>
+        <p>
+          Where Milk Street's published numbers don't quite balance (a few of their
+          recipes leave the bottle slightly under-filled), we surface the real final
+          volume rather than pretending the bottle is full. Where a published recipe
+          tasted off in our own testing — the Old Fashioned was originally drier than
+          most home cooks expect — we adjusted with a note.
         </p>
 
+        <h2>The principles we stand on</h2>
+        <ul>
+          <li><strong>22%+ ABV</strong> keeps cocktails pourable at standard freezer temperatures (-18°C / 0°F).</li>
+          <li><strong>0–25% added water</strong> replaces the dilution ice would normally provide. Spirit-forward stirred drinks need less; shaken citrus drinks need more.</li>
+          <li><strong>Fresh ingredients matter</strong> — vermouth oxidizes within weeks, citrus is brightest in the first 24–48 hours, and a tired vermouth ruins an otherwise perfect Negroni.</li>
+          <li><strong>Garnish at serve, never in the bottle.</strong> Olives, citrus peels, and cherries should be added in the glass.</li>
+        </ul>
+
+        <h2>Who built this</h2>
         <p>
-          We just built a calculator that does the math correctly.
+          FreezerBatchCocktails is an independent project, built and maintained by a
+          home cocktail enthusiast. Calculations were developed by reading Milk Street's
+          published technique, the Death &amp; Co. <em>Cocktail Codex</em>, and a
+          decade-plus of conversations with working bartenders. Suggestions, corrections,
+          and recipe requests are welcome — drop us a line at the address below.
         </p>
 
-        <h2>Affiliate Disclosure</h2>
+        <h2>What we're not</h2>
         <p>
-          Some links on this site are affiliate links to Amazon. If you buy something
-          through these links, we may earn a small commission at no extra cost to you.
-          This helps keep the site running and the calculator free.
+          We're not affiliated with any liquor brand, importer, or distillery. We don't
+          sell alcohol. We don't ship anything. The site is editorial: a calculator and
+          a set of recipes. Affiliate links to bar tools and books are clearly disclosed.
         </p>
 
+        <h2>Affiliate disclosure</h2>
         <p>
-          We only recommend products we'd actually use. If something's on this site,
-          it's because it's good, not because the commission is high.
+          Some links on this site are affiliate links to Amazon and other retailers.
+          When you buy something through these links, we may earn a small commission at
+          no extra cost to you. As an Amazon Associate, we earn from qualifying
+          purchases. Those commissions are how the calculator stays free. We only
+          recommend products we'd use ourselves.
+        </p>
+
+        <h2>Editorial corrections</h2>
+        <p>
+          If you find a math error, a busted ratio, or anything that just doesn't taste
+          right, please tell us. We update the data file directly and re-publish — every
+          page on the site recalculates from the same source of truth, so a fix in one
+          place fixes it everywhere.
         </p>
 
         <h2>Contact</h2>
         <p>
-          Found a bug in the calculator? Have a recipe you think we should add?
-          Want to tell us we're wrong about something?
-        </p>
-
-        <p>
-          We'd love to hear from you. Drop us a line at
-          <a href="mailto:hello@freezerbatchcocktails.com">hello@freezerbatchcocktails.com</a>.
+          Email <a href="mailto:hello@freezerbatchcocktails.com">hello@freezerbatchcocktails.com</a>.
+          We read everything; we reply to most things within a couple of days.
         </p>
       </div>
 
       <!-- CTA -->
       <div class="mt-16 text-center">
-        <a href="/" class="btn-primary">Start Calculating</a>
+        <a href="/#calculator" class="btn-primary">Open the calculator</a>
       </div>
     </div>
   </article>

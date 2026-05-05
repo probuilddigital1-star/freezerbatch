@@ -19,11 +19,19 @@ const currentYear = new Date().getFullYear();
       <div class="md:col-span-2">
         <a href="/" class="flex items-center gap-3 mb-4">
           <div class="w-9 h-9 bg-gradient-to-br from-accent-400 to-accent-500 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 3v18M3 12h18M7.5 7.5l9 9M16.5 7.5l-9 9" stroke-linecap="round"/>
+            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 6h14"/>
+              <path d="M5.5 6 12 14l6.5-8"/>
+              <path d="M12 14v6"/>
+              <path d="M9 20h6"/>
+              <g transform="translate(17.2 3.5)" stroke-width="1.6">
+                <path d="M0 -1.6v3.2"/>
+                <path d="M-1.4 -0.8l2.8 1.6"/>
+                <path d="M-1.4 0.8l2.8 -1.6"/>
+              </g>
             </svg>
           </div>
-          <span class="font-display font-bold text-xl text-white">
+          <span class="font-display font-semibold text-xl text-white tracking-tight">
             Freezer<span class="text-accent-300">Batch</span>
           </span>
         </a>
@@ -42,6 +50,9 @@ const currentYear = new Date().getFullYear();
           </li>
           <li>
             <a href="/cocktails" class="text-white/90 hover:text-accent-300 transition-colors">All Recipes</a>
+          </li>
+          <li>
+            <a href="/blog" class="text-white/90 hover:text-accent-300 transition-colors">Guides</a>
           </li>
           <li>
             <a href="/how-it-works" class="text-white/90 hover:text-accent-300 transition-colors">How It Works</a>
@@ -81,6 +92,24 @@ const currentYear = new Date().getFullYear();
     </div>
 
     <hr class="border-white/10 my-6" />
+
+    <!-- Responsible-drinking notice — required signal for AdSense / age-gated networks -->
+    <div class="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
+      <p class="text-xs text-white/70 leading-relaxed text-center sm:text-left">
+        FreezerBatchCocktails is intended for readers <strong class="text-white">21 and older</strong>
+        (or the legal drinking age in your country). Please drink responsibly. Never drink and drive.
+        If you or someone you know needs help, call the SAMHSA National Helpline at
+        <a href="tel:18006624357" class="underline hover:text-white">1-800-662-4357</a>.
+      </p>
+    </div>
+
+    <!-- Legal / housekeeping links -->
+    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 mb-4 text-xs text-white/60">
+      <a href="/about" class="hover:text-white transition-colors">About</a>
+      <a href="/privacy" class="hover:text-white transition-colors">Privacy</a>
+      <a href="/terms" class="hover:text-white transition-colors">Terms</a>
+      <a href="mailto:hello@freezerbatchcocktails.com" class="hover:text-white transition-colors">Contact</a>
+    </div>
 
     <!-- Bottom Bar -->
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">

@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const title = 'Guides';
+const description = 'Practical guides for freezer-batching cocktails: dilution, sweetness, citrus, vermouth, and the rest of the small calls that make a batch land right.';
+
+const posts = [
+  {
+    slug: 'why-your-batch-is-too-sweet',
+    title: 'Why your freezer batch is too sweet (and how to fix it)',
+    hook: 'Cold drinks taste different from room-temperature drinks. The trick the freezer plays on sugar, and how much to dial back.',
+    readTime: '5 min',
+  },
+  {
+    slug: 'fresh-citrus-in-batches',
+    title: 'Fresh citrus in freezer batches',
+    hook: 'Lemon and lime juice peak in the first 48 hours and fade after a week. How to size your batches around it.',
+    readTime: '4 min',
+  },
+  {
+    slug: 'choosing-vermouth',
+    title: 'Choosing a vermouth (and knowing when it\'s dead)',
+    hook: 'Vermouth is wine. It oxidizes. Picking the right one for the cocktail and a 30-second oxidation test for the bottle in your fridge.',
+    readTime: '5 min',
+  },
+  {
+    slug: 'dilution-guide',
+    title: 'The freezer-batch dilution guide',
+    hook: 'When to add water, when not to, and why 22% ABV is the line. Matching the calculator\'s 0% / 20% / 25% buttons to actual drinks.',
+    readTime: '4 min',
+  },
+];
+---
+
+<Layout title={title} description={description}>
+  <article class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <header class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-charcoal mb-3">Guides</h1>
+        <p class="text-lg text-cognac max-w-xl mx-auto">
+          Short, opinionated guides to the small judgment calls behind a great freezer batch.
+        </p>
+      </header>
+
+      <div class="space-y-5">
+        {posts.map(post => (
+          <a href={`/blog/${post.slug}`} class="group block bg-white rounded-2xl p-6 border border-cognac-200/80 shadow-card hover:border-accent-300 hover:shadow-card-hover transition-all">
+            <div class="flex items-baseline justify-between gap-4 mb-2">
+              <h2 class="font-display text-2xl font-semibold text-charcoal group-hover:text-primary-600 transition-colors leading-tight">
+                {post.title}
+              </h2>
+              <span class="shrink-0 text-xs text-cognac-400 uppercase tracking-wider">{post.readTime}</span>
+            </div>
+            <p class="text-cognac">{post.hook}</p>
+            <p class="mt-3 text-sm font-medium text-accent-600 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+              Read the guide
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </p>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-16 text-center">
+        <a href="/#calculator" class="btn-primary">Open the calculator</a>
+      </div>
+    </div>
+  </article>
+</Layout>

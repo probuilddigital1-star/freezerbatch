@@ -13,6 +13,7 @@ export interface Props {
   finalAbv: number;
   freezeStatus: 'freeze' | 'slushy' | 'safe';
   servings: number;
+  technique?: 'stirred' | 'shaken' | string;
 }
 
 const {
@@ -24,6 +25,7 @@ const {
   finalAbv,
   freezeStatus,
   servings,
+  technique,
 } = Astro.props;
 
 const statusConfig = {
@@ -57,34 +59,37 @@ const status = statusConfig[freezeStatus];
   <!-- Tagline -->
   <p class="text-surface-600 text-sm mb-6 line-clamp-2">{tagline}</p>
 
-  <!-- Stats Grid -->
-  <div class="grid grid-cols-3 gap-3 mb-6">
+  <!-- Stats Grid — two stats that actually vary per cocktail. The third column
+       used to show "750 ml" identically on every card; dropped. -->
+  <div class="grid grid-cols-2 gap-3 mb-6">
     <div class="bg-surface-50 rounded-xl p-3 text-center">
-      <span class="block font-mono font-bold text-lg text-surface-900">{finalAbv}%</span>
+      <span class="block font-mono font-bold text-xl text-surface-900">{finalAbv}%</span>
       <span class="text-2xs text-surface-500 uppercase tracking-wider">ABV</span>
     </div>
     <div class="bg-surface-50 rounded-xl p-3 text-center">
-      <span class="block font-mono font-bold text-lg text-surface-900">{servings}</span>
+      <span class="block font-mono font-bold text-xl text-surface-900">{servings}</span>
       <span class="text-2xs text-surface-500 uppercase tracking-wider">Drinks</span>
     </div>
-    <div class="bg-surface-50 rounded-xl p-3 text-center">
-      <span class="block font-mono font-bold text-lg text-surface-900">750</span>
-      <span class="text-2xs text-surface-500 uppercase tracking-wider">ml</span>
-    </div>
   </div>
+
+  {technique && (
+    <p class="text-xs text-surface-500 mb-4 capitalize">
+      <span class="text-cognac-400">·</span> {technique} ·
+    </p>
+  )}
 
   <!-- Footer -->
   <div class="flex items-center justify-between pt-4 border-t border-surface-100">
     {reliability === 'bulletproof' ? (
-      <span class="badge badge-primary">
+      <span class="badge badge-primary" title="Spirit-forward, no fresh ingredients">
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
           <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Bulletproof
+        Lasts months
       </span>
     ) : (
-      <span class="badge badge-warning">
-        Needs Attention
+      <span class="badge badge-warning" title="Contains fresh citrus or coffee — flavor peaks early">
+        Best within a week
       </span>
     )}
     <span class="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:gap-2 transition-all">

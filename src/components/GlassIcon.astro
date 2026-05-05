@@ -1,0 +1,75 @@
+---
+/**
+ * Stylized cocktail-glass illustration. Picks one of four shapes based on
+ * the cocktail's traditional serving glass — gives recipe pages a touch
+ * of visual identity without sourcing photos.
+ */
+
+export type GlassType = 'coupe' | 'rocks' | 'mug' | 'julep';
+
+export interface Props {
+  type: GlassType;
+  /** Tailwind size class, e.g. "w-10 h-10". Defaults to w-12 h-12. */
+  class?: string;
+}
+
+const { type, class: className = 'w-12 h-12' } = Astro.props;
+---
+
+{type === 'coupe' && (
+  <svg class={className} viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- shallow bowl + stem + foot -->
+    <path d="M14 18h36" />
+    <path d="M14 18 C 18 32, 28 36, 32 36 C 36 36, 46 32, 50 18" />
+    <path d="M32 36 V 54" />
+    <path d="M22 54 H 42" />
+    <!-- frost crystal -->
+    <g transform="translate(48 12)" stroke-width="1.4">
+      <path d="M0 -2.4v4.8M-2 -1.2l4 2.4M-2 1.2l4 -2.4" />
+    </g>
+  </svg>
+)}
+
+{type === 'rocks' && (
+  <svg class={className} viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- short tumbler -->
+    <path d="M16 14 L 18 50 a 4 4 0 0 0 4 4 h 20 a 4 4 0 0 0 4 4 -4 L 48 14" />
+    <path d="M16 14 H 48" />
+    <!-- ice cube -->
+    <rect x="24" y="28" width="14" height="14" rx="2" stroke-width="1.4" />
+    <path d="M24 32 L 38 32" stroke-width="1" stroke-opacity="0.5" />
+    <!-- frost crystal -->
+    <g transform="translate(54 14)" stroke-width="1.4">
+      <path d="M0 -2.4v4.8M-2 -1.2l4 2.4M-2 1.2l4 -2.4" />
+    </g>
+  </svg>
+)}
+
+{type === 'mug' && (
+  <svg class={className} viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- copper-mug body + handle -->
+    <path d="M14 18 V 50 a 4 4 0 0 0 4 4 h 24 a 4 4 0 0 0 4 -4 V 18 Z" />
+    <path d="M46 24 h 6 a 4 4 0 0 1 4 4 v 14 a 4 4 0 0 1 -4 4 h -6" />
+    <!-- rim band -->
+    <path d="M14 22 H 46" stroke-opacity="0.55" />
+    <!-- frost crystal -->
+    <g transform="translate(8 14)" stroke-width="1.4">
+      <path d="M0 -2.4v4.8M-2 -1.2l4 2.4M-2 1.2l4 -2.4" />
+    </g>
+  </svg>
+)}
+
+{type === 'julep' && (
+  <svg class={className} viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- tall narrow tumbler / julep cup -->
+    <path d="M20 14 L 22 52 a 4 4 0 0 0 4 4 h 12 a 4 4 0 0 0 4 -4 L 44 14 Z" />
+    <path d="M20 14 H 44" />
+    <!-- mint sprig -->
+    <path d="M30 26 q 4 -6 8 -8" stroke-width="1.4" />
+    <path d="M34 22 q 2 -2 4 -2" stroke-width="1.2" />
+    <!-- frost crystal -->
+    <g transform="translate(54 14)" stroke-width="1.4">
+      <path d="M0 -2.4v4.8M-2 -1.2l4 2.4M-2 1.2l4 -2.4" />
+    </g>
+  </svg>
+)}

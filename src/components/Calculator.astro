@@ -2,9 +2,12 @@
 /**
  * Interactive Batch Calculator Component
  *
- * REDESIGNED: When a preset recipe is selected, shows clean batch instructions.
- * The ingredient form only appears in "Build My Own" mode.
+ * Default mode is "preset" — most visitors want to batch a known cocktail,
+ * not build something custom. The recipe picker is a visual tile grid so
+ * users can scan rather than read a dropdown.
  */
+import cocktailsData from '../data/cocktails.json';
+import { MILK_STREET_BATCHES } from '../lib/calculator';
 
 export interface Props {
   /** Pre-fill with a specific cocktail slug */
@@ -14,6 +17,17 @@ export interface Props {
 }
 
 const { cocktailSlug, simple = false } = Astro.props;
+
+// Only show recipes that have a Milk Street batch defined (the calculator
+// can compute them). Order matches cocktails.json — bulletproof first.
+const recipeTiles = cocktailsData.cocktails
+  .filter(c => MILK_STREET_BATCHES[c.slug])
+  .map(c => ({
+    slug: c.slug,
+    name: c.name,
+    baseSpirit: c.baseSpirit?.[0] ?? '',
+    technique: c.recipe?.dilutionType ?? '',
+  }));
 ---
 
 <batch-calculator
@@ -22,53 +36,51 @@ const { cocktailSlug, simple = false } = Astro.props;
   data-simple={simple}
 >
   <div class="card">
-    <!-- Entry Mode Toggle - Sliding Pill Design -->
+    <!-- Entry Mode Toggle — preset is default (most users want a known recipe) -->
     <div class="mode-toggle-container relative bg-primary-100 rounded-2xl p-1.5 mb-6">
-      <!-- Sliding indicator -->
       <div class="mode-toggle-indicator absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-3px)] bg-white rounded-xl shadow-lg transition-all duration-300 ease-out"></div>
 
       <div class="relative flex">
         <button
           type="button"
-          class="entry-mode-btn flex-1 py-4 px-5 rounded-xl font-medium transition-all z-10"
-          data-mode="custom"
+          class="entry-mode-btn flex-1 py-3 px-5 rounded-xl font-semibold transition-all z-10"
+          data-mode="preset"
           aria-pressed="true"
         >
-          <span class="block text-lg font-semibold">Build My Own</span>
-          <span class="text-sm opacity-80">Enter custom recipe</span>
+          Recipe
         </button>
         <button
           type="button"
-          class="entry-mode-btn flex-1 py-4 px-5 rounded-xl font-medium transition-all z-10"
-          data-mode="preset"
+          class="entry-mode-btn flex-1 py-3 px-5 rounded-xl font-semibold transition-all z-10"
+          data-mode="custom"
           aria-pressed="false"
         >
-          <span class="block text-lg font-semibold">Choose a Classic</span>
-          <span class="text-sm opacity-80">Pre-made batch recipes</span>
+          Custom
         </button>
       </div>
     </div>
 
-    <!-- Preset Recipe Selector (hidden by default) -->
-    <div id="preset-selector" class="hidden mb-6">
-      <label for="recipe-select" class="block text-sm font-medium text-gray-700 mb-2">
-        Choose a cocktail
-      </label>
-      <select id="recipe-select" class="input-field text-lg">
+    <!-- Preset Recipe Picker — visual tile grid, scannable like a menu -->
+    <div id="preset-selector" class="mb-6">
+      <p class="block text-sm font-medium text-gray-700 mb-3" id="recipe-picker-label">Pick a cocktail to batch</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2" role="radiogroup" aria-labelledby="recipe-picker-label">
+        {recipeTiles.map(r => (
+          <button
+            type="button"
+            role="radio"
+            aria-checked="false"
+            class="recipe-tile group text-left p-3 rounded-xl border-2 border-cognac-200 bg-white hover:border-accent-400 hover:shadow-md transition-all"
+            data-recipe={r.slug}
+          >
+            <span class="block font-display font-semibold text-charcoal text-sm leading-tight">{r.name}</span>
+            <span class="block mt-0.5 text-xs text-cognac-400 capitalize truncate">{r.baseSpirit}</span>
+          </button>
+        ))}
+      </div>
+      <!-- Hidden select — kept so the existing share/state code still functions -->
+      <select id="recipe-select" class="sr-only" tabindex="-1" aria-hidden="true">
         <option value="">Select a recipe...</option>
-        <option value="negroni">Negroni</option>
-        <option value="margarita">Margarita</option>
-        <option value="manhattan">Manhattan</option>
-        <option value="old-fashioned">Old Fashioned</option>
-        <option value="daiquiri">Daiquiri</option>
-        <option value="dirty-martini">Dirty Martini</option>
-        <option value="cosmopolitan">Cosmopolitan</option>
-        <option value="espresso-martini">Espresso Martini</option>
-        <option value="vesper">Vesper</option>
-        <option value="mint-julep">Mint Julep</option>
-        <option value="boulevardier">Boulevardier</option>
-        <option value="moscow-mule">Moscow Mule</option>
-        <option value="paper-plane">Paper Plane</option>
+        {recipeTiles.map(r => <option value={r.slug}>{r.name}</option>)}
       </select>
     </div>
 
@@ -77,52 +89,57 @@ const { cocktailSlug, simple = false } = Astro.props;
       <label for="bottle-size" class="block text-sm font-medium text-gray-700 mb-2">
         Bottle Size
       </label>
-      <div class="flex gap-2">
-        <button type="button" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-size="375">375ml</button>
-        <button type="button" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium active" data-size="750">750ml</button>
-        <button type="button" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-size="1000">1L</button>
-        <input
-          type="number"
-          id="bottle-size"
-          class="w-20 py-2 px-2 rounded-lg border-2 border-gray-200 text-sm text-center"
-          value="750"
-          min="100"
-          max="3000"
-          inputmode="numeric"
-          aria-label="Custom bottle size in ml"
-        />
-        <span class="flex-shrink-0 self-center text-sm font-medium text-gray-600">ml</span>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex gap-2 flex-1" role="radiogroup" aria-label="Bottle size">
+          <button type="button" role="radio" aria-checked="false" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-size="375">375ml</button>
+          <button type="button" role="radio" aria-checked="true" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium active" data-size="750">750ml</button>
+          <button type="button" role="radio" aria-checked="false" class="bottle-size-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-size="1000">1L</button>
+        </div>
+        <div class="flex items-center gap-2 sm:w-auto">
+          <span class="text-xs text-gray-500 sm:hidden">or custom:</span>
+          <input
+            type="number"
+            id="bottle-size"
+            class="w-20 py-2 px-2 rounded-lg border-2 border-gray-200 text-sm text-center"
+            value="750"
+            min="100"
+            max="3000"
+            inputmode="numeric"
+            aria-label="Custom bottle size in ml"
+          />
+          <span class="flex-shrink-0 self-center text-sm font-medium text-gray-600">ml</span>
+        </div>
       </div>
     </div>
 
     <!-- Unit Toggle -->
     <div id="unit-toggle" class="mb-6 flex items-center gap-4">
-      <span class="text-sm font-medium text-gray-700">Display units:</span>
-      <div class="flex rounded-lg border-2 border-gray-200 overflow-hidden">
-        <button type="button" class="unit-btn px-4 py-2 text-sm font-medium active" data-unit="oz">oz</button>
-        <button type="button" class="unit-btn px-4 py-2 text-sm font-medium" data-unit="ml">ml</button>
+      <span class="text-sm font-medium text-gray-700" id="display-units-label">Display units:</span>
+      <div class="flex rounded-lg border-2 border-gray-200 overflow-hidden" role="radiogroup" aria-labelledby="display-units-label">
+        <button type="button" role="radio" aria-checked="true" class="unit-btn px-4 py-2 text-sm font-medium active" data-unit="oz">oz</button>
+        <button type="button" role="radio" aria-checked="false" class="unit-btn px-4 py-2 text-sm font-medium" data-unit="ml">ml</button>
       </div>
     </div>
 
     <!-- Dilution Setting (available in both modes) -->
     {!simple && (
       <div id="dilution-section" class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2" id="dilution-label">
           Dilution (water from ice melt)
         </label>
-        <div class="flex gap-2">
-          <button type="button" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-dilution="20">
+        <div class="flex gap-2" role="radiogroup" aria-labelledby="dilution-label">
+          <button type="button" role="radio" aria-checked="false" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-dilution="0">
+            0% <span class="text-xs text-gray-500">No water</span>
+          </button>
+          <button type="button" role="radio" aria-checked="true" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium active" data-dilution="20">
             20% <span class="text-xs text-gray-500">Stirred</span>
           </button>
-          <button type="button" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium active" data-dilution="22">
-            22% <span class="text-xs text-gray-500">Standard</span>
-          </button>
-          <button type="button" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-dilution="25">
+          <button type="button" role="radio" aria-checked="false" class="dilution-btn flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium" data-dilution="25">
             25% <span class="text-xs text-gray-500">Shaken</span>
           </button>
         </div>
         <p class="mt-1 text-xs text-gray-500">
-          Shaken drinks need more dilution. Spirit-forward stirred drinks need less.
+          Shaken citrus drinks pick up more water from ice. Spirit-forward stirred drinks need less; freezer batches often need none.
         </p>
       </div>
     )}
@@ -138,29 +155,78 @@ const { cocktailSlug, simple = false } = Astro.props;
     <!-- CUSTOM MODE: Ingredient Input Form -->
     <!-- ============================================ -->
     <div id="custom-recipe-form">
+      <!-- Live result bar — always visible above the form so the user gets
+           immediate feedback while editing without scrolling. -->
+      <div id="custom-live-bar" class="mb-5 rounded-xl border-2 border-cognac-200 bg-white px-4 py-3 hidden">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-baseline gap-3">
+            <span id="live-abv" class="font-mono font-bold text-2xl text-charcoal">0</span>
+            <span class="text-xs uppercase tracking-wider text-cognac-400">% ABV</span>
+            <span class="hidden sm:inline-block w-px h-5 bg-cognac-200" aria-hidden="true"></span>
+            <span id="live-servings" class="hidden sm:inline-block font-mono font-semibold text-base text-cognac">0</span>
+            <span class="hidden sm:inline-block text-xs uppercase tracking-wider text-cognac-400">drinks</span>
+          </div>
+          <div id="live-status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-cognac-100 text-cognac">
+            <span id="live-status-icon">·</span>
+            <span id="live-status-label">Add ingredients</span>
+          </div>
+        </div>
+      </div>
+
       <fieldset class="mb-6">
-        <legend class="block text-sm font-medium text-gray-700 mb-1">Your Recipe (single drink)</legend>
-        <p class="text-xs text-gray-500 mb-3">Enter a single cocktail recipe. We'll calculate the batch.</p>
+        <legend class="block text-sm font-medium text-gray-700 mb-1">Enter the recipe for one drink</legend>
+        <p class="text-xs text-gray-500 mb-3">
+          Type the ingredients for a single cocktail and we'll multiply it up to fill a bottle.
+          <button type="button" id="load-sample" class="ml-1 text-accent-500 hover:text-accent-600 underline-offset-2 hover:underline font-medium">
+            Try a sample &rarr;
+          </button>
+        </p>
         <!-- Column Headers -->
         <div class="grid grid-cols-12 gap-2 mb-2 text-xs text-gray-500 font-medium">
           <span class="col-span-5">Ingredient</span>
-          <span class="col-span-3 text-center">Amount (oz)</span>
-          <span class="col-span-3 text-center">ABV %</span>
+          <span class="col-span-3 text-center">
+            Amount (<span id="amount-unit-label">oz</span>)
+          </span>
+          <span class="col-span-3 text-center" title="Alcohol By Volume — typical spirits are 40%, vermouth ~16%, juice 0%">
+            ABV %
+          </span>
           <span class="col-span-1"></span>
         </div>
         <div id="ingredients-container" class="space-y-3">
           <!-- Ingredient rows added dynamically -->
         </div>
-        <button
-          type="button"
-          id="add-ingredient"
-          class="mt-3 inline-flex items-center gap-1 text-primary hover:text-primary-600 font-medium text-sm"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Add Ingredient
-        </button>
+        <div class="mt-3 flex items-center justify-between gap-3 flex-wrap">
+          <button
+            type="button"
+            id="add-ingredient"
+            class="inline-flex items-center gap-1 text-primary hover:text-primary-600 font-medium text-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Ingredient
+          </button>
+          <details class="abv-help group text-xs relative">
+            <summary class="cursor-pointer text-cognac-400 hover:text-cognac-600 select-none inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01" stroke-linecap="round"/>
+              </svg>
+              ABV cheatsheet
+            </summary>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-cognac-500 bg-white rounded-lg p-3 absolute right-0 top-6 w-64 shadow-lg border border-cognac-200 z-20">
+              <span>Vodka, gin, rum, tequila</span><span class="text-right font-mono text-charcoal">40%</span>
+              <span>Bourbon, rye whiskey</span><span class="text-right font-mono text-charcoal">45%</span>
+              <span>Sweet vermouth</span><span class="text-right font-mono text-charcoal">16%</span>
+              <span>Dry vermouth</span><span class="text-right font-mono text-charcoal">18%</span>
+              <span>Campari</span><span class="text-right font-mono text-charcoal">25%</span>
+              <span>Aperol</span><span class="text-right font-mono text-charcoal">11%</span>
+              <span>Cointreau, triple sec</span><span class="text-right font-mono text-charcoal">40%</span>
+              <span>Kahlúa</span><span class="text-right font-mono text-charcoal">20%</span>
+              <span>Juice, syrup, water</span><span class="text-right font-mono text-charcoal">0%</span>
+            </div>
+          </details>
+        </div>
       </fieldset>
 
       <!-- Results Panel (custom mode) -->
@@ -184,12 +250,12 @@ const { cocktailSlug, simple = false } = Astro.props;
         </div>
 
         <!-- Freeze Status -->
-        <div id="freeze-status" class="p-4 rounded-lg border-2 mb-6 status-freeze">
+        <div id="freeze-status" class="p-4 rounded-lg border-2 mb-6 status-empty">
           <div class="flex items-center gap-2">
-            <span id="status-icon" class="text-2xl">?</span>
+            <span id="status-icon" class="text-2xl">·</span>
             <div>
-              <span id="status-label" class="font-semibold">Add Ingredients</span>
-              <p id="status-message" class="text-sm opacity-80">Add ingredients to calculate freeze status</p>
+              <span id="status-label" class="font-semibold">Waiting for ingredients</span>
+              <p id="status-message" class="text-sm opacity-80">Aim for around 22% ABV or higher to keep the batch pourable in the freezer.</p>
             </div>
           </div>
         </div>
@@ -212,19 +278,22 @@ const { cocktailSlug, simple = false } = Astro.props;
           </div>
         </div>
 
-        <!-- Actions -->
+        <!-- Composition bar — visual breakdown of what's in the bottle. -->
+        <div id="composition-bar" class="mt-6 hidden"></div>
+
+        <!-- Actions — instant in-place actions, no mid-flow modal interruption -->
         <div class="flex flex-col sm:flex-row gap-3 mt-6">
-          <button type="button" id="email-btn" class="btn-primary flex-1 flex items-center justify-center gap-2">
+          <button type="button" id="copy-btn" class="btn-primary flex-1 flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
             </svg>
-            Email Recipe
+            Copy recipe
           </button>
           <button type="button" id="share-btn" class="btn-secondary flex-1 flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
-            Share Link
+            Share link
           </button>
           <button type="button" id="print-btn" class="btn-ghost flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,74 +302,37 @@ const { cocktailSlug, simple = false } = Astro.props;
             Print
           </button>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Email Recipe Modal -->
-  <div id="email-modal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="email-modal-backdrop"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
-        <button type="button" id="email-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <div class="text-center mb-6">
-          <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900">Email This Recipe</h3>
-          <p class="text-gray-500 text-sm mt-1">We'll send the full recipe with instructions</p>
-        </div>
-
-        <form id="email-recipe-form">
-          <div class="mb-4">
-            <label for="recipe-email" class="block text-sm font-medium text-gray-700 mb-1">Your email</label>
+        <!-- Email recipe — inline form, no modal interruption. -->
+        <form id="email-recipe-form" class="email-recipe-row mt-5 pt-5 border-t border-cognac-200/60">
+          <div class="flex flex-col sm:flex-row gap-2 items-stretch">
             <input
               type="email"
-              id="recipe-email"
+              name="email"
               required
               placeholder="your@email.com"
-              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all"
+              autocomplete="email"
+              class="flex-1 px-4 py-2.5 border border-cognac-200 rounded-lg text-sm bg-white
+                     focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all"
+              aria-label="Your email"
             />
+            <button type="submit" class="email-send-btn btn-secondary text-sm whitespace-nowrap inline-flex items-center justify-center gap-2 px-4">
+              <svg class="email-send-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <svg class="email-send-spinner w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              <span class="email-send-label">Email me this</span>
+            </button>
           </div>
-
-          <div class="mb-6">
-            <label class="flex items-start gap-3 cursor-pointer">
-              <input type="checkbox" id="subscribe-checkbox" class="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
-              <span class="text-sm text-gray-600">Also send me new recipes and tips (optional)</span>
-            </label>
-          </div>
-
-          <button type="submit" id="send-email-btn" class="w-full btn-primary">
-            <span id="send-email-text">Send Recipe</span>
-            <svg id="send-email-spinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </button>
+          <label class="flex items-center gap-2 mt-2.5 text-xs text-cognac-500 cursor-pointer select-none">
+            <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
+            <span>Also send me new recipes &amp; tips (optional)</span>
+          </label>
+          <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
         </form>
-
-        <!-- Success state -->
-        <div id="email-success" class="hidden text-center py-4">
-          <div class="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h4 class="font-semibold text-gray-900">Recipe Sent!</h4>
-          <p class="text-sm text-gray-500 mt-1">Check your inbox for the full recipe</p>
-        </div>
-
-        <!-- Error state -->
-        <div id="email-error" class="hidden mt-4 p-3 bg-danger/10 rounded-lg text-danger text-sm text-center">
-          Something went wrong. Please try again.
-        </div>
       </div>
     </div>
   </div>
@@ -339,7 +371,7 @@ const { cocktailSlug, simple = false } = Astro.props;
       />
       <button
         type="button"
-        class="col-span-1 p-2 text-cognac-300 hover:text-danger opacity-0 group-hover:opacity-100 transition-all remove-ingredient"
+        class="col-span-1 p-2 text-cognac-300 hover:text-danger opacity-50 hover:opacity-100 focus:opacity-100 transition-all remove-ingredient"
         aria-label="Remove ingredient"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,6 +405,30 @@ const { cocktailSlug, simple = false } = Astro.props;
   <option value="Olive Brine">
 </datalist>
 
+<style is:global>
+  /* Batch step + ingredient item styles must be global because the markup
+     is injected at runtime via innerHTML, so Astro's scoped class hashes
+     would never match. */
+  .batch-step {
+    @apply flex gap-4 py-4 border-b border-gray-100 last:border-0;
+  }
+  .batch-step-number {
+    @apply flex-shrink-0 w-8 h-8 bg-accent-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md shadow-accent-500/20;
+  }
+  .batch-step-content {
+    @apply flex-1;
+  }
+  .batch-step h4 {
+    @apply font-semibold text-charcoal mb-1;
+  }
+  .batch-step p {
+    @apply text-gray-600 text-sm;
+  }
+  .batch-ingredient-item {
+    @apply flex justify-between items-center py-1;
+  }
+</style>
+
 <style>
   /* Mode toggle sliding pill styles */
   .mode-toggle-container {
@@ -386,10 +442,23 @@ const { cocktailSlug, simple = false } = Astro.props;
     @apply text-primary-400 bg-transparent hover:text-primary-600;
   }
 
-  /* Slide indicator to right when preset is active */
-  .mode-toggle-container:has(.entry-mode-btn[data-mode="preset"][aria-pressed="true"]) .mode-toggle-indicator {
+  /* Slide indicator to right when Custom is active.
+     Preset is now the first / default position (left edge). */
+  .mode-toggle-container:has(.entry-mode-btn[data-mode="custom"][aria-pressed="true"]) .mode-toggle-indicator {
     left: calc(50% + 3px);
   }
+
+  /* Recipe tile selection state */
+  .recipe-tile-active {
+    @apply border-accent-500 bg-accent-50 shadow-md ring-2 ring-accent-500/20;
+  }
+
+  /* ABV cheatsheet — hide the default disclosure marker across browsers */
+  .abv-help summary {
+    list-style: none;
+  }
+  .abv-help summary::-webkit-details-marker { display: none; }
+  .abv-help summary::marker { content: ''; }
   .bottle-size-btn.active,
   .unit-btn.active,
   .dilution-btn.active {
@@ -402,26 +471,6 @@ const { cocktailSlug, simple = false } = Astro.props;
   .unit-btn:not(.active),
   .dilution-btn:not(.active) {
     @apply border-gray-200 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50;
-  }
-
-  /* Batch step styling */
-  .batch-step {
-    @apply flex gap-4 py-4 border-b border-gray-100 last:border-0;
-  }
-  .batch-step-number {
-    @apply flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm;
-  }
-  .batch-step-content {
-    @apply flex-1;
-  }
-  .batch-step h4 {
-    @apply font-semibold text-charcoal mb-1;
-  }
-  .batch-step p {
-    @apply text-gray-600 text-sm;
-  }
-  .batch-ingredient-item {
-    @apply flex justify-between items-center py-1;
   }
 </style>
 
@@ -441,24 +490,24 @@ const { cocktailSlug, simple = false } = Astro.props;
   class BatchCalculator extends HTMLElement {
     private unit: 'oz' | 'ml' = 'oz';
     private bottleSizeMl: number = STANDARD_BOTTLE_ML;
-    private mode: 'custom' | 'preset' = 'custom';
+    // Default to preset — most visitors want a known recipe, not a blank form.
+    private mode: 'custom' | 'preset' = 'preset';
     private currentPresetId: string | null = null;
-    private dilutionPercent: number = 22;
+    private dilutionPercent: number = 20;
 
     connectedCallback() {
       this.setupEventListeners();
       this.addIngredientRow();
       this.addIngredientRow();
 
+      // Default to preset mode (visible state matches mode field)
+      this.setMode(this.mode);
+
       // Check if we have a pre-selected cocktail (from URL or data attribute)
       const presetSlug = this.dataset.cocktail;
       if (presetSlug && MILK_STREET_BATCHES[presetSlug]) {
-        // Auto-switch to preset mode and load the recipe
-        this.setMode('preset');
         const select = this.querySelector('#recipe-select') as HTMLSelectElement;
-        if (select) {
-          select.value = presetSlug;
-        }
+        if (select) select.value = presetSlug;
         this.loadPreset(presetSlug);
       } else {
         this.recalculate();
@@ -475,7 +524,7 @@ const { cocktailSlug, simple = false } = Astro.props;
         });
       });
 
-      // Recipe selector
+      // Recipe selector (legacy hidden <select>, preserved for share-link state)
       this.querySelector('#recipe-select')?.addEventListener('change', (e) => {
         const select = e.target as HTMLSelectElement;
         if (select.value) {
@@ -483,6 +532,19 @@ const { cocktailSlug, simple = false } = Astro.props;
         } else {
           this.clearPreset();
         }
+      });
+
+      // Recipe tile click — visual picker
+      this.querySelectorAll('.recipe-tile').forEach(tile => {
+        tile.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLButtonElement;
+          const slug = target.dataset.recipe;
+          if (!slug) return;
+          // Sync hidden select for state/share consistency
+          const select = this.querySelector('#recipe-select') as HTMLSelectElement | null;
+          if (select) select.value = slug;
+          this.loadPreset(slug);
+        });
       });
 
       // Bottle size buttons
@@ -518,6 +580,12 @@ const { cocktailSlug, simple = false } = Astro.props;
       // Add ingredient
       this.querySelector('#add-ingredient')?.addEventListener('click', () => {
         this.addIngredientRow();
+      });
+
+      // "Try a sample" — load a Negroni-shaped 1:1:1 example so first-time
+      // users can see how the form maps to a working batch.
+      this.querySelector('#load-sample')?.addEventListener('click', () => {
+        this.loadSampleRecipe();
       });
 
       // Ingredient inputs (delegated)
@@ -557,23 +625,16 @@ const { cocktailSlug, simple = false } = Astro.props;
         window.print();
       });
 
-      // Email button
-      this.querySelector('#email-btn')?.addEventListener('click', () => {
-        this.openEmailModal();
+      // Copy recipe — assembles a clean text version and writes it to clipboard
+      this.querySelector('#copy-btn')?.addEventListener('click', () => {
+        this.copyRecipe();
       });
 
-      // Email modal close
-      this.querySelector('#email-modal-close')?.addEventListener('click', () => {
-        this.closeEmailModal();
-      });
-      this.querySelector('#email-modal-backdrop')?.addEventListener('click', () => {
-        this.closeEmailModal();
-      });
-
-      // Email form submit
+      // Inline email form (custom mode). The preset-mode form is wired up
+      // when its HTML is rendered by loadPreset().
       this.querySelector('#email-recipe-form')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        this.sendRecipeEmail();
+        this.handleEmailSubmit(e.currentTarget as HTMLFormElement);
       });
     }
 
@@ -590,10 +651,13 @@ const { cocktailSlug, simple = false } = Astro.props;
       const presetSelector = this.querySelector('#preset-selector');
       const customForm = this.querySelector('#custom-recipe-form');
       const presetInstructions = this.querySelector('#preset-batch-instructions');
+      const dilutionSection = this.querySelector('#dilution-section');
 
       if (mode === 'preset') {
         presetSelector?.classList.remove('hidden');
         customForm?.classList.add('hidden');
+        // Dilution doesn't apply in preset mode — Milk Street recipes have fixed water amounts
+        dilutionSection?.classList.add('hidden');
         // Show instructions if a preset is already selected
         if (this.currentPresetId) {
           presetInstructions?.classList.remove('hidden');
@@ -602,6 +666,7 @@ const { cocktailSlug, simple = false } = Astro.props;
         presetSelector?.classList.add('hidden');
         presetInstructions?.classList.add('hidden');
         customForm?.classList.remove('hidden');
+        dilutionSection?.classList.remove('hidden');
         this.currentPresetId = null;
         this.recalculate();
       }
@@ -610,10 +675,12 @@ const { cocktailSlug, simple = false } = Astro.props;
     private setBottleSize(sizeMl: number) {
       this.bottleSizeMl = sizeMl;
 
-      // Update button states
+      // Update button states + aria-checked for screen readers
       this.querySelectorAll('.bottle-size-btn').forEach(btn => {
         const btnSize = parseInt((btn as HTMLButtonElement).dataset.size || '0');
-        btn.classList.toggle('active', btnSize === sizeMl);
+        const active = btnSize === sizeMl;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-checked', String(active));
       });
 
       // Update input
@@ -631,15 +698,19 @@ const { cocktailSlug, simple = false } = Astro.props;
     private setUnit(unit: 'oz' | 'ml') {
       this.unit = unit;
 
-      // Update button states
+      // Update button states + aria-checked for screen readers
       this.querySelectorAll('.unit-btn').forEach(btn => {
         const btnUnit = (btn as HTMLButtonElement).dataset.unit;
-        btn.classList.toggle('active', btnUnit === unit);
+        const active = btnUnit === unit;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-checked', String(active));
       });
 
-      // Update display
+      // Update display label and the Amount column header
       const volumeUnit = this.querySelector('#volume-unit');
       if (volumeUnit) volumeUnit.textContent = unit;
+      const amountUnitLabel = this.querySelector('#amount-unit-label');
+      if (amountUnitLabel) amountUnitLabel.textContent = unit;
 
       // Refresh display
       if (this.currentPresetId) {
@@ -652,10 +723,12 @@ const { cocktailSlug, simple = false } = Astro.props;
     private setDilution(percent: number) {
       this.dilutionPercent = percent;
 
-      // Update button states
+      // Update button states + aria-checked for screen readers
       this.querySelectorAll('.dilution-btn').forEach(btn => {
         const btnDilution = parseInt((btn as HTMLButtonElement).dataset.dilution || '0');
-        btn.classList.toggle('active', btnDilution === percent);
+        const active = btnDilution === percent;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-checked', String(active));
       });
 
       // Refresh display based on mode
@@ -666,14 +739,33 @@ const { cocktailSlug, simple = false } = Astro.props;
       }
     }
 
-    private addIngredientRow() {
+    private addIngredientRow(values?: { name: string; amount: string; abv: string }) {
       const template = document.querySelector('#ingredient-row-template') as HTMLTemplateElement;
       const container = this.querySelector('#ingredients-container');
 
       if (template && container) {
-        const clone = template.content.cloneNode(true);
+        const clone = template.content.cloneNode(true) as DocumentFragment;
+        if (values) {
+          const row = clone.querySelector('.ingredient-row');
+          if (row) {
+            (row.querySelector('[name="name"]') as HTMLInputElement).value = values.name;
+            (row.querySelector('[name="amount"]') as HTMLInputElement).value = values.amount;
+            (row.querySelector('[name="abv"]') as HTMLInputElement).value = values.abv;
+          }
+        }
         container.appendChild(clone);
       }
+    }
+
+    private loadSampleRecipe() {
+      const container = this.querySelector('#ingredients-container');
+      if (!container) return;
+      container.innerHTML = '';
+      // Classic 1:1:1 Negroni — a forgiving 28% ABV batch
+      this.addIngredientRow({ name: 'Gin', amount: '1', abv: '40' });
+      this.addIngredientRow({ name: 'Campari', amount: '1', abv: '25' });
+      this.addIngredientRow({ name: 'Sweet Vermouth', amount: '1', abv: '16' });
+      this.recalculate();
     }
 
     private clearPreset() {
@@ -681,6 +773,16 @@ const { cocktailSlug, simple = false } = Astro.props;
       const presetInstructions = this.querySelector('#preset-batch-instructions');
       presetInstructions?.classList.add('hidden');
       if (presetInstructions) presetInstructions.innerHTML = '';
+      this.markActiveTile(null);
+    }
+
+    private markActiveTile(slug: string | null) {
+      this.querySelectorAll('.recipe-tile').forEach(tile => {
+        const t = tile as HTMLButtonElement;
+        const isActive = t.dataset.recipe === slug;
+        t.classList.toggle('recipe-tile-active', isActive);
+        t.setAttribute('aria-checked', String(isActive));
+      });
     }
 
     private loadPreset(presetId: string) {
@@ -726,6 +828,14 @@ const { cocktailSlug, simple = false } = Astro.props;
 
       // Add extras note if present
       const extrasNote = recipe.extras ? `<p class="text-xs text-gray-500 mt-2 italic">Also add: ${recipe.extras}</p>` : '';
+
+      // Composition bar — visual breakdown of the bottle's makeup
+      const compositionParts = [
+        { name: recipe.baseSpirit, ml: result.baseSpiritInBottleMl, abv: recipe.baseSpiritAbv },
+        ...result.ingredientsToAdd.map(i => ({ name: i.name, ml: i.amountMl, abv: i.abv })),
+        ...(result.waterToAddMl > 0 ? [{ name: 'Water', ml: result.waterToAddMl, abv: 0 }] : []),
+      ];
+      const compositionHtml = this.renderCompositionBar(compositionParts);
 
       // Freeze status styling
       const statusClass = result.freezeStatus === 'safe' ? 'status-safe' : result.freezeStatus === 'slushy' ? 'status-slushy' : 'status-freeze';
@@ -791,19 +901,24 @@ const { cocktailSlug, simple = false } = Astro.props;
             </div>
           </div>
 
+          <!-- Composition bar -->
+          <div class="mt-6 pt-4 border-t border-primary-100">
+            ${compositionHtml}
+          </div>
+
           <!-- Actions -->
           <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-primary-100">
-            <button type="button" class="preset-email-btn btn-primary flex-1 flex items-center justify-center gap-2">
+            <button type="button" class="preset-copy-btn btn-primary flex-1 flex items-center justify-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
               </svg>
-              Email Recipe
+              Copy recipe
             </button>
             <button type="button" class="preset-share-btn btn-secondary flex-1 flex items-center justify-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
-              Share Link
+              Share link
             </button>
             <button type="button" class="preset-print-btn btn-ghost flex items-center justify-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -812,12 +927,36 @@ const { cocktailSlug, simple = false } = Astro.props;
               Print
             </button>
           </div>
+
+          <!-- Inline email recipe form (no modal) -->
+          <form class="email-recipe-row preset-email-form mt-5 pt-5 border-t border-primary-100">
+            <div class="flex flex-col sm:flex-row gap-2 items-stretch">
+              <input type="email" name="email" required placeholder="your@email.com" autocomplete="email"
+                class="flex-1 px-4 py-2.5 border border-cognac-200 rounded-lg text-sm bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all"
+                aria-label="Your email" />
+              <button type="submit" class="email-send-btn btn-secondary text-sm whitespace-nowrap inline-flex items-center justify-center gap-2 px-4">
+                <svg class="email-send-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <svg class="email-send-spinner w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <span class="email-send-label">Email me this</span>
+              </button>
+            </div>
+            <label class="flex items-center gap-2 mt-2.5 text-xs text-cognac-500 cursor-pointer select-none">
+              <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
+              <span>Also send me new recipes &amp; tips (optional)</span>
+            </label>
+            <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
+          </form>
         </div>
       `;
 
       // Add event listeners for the new buttons
-      presetInstructions.querySelector('.preset-email-btn')?.addEventListener('click', () => {
-        this.openEmailModal();
+      presetInstructions.querySelector('.preset-copy-btn')?.addEventListener('click', () => {
+        this.copyRecipe();
       });
       presetInstructions.querySelector('.preset-share-btn')?.addEventListener('click', () => {
         this.shareRecipe();
@@ -825,15 +964,20 @@ const { cocktailSlug, simple = false } = Astro.props;
       presetInstructions.querySelector('.preset-print-btn')?.addEventListener('click', () => {
         window.print();
       });
+      // Inline email form
+      presetInstructions.querySelector('.preset-email-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleEmailSubmit(e.currentTarget as HTMLFormElement);
+      });
 
       // Show the instructions panel
       presetInstructions.classList.remove('hidden');
 
+      // Mark the active tile
+      this.markActiveTile(presetId);
+
       // Also update the hidden results panel elements for test compatibility
       this.syncResultsPanel(result);
-
-      // Populate ingredient rows with the preset recipe for test compatibility
-      this.populateIngredientRows(recipe);
     }
 
     private syncResultsPanel(result: any) {
@@ -911,44 +1055,6 @@ const { cocktailSlug, simple = false } = Astro.props;
           row.appendChild(amountSpan);
           ingredientsOutput.appendChild(row);
         });
-      }
-    }
-
-    private populateIngredientRows(recipe: any) {
-      const container = this.querySelector('#ingredients-container');
-      if (!container) return;
-
-      // Clear existing rows
-      container.innerHTML = '';
-
-      // Add base spirit row
-      this.addIngredientRowWithValues(recipe.baseSpirit, '1', String(recipe.baseSpiritAbv));
-
-      // Add ingredient rows from recipe (uses addBack in MILK_STREET_BATCHES)
-      if (recipe.addBack) {
-        recipe.addBack.forEach((ing: any) => {
-          this.addIngredientRowWithValues(ing.name, String(ing.oz), String(ing.abv || 0));
-        });
-      }
-    }
-
-    private addIngredientRowWithValues(name: string, amount: string, abv: string) {
-      const template = document.querySelector('#ingredient-row-template') as HTMLTemplateElement;
-      const container = this.querySelector('#ingredients-container');
-
-      if (template && container) {
-        const clone = template.content.cloneNode(true) as DocumentFragment;
-        const row = clone.querySelector('.ingredient-row');
-        if (row) {
-          const nameInput = row.querySelector('[name="name"]') as HTMLInputElement;
-          const amountInput = row.querySelector('[name="amount"]') as HTMLInputElement;
-          const abvInput = row.querySelector('[name="abv"]') as HTMLInputElement;
-
-          if (nameInput) nameInput.value = name;
-          if (amountInput) amountInput.value = amount;
-          if (abvInput) abvInput.value = abv;
-        }
-        container.appendChild(clone);
       }
     }
 
@@ -1037,24 +1143,109 @@ const { cocktailSlug, simple = false } = Astro.props;
       const output = this.querySelector('#ingredients-output');
       if (output) output.innerHTML = '';
 
-      // Reset freeze status to initial state
+      // Hide the live result bar + composition bar when there's nothing to show
+      this.querySelector('#custom-live-bar')?.classList.add('hidden');
+      this.querySelector('#composition-bar')?.classList.add('hidden');
+
+      // Reset freeze status to initial neutral state
       const statusEl = this.querySelector('#freeze-status');
       const statusIcon = this.querySelector('#status-icon');
       const statusLabel = this.querySelector('#status-label');
       const statusMessage = this.querySelector('#status-message');
 
-      if (statusEl) statusEl.className = 'p-4 rounded-lg border-2 mb-6 status-freeze';
-      if (statusIcon) statusIcon.textContent = '?';
-      if (statusLabel) statusLabel.textContent = 'Add Ingredients';
-      if (statusMessage) statusMessage.textContent = 'Add ingredients to calculate freeze status';
+      if (statusEl) statusEl.className = 'p-4 rounded-lg border-2 mb-6 status-empty';
+      if (statusIcon) statusIcon.textContent = '·';
+      if (statusLabel) statusLabel.textContent = 'Waiting for ingredients';
+      if (statusMessage) statusMessage.textContent = 'Aim for around 22% ABV or higher to keep the batch pourable in the freezer.';
+    }
+
+    /**
+     * Build the visual composition bar — a horizontal stacked bar showing
+     * each component's share of the bottle, plus a legend.
+     * Pure function: returns HTML string. Used by both preset + custom paths.
+     */
+    private renderCompositionBar(parts: Array<{name: string; ml: number; abv: number}>): string {
+      const total = parts.reduce((s, p) => s + p.ml, 0);
+      if (total <= 0) return '';
+
+      // Color by ABV bucket — gives a consistent visual code for "what is this"
+      const colorFor = (p: {name: string; abv: number}): string => {
+        const n = p.name.toLowerCase();
+        if (n.includes('water')) return '#a3c4d4'; // ice blue
+        if (p.abv === 0) return '#e6dcd8';          // cream — non-alc mixer/juice
+        if (p.abv >= 35) return '#B8860B';          // brass — base spirit
+        if (p.abv >= 20) return '#8B0000';          // wine red — Campari/liqueur
+        return '#d9a820';                           // amber — vermouth/low-alc
+      };
+
+      const segments = parts
+        .filter(p => p.ml > 0)
+        .map(p => {
+          const pct = (p.ml / total) * 100;
+          const color = colorFor(p);
+          // Tiny segments get min-width so they're still visible
+          const widthCss = `flex: 0 0 ${Math.max(pct, 2)}%; background: ${color};`;
+          return `<div class="composition-seg" style="${widthCss}" title="${p.name}: ${Math.round(pct)}%"></div>`;
+        })
+        .join('');
+
+      const legend = parts
+        .filter(p => p.ml > 0)
+        .map(p => {
+          const pct = Math.round((p.ml / total) * 100);
+          const color = colorFor(p);
+          return `
+            <span class="inline-flex items-center gap-1.5 text-xs text-cognac">
+              <span class="w-2.5 h-2.5 rounded-sm" style="background:${color}"></span>
+              <span class="font-medium">${p.name}</span>
+              <span class="text-cognac-400">${pct}%</span>
+            </span>`;
+        })
+        .join('');
+
+      return `
+        <p class="text-xs uppercase tracking-wider text-cognac-400 mb-2">What's in the bottle</p>
+        <div class="composition-bar-track flex h-3 rounded-full overflow-hidden border border-cognac-200 bg-white">
+          ${segments}
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">${legend}</div>
+      `;
+    }
+
+    private updateLiveBar(result: BatchResult) {
+      const bar = this.querySelector('#custom-live-bar');
+      const abv = this.querySelector('#live-abv');
+      const servings = this.querySelector('#live-servings');
+      const status = this.querySelector('#live-status');
+      const statusIcon = this.querySelector('#live-status-icon');
+      const statusLabel = this.querySelector('#live-status-label');
+
+      bar?.classList.remove('hidden');
+      if (abv) abv.textContent = result.finalAbv.toFixed(1);
+      if (servings) servings.textContent = String(result.servings);
+
+      // Status pill colors mirror the freeze status
+      const palette: Record<string, { cls: string; icon: string; label: string }> = {
+        safe: { cls: 'bg-success/15 text-success', icon: '✓', label: 'Freezer-safe' },
+        slushy: { cls: 'bg-warning/15 text-amber-700', icon: '⚠', label: 'Slushy zone' },
+        freeze: { cls: 'bg-danger/15 text-danger', icon: '✗', label: 'Will freeze solid' },
+      };
+      const p = palette[result.freezeStatus] ?? palette.freeze;
+      if (status) {
+        status.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${p.cls}`;
+      }
+      if (statusIcon) statusIcon.textContent = p.icon;
+      if (statusLabel) statusLabel.textContent = p.label;
     }
 
     private updateDisplay(result: BatchResult) {
-      const formatVolume = (ml: number) => {
-        return this.unit === 'oz'
-          ? `${mlToOz(ml)} oz`
-          : `${Math.round(ml)} ml`;
-      };
+      // Format helper: prefer pre-rounded oz values (clean quarter-ounce)
+      // when available; fall back to ml conversion otherwise.
+      const formatOz = (oz: number) => `${oz} oz`;
+      const formatMl = (ml: number) => `${Math.round(ml)} ml`;
+
+      // Live summary bar at the top of the form
+      this.updateLiveBar(result);
 
       // Main stats
       const abvEl = this.querySelector('#final-abv');
@@ -1091,10 +1282,12 @@ const { cocktailSlug, simple = false } = Astro.props;
         statusMessage.textContent = result.freezeMessage;
       }
 
-      // Pour off
+      // Pour off — use pre-rounded oz value
       const pourOffEl = this.querySelector('#pour-off');
       if (pourOffEl) {
-        pourOffEl.textContent = formatVolume(result.pourOffMl);
+        pourOffEl.textContent = this.unit === 'oz'
+          ? formatOz(result.pourOffOz)
+          : formatMl(result.pourOffMl);
       }
 
       // Ingredients to add
@@ -1109,17 +1302,33 @@ const { cocktailSlug, simple = false } = Astro.props;
           nameSpan.textContent = ing.name;
           const amountSpan = document.createElement('span');
           amountSpan.className = 'font-mono';
-          amountSpan.textContent = formatVolume(ing.amountMl);
+          amountSpan.textContent = this.unit === 'oz'
+            ? formatOz(ing.amountOz)
+            : formatMl(ing.amountMl);
           row.appendChild(nameSpan);
           row.appendChild(amountSpan);
           ingredientsOutput.appendChild(row);
         });
       }
 
-      // Water to add
+      // Water to add — use pre-rounded oz value
       const waterEl = this.querySelector('#water-add');
       if (waterEl) {
-        waterEl.textContent = formatVolume(result.waterToAddMl);
+        waterEl.textContent = this.unit === 'oz'
+          ? formatOz(result.waterToAddOz)
+          : formatMl(result.waterToAddMl);
+      }
+
+      // Composition bar — show the bottle's makeup at a glance
+      const compEl = this.querySelector('#composition-bar');
+      if (compEl) {
+        const parts = [
+          { name: result.baseSpiritName || 'Base spirit', ml: result.baseSpiritInBottleMl, abv: 40 },
+          ...result.ingredientsToAdd.map(i => ({ name: i.name, ml: i.amountMl, abv: i.abv })),
+          ...(result.waterToAddMl > 0 ? [{ name: 'Water', ml: result.waterToAddMl, abv: 0 }] : []),
+        ];
+        compEl.innerHTML = this.renderCompositionBar(parts);
+        compEl.classList.remove('hidden');
       }
     }
 
@@ -1169,90 +1378,99 @@ const { cocktailSlug, simple = false } = Astro.props;
       }, 3000);
     }
 
-    // Email modal methods
-    private openEmailModal() {
-      const modal = this.querySelector('#email-modal');
-      const form = this.querySelector('#email-recipe-form') as HTMLFormElement;
-      const success = this.querySelector('#email-success');
-      const error = this.querySelector('#email-error');
+    /**
+     * Build a clean plain-text version of the recipe and write it to the
+     * clipboard. Replaces the previous email-modal flow — no friction,
+     * no signup, instant pastable text.
+     */
+    private async copyRecipe() {
+      const data = this.buildRecipeData();
+      const lines: string[] = [];
+      lines.push(`${data.name} — Freezer Batch (${data.bottleSize})`);
+      lines.push('');
+      lines.push(`ABV: ${data.abv}%   Drinks: ${data.servings}`);
+      lines.push('');
+      lines.push(`Pour off: ${data.pourOff}`);
+      data.ingredients.forEach(i => lines.push(`Add ${i.amount} ${i.name}`));
+      if (data.waterToAdd && parseFloat(data.waterToAdd) > 0) {
+        lines.push(`Add ${data.waterToAdd} water`);
+      }
+      lines.push('');
+      lines.push('Cap, shake, freeze 4+ hours.');
+      lines.push('');
+      lines.push('via freezerbatchcocktails.com');
+      const text = lines.join('\n');
 
-      // Reset modal state
-      form?.classList.remove('hidden');
-      success?.classList.add('hidden');
-      error?.classList.add('hidden');
-
-      modal?.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      try {
+        await navigator.clipboard.writeText(text);
+        this.showToast('Recipe copied — paste anywhere', 'success');
+      } catch {
+        // Older browsers / insecure context: fallback to a prompt
+        prompt('Copy this recipe:', text);
+      }
     }
 
-    private closeEmailModal() {
-      const modal = this.querySelector('#email-modal');
-      modal?.classList.add('hidden');
-      document.body.style.overflow = '';
-    }
-
-    private async sendRecipeEmail() {
-      const emailInput = this.querySelector('#recipe-email') as HTMLInputElement;
-      const subscribeCheckbox = this.querySelector('#subscribe-checkbox') as HTMLInputElement;
-      const submitBtn = this.querySelector('#send-email-btn') as HTMLButtonElement;
-      const btnText = this.querySelector('#send-email-text');
-      const btnSpinner = this.querySelector('#send-email-spinner');
-      const form = this.querySelector('#email-recipe-form');
-      const success = this.querySelector('#email-success');
-      const error = this.querySelector('#email-error');
+    /**
+     * Inline email-recipe submission. Posts to the n8n webhook and shows
+     * the result inline (no modal). Works for both the static custom-mode
+     * form and the dynamically-rendered preset form.
+     */
+    private async handleEmailSubmit(form: HTMLFormElement) {
+      const emailInput = form.querySelector<HTMLInputElement>('input[type="email"]');
+      const subscribeInput = form.querySelector<HTMLInputElement>('input[name="subscribe"]');
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const sendIcon = form.querySelector<HTMLElement>('.email-send-icon');
+      const spinner = form.querySelector<HTMLElement>('.email-send-spinner');
+      const label = form.querySelector<HTMLElement>('.email-send-label');
+      const status = form.querySelector<HTMLElement>('.email-status');
 
       const email = emailInput?.value.trim();
       if (!email) return;
 
       // Loading state
       if (submitBtn) submitBtn.disabled = true;
-      if (btnText) btnText.textContent = 'Sending...';
-      btnSpinner?.classList.remove('hidden');
-      error?.classList.add('hidden');
-
-      // Build recipe data
-      const recipeData = this.buildRecipeData();
+      sendIcon?.classList.add('hidden');
+      spinner?.classList.remove('hidden');
+      if (label) label.textContent = 'Sending…';
+      if (status) {
+        status.classList.add('hidden');
+        status.textContent = '';
+      }
 
       try {
-        // n8n webhook URL for recipe emails
         const webhookUrl = 'https://zax76.app.n8n.cloud/webhook/freezerbatch-email';
-
-        const response = await fetch(webhookUrl, {
+        const res = await fetch(webhookUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email,
-            subscribe: subscribeCheckbox?.checked || false,
-            recipe: recipeData,
+            subscribe: !!subscribeInput?.checked,
+            recipe: this.buildRecipeData(),
             source: 'freezerbatchcocktails.com',
             timestamp: new Date().toISOString(),
-            page: window.location.pathname
+            page: window.location.pathname,
           }),
         });
+        if (!res.ok) throw new Error('Webhook failed');
 
-        if (!response.ok) {
-          throw new Error('Failed to send email');
+        // Success — collapse the form to a clean confirmation line
+        if (status) {
+          status.textContent = `✓ Sent to ${email} — check your inbox.`;
+          status.className = 'email-status mt-2 text-xs text-success font-medium';
         }
-
-        // Show success
-        form?.classList.add('hidden');
-        success?.classList.remove('hidden');
-
-        // Close modal after delay
-        setTimeout(() => {
-          this.closeEmailModal();
-        }, 2000);
-
+        if (emailInput) emailInput.value = '';
+        if (subscribeInput) subscribeInput.checked = false;
       } catch (err) {
         console.error('Email send error:', err);
-        error?.classList.remove('hidden');
+        if (status) {
+          status.textContent = 'Couldn\'t send. Try again or copy the recipe instead.';
+          status.className = 'email-status mt-2 text-xs text-danger';
+        }
       } finally {
-        // Reset button
         if (submitBtn) submitBtn.disabled = false;
-        if (btnText) btnText.textContent = 'Send Recipe';
-        btnSpinner?.classList.add('hidden');
+        sendIcon?.classList.remove('hidden');
+        spinner?.classList.add('hidden');
+        if (label) label.textContent = 'Email me this';
       }
     }
 

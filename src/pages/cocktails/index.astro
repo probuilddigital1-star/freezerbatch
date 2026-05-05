@@ -2,41 +2,71 @@
 import Layout from '../../layouts/Layout.astro';
 import CocktailCard from '../../components/CocktailCard.astro';
 import cocktailsData from '../../data/cocktails.json';
+import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../../lib/calculator';
 
 const title = 'All Freezer Cocktail Recipes';
 const description = 'Browse our collection of freezer-ready cocktail recipes. Each recipe is calculated for perfect batching with ABV and freeze status.';
 
+// Derive ABV/servings/freeze-status from the calculator so cards stay in sync
+// with the live calculator output on the recipe pages.
+const enriched = cocktailsData.cocktails.map(c => {
+  const batch = MILK_STREET_BATCHES[c.slug] ? calculateMilkStreetBatch(c.slug, 750) : null;
+  return {
+    ...c,
+    finalAbv: batch ? Math.round(batch.finalAbv) : c.finalAbv,
+    servings: batch ? batch.servings : c.servings,
+    freezeStatus: batch ? batch.freezeStatus : c.freezeStatus,
+  };
+});
+
 // Separate by reliability
-const bulletproof = cocktailsData.cocktails.filter(c => c.reliability === 'bulletproof');
-const needsAttention = cocktailsData.cocktails.filter(c => c.reliability === 'needs-attention');
+const bulletproof = enriched.filter(c => c.reliability === 'bulletproof');
+const needsAttention = enriched.filter(c => c.reliability === 'needs-attention');
 
 // Get all unique base spirits
-const allSpirits = [...new Set(cocktailsData.cocktails.flatMap(c => c.baseSpirit))].sort();
+const allSpirits = [...new Set(enriched.flatMap(c => c.baseSpirit))].sort();
+
+// Curated tag set for the second filter row. Picked for browsing utility:
+// flavor profile + technique + mood. Order matters — mirrors how someone
+// scans a menu. Only show a tag if at least one cocktail in our data has it.
+const allCocktailTags = new Set(enriched.flatMap(c => c.tags ?? []));
+const tagFilters: Array<{ tag: string; label: string }> = [
+  { tag: 'stirred', label: 'Stirred' },
+  { tag: 'shaken', label: 'Shaken' },
+  { tag: 'bitter', label: 'Bitter' },
+  { tag: 'citrus', label: 'Citrus' },
+  { tag: 'coffee', label: 'Coffee' },
+  { tag: 'aperitivo', label: 'Aperitivo' },
+  { tag: 'classic', label: 'Classic' },
+].filter(({ tag }) => allCocktailTags.has(tag));
 ---
 
 <Layout title={title} description={description}>
   <section class="py-12">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-charcoal mb-4">Freezer Cocktail Recipes</h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-          Every recipe calculated for perfect freezer storage. Click any cocktail to see the full batch recipe and calculator.
+      <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-charcoal mb-3">Freezer Cocktail Recipes</h1>
+        <p class="text-lg text-cognac max-w-xl mx-auto">
+          Every recipe calculated for perfect freezer storage.
         </p>
       </div>
 
       <!-- Filter by Spirit -->
-      <div class="mb-12">
-        <div class="flex flex-wrap justify-center gap-2">
+      <div class="mb-3">
+        <p class="sr-only" id="spirit-filter-label">Filter by base spirit</p>
+        <div class="flex flex-wrap justify-center gap-2" role="radiogroup" aria-labelledby="spirit-filter-label">
           <button
-            class="filter-btn px-4 py-2 rounded-full text-sm font-medium border transition-colors active"
+            class="filter-btn spirit-filter px-4 py-2 rounded-full text-sm font-medium border transition-colors active"
+            role="radio" aria-checked="true"
             data-spirit="all"
           >
-            All
+            All Spirits
           </button>
           {allSpirits.map(spirit => (
             <button
-              class="filter-btn px-4 py-2 rounded-full text-sm font-medium border transition-colors capitalize"
+              class="filter-btn spirit-filter px-4 py-2 rounded-full text-sm font-medium border transition-colors capitalize"
+              role="radio" aria-checked="false"
               data-spirit={spirit}
             >
               {spirit}
@@ -45,18 +75,41 @@ const allSpirits = [...new Set(cocktailsData.cocktails.flatMap(c => c.baseSpirit
         </div>
       </div>
 
-      <!-- Bulletproof Section -->
-      <div class="mb-16">
+      <!-- Filter by Tag (flavor / technique / mood) -->
+      <div class="mb-12">
+        <p class="sr-only" id="tag-filter-label">Filter by style</p>
+        <div class="flex flex-wrap justify-center gap-2" role="radiogroup" aria-labelledby="tag-filter-label">
+          <button
+            class="filter-btn tag-filter px-3 py-1.5 rounded-full text-xs font-medium border transition-colors active"
+            role="radio" aria-checked="true"
+            data-tag="all"
+          >
+            Any Style
+          </button>
+          {tagFilters.map(({ tag, label }) => (
+            <button
+              class="filter-btn tag-filter px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+              role="radio" aria-checked="false"
+              data-tag={tag}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Long shelf life: spirit-forward, no fresh ingredients -->
+      <div class="mb-16" data-section="bulletproof">
         <div class="flex items-center gap-3 mb-6">
-          <span class="text-2xl">✓</span>
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-success/15 text-success text-base">✓</span>
           <div>
-            <h2 class="text-2xl font-bold text-charcoal">Bulletproof Batches</h2>
-            <p class="text-gray-500">These last 2-3 months in the freezer</p>
+            <h2 class="text-2xl font-bold text-charcoal">Lasts 2–3 months</h2>
+            <p class="text-gray-500">Spirit-forward batches that keep in the freezer indefinitely</p>
           </div>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="bulletproof-grid">
           {bulletproof.map(cocktail => (
-            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')}>
+            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')} data-tags={(cocktail.tags ?? []).join(',')}>
               <CocktailCard
                 slug={cocktail.slug}
                 name={cocktail.name}
@@ -66,24 +119,25 @@ const allSpirits = [...new Set(cocktailsData.cocktails.flatMap(c => c.baseSpirit
                 finalAbv={cocktail.finalAbv}
                 freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
                 servings={cocktail.servings}
+                technique={cocktail.recipe?.dilutionType}
               />
             </div>
           ))}
         </div>
       </div>
 
-      <!-- Needs Attention Section -->
-      <div>
+      <!-- Shorter shelf life: contains fresh citrus or coffee -->
+      <div data-section="attention">
         <div class="flex items-center gap-3 mb-6">
-          <span class="text-2xl">⚠</span>
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-warning/15 text-amber-700 text-base">●</span>
           <div>
-            <h2 class="text-2xl font-bold text-charcoal">Needs Attention</h2>
-            <p class="text-gray-500">Best within 3-5 days (citrus or coffee)</p>
+            <h2 class="text-2xl font-bold text-charcoal">Best within a week</h2>
+            <p class="text-gray-500">Fresh citrus or coffee — flavor peaks early, still drinkable longer</p>
           </div>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="attention-grid">
           {needsAttention.map(cocktail => (
-            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')}>
+            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')} data-tags={(cocktail.tags ?? []).join(',')}>
               <CocktailCard
                 slug={cocktail.slug}
                 name={cocktail.name}
@@ -93,6 +147,7 @@ const allSpirits = [...new Set(cocktailsData.cocktails.flatMap(c => c.baseSpirit
                 finalAbv={cocktail.finalAbv}
                 freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
                 servings={cocktail.servings}
+                technique={cocktail.recipe?.dilutionType}
               />
             </div>
           ))}
@@ -125,26 +180,53 @@ const allSpirits = [...new Set(cocktailsData.cocktails.flatMap(c => c.baseSpirit
 </style>
 
 <script>
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const cocktailItems = document.querySelectorAll('.cocktail-item');
+  // Two independent filter rows (spirit + tag) that AND together. A cocktail
+  // is shown only if it matches the active spirit AND the active tag.
+  const spiritBtns = document.querySelectorAll<HTMLButtonElement>('.spirit-filter');
+  const tagBtns = document.querySelectorAll<HTMLButtonElement>('.tag-filter');
+  const cocktailItems = document.querySelectorAll<HTMLElement>('.cocktail-item');
 
-  filterBtns.forEach(btn => {
+  let activeSpirit = 'all';
+  let activeTag = 'all';
+
+  function applyFilters() {
+    cocktailItems.forEach(item => {
+      const spirits = item.getAttribute('data-spirits')?.split(',') ?? [];
+      const tags = item.getAttribute('data-tags')?.split(',') ?? [];
+      const spiritMatch = activeSpirit === 'all' || spirits.includes(activeSpirit);
+      const tagMatch = activeTag === 'all' || tags.includes(activeTag);
+      item.classList.toggle('hidden', !(spiritMatch && tagMatch));
+    });
+
+    // Hide section headers when their grid is empty so the page doesn't
+    // show a heading above an empty filter result.
+    document.querySelectorAll<HTMLElement>('[data-section]').forEach(section => {
+      const visible = section.querySelectorAll('.cocktail-item:not(.hidden)').length;
+      section.classList.toggle('hidden', visible === 0);
+    });
+  }
+
+  function setActive(buttons: NodeListOf<HTMLButtonElement>, clicked: HTMLButtonElement) {
+    buttons.forEach(b => {
+      const isActive = b === clicked;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-checked', String(isActive));
+    });
+  }
+
+  spiritBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Update active state
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      setActive(spiritBtns, btn);
+      activeSpirit = btn.dataset.spirit ?? 'all';
+      applyFilters();
+    });
+  });
 
-      const spirit = btn.getAttribute('data-spirit') || 'all';
-
-      // Filter cocktails
-      cocktailItems.forEach(item => {
-        const spirits = item.getAttribute('data-spirits')?.split(',') || [];
-        if (spirit === 'all' || spirits.includes(spirit)) {
-          item.classList.remove('hidden');
-        } else {
-          item.classList.add('hidden');
-        }
-      });
+  tagBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setActive(tagBtns, btn);
+      activeTag = btn.dataset.tag ?? 'all';
+      applyFilters();
     });
   });
 </script>

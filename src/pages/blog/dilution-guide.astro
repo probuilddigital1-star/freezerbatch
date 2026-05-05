@@ -1,0 +1,125 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const title = 'The freezer-batch dilution guide';
+const description = 'When to add water to your freezer batch, when not to, and why 22% ABV is the line. Matching the calculator\'s 0%, 20%, and 25% buttons to actual cocktails.';
+---
+
+<Layout title={title} description={description}>
+  <article class="py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+      <nav class="mb-6 text-sm" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-2 text-cognac-400">
+          <li><a href="/" class="hover:text-primary-600">Home</a></li>
+          <li>/</li>
+          <li><a href="/blog" class="hover:text-primary-600">Guides</a></li>
+        </ol>
+      </nav>
+
+      <header class="mb-10 sm:mb-12">
+        <p class="article-eyebrow mb-5">4 min read · Technique</p>
+        <h1 class="article-headline mb-5">
+          The freezer-batch dilution guide
+        </h1>
+        <p class="article-deck">
+          When ice melts into a cocktail it adds water; when it doesn't, you have to. Or sometimes you don't. Here's how to think about the calculator's 0%, 20%, and 25% buttons.
+        </p>
+      </header>
+
+      <div class="editorial editorial-lead">
+        <p>
+          Stir a Manhattan with ice for 30 seconds and roughly 20% of what ends up in your glass is meltwater. Shake a Daiquiri with ice for 12 seconds and roughly 25% is meltwater. That dilution is not a flaw; it is the part of the recipe that opens the spirit and brings the cocktail into balance.
+        </p>
+
+        <p>
+          A freezer batch never sees ice. The bottle goes from your freezer to your glass at -18°C, fully strength, no melt. So if a recipe was built around 20% dilution and you batch it without adding any water, you get a more concentrated, slightly harsher version of the original.
+        </p>
+
+        <p>
+          The fix is to pre-dilute the batch. The calculator gives you three buttons: 0%, 20%, and 25%. Pick one based on how the original cocktail is normally made.
+        </p>
+
+        <h2>20% Stirred: spirit-forward classics</h2>
+
+        <p>
+          Use 20% dilution for cocktails that are normally stirred over ice in a mixing glass. The category includes Negroni, Manhattan, Old Fashioned, Boulevardier, Vieux Carré, Hanky-Panky, and Bijou.
+        </p>
+
+        <p>
+          These drinks build their character on spirit and fortified wine. The water is there to round the edges, not to do flavor work. 20% is the right number for most home freezers because you are mimicking a moderate stir over fresh ice.
+        </p>
+
+        <p>
+          One twist: many spirit-forward freezer recipes work fine with <em>less</em> dilution than the stirred version. The Milk Street technique that several recipes on this site adapt actually uses 0% added water for Negroni, Manhattan, Old Fashioned, and a few others. The freezer's cold smooths the alcohol enough that the water becomes optional. Try the no-water version first; if it tastes harsh, add 20% on the next batch and compare.
+        </p>
+
+        <h2>25% Shaken: citrus drinks</h2>
+
+        <p>
+          Use 25% dilution for cocktails that are normally shaken with ice. That covers Daiquiri, Margarita, Cosmopolitan, Aviation, and most other citrus drinks.
+        </p>
+
+        <p>
+          Shaken drinks pick up more water than stirred ones because shaking is more violent and the ice surface area in contact with liquid is higher. 25% is the standard estimate for a hard 12-second shake.
+        </p>
+
+        <p>
+          That said, citrus drinks also bring their own water in the form of fresh juice. A Daiquiri batch is already 15% citrus juice by volume, which means the relative dilution from <em>added</em> water can be lower than the 25% the recipe expected. The Milk Street Daiquiri uses 8% added water; the Margarita uses 0%. The juice does the work.
+        </p>
+
+        <h2>0% No water: when ABV is doing the talking</h2>
+
+        <p>
+          Use 0% for drinks where the spirit is the entire point and any added water muddies it. The Sazerac is the cleanest example: nothing but rye, a touch of syrup, Peychaud's bitters, and an absinthe rinse. Adding 20% water to a freezer Sazerac would weaken the rye and unbalance the syrup ratio.
+        </p>
+
+        <p>
+          0% is also right for moonshot strong drinks where you want maximum freezer durability. Anything below 22% ABV starts moving toward slushy at -18°C; anything below 15% ABV will freeze solid. Adding water lowers the ABV. If your recipe is already on the borderline, more water can push it over the edge.
+        </p>
+
+        <h2>The 22% line</h2>
+
+        <p>
+          The number worth remembering: <strong>22% ABV is the safe zone for a home freezer</strong>. Above 22% the batch stays pourable. Between 15% and 22% it gets thick and slushy but is still drinkable. Below 15% it freezes solid and you have a brick.
+        </p>
+
+        <p>
+          A 1:1:1 Negroni made with 40% gin, 25% Campari, and 16% sweet vermouth lands at 27% ABV with no water added. Add 20% water and it drops to 22.5%, right at the line. Add 25% water and it drops to 21%, into the slushy zone. For a Negroni, 0% or 10% water is the safer call.
+        </p>
+
+        <p>
+          The calculator shows you the final ABV in real time, color-coded green/amber/red as you adjust the dilution slider. If the bar turns amber while you are tweaking, you have just crossed into slushy territory. Pull the dilution back.
+        </p>
+
+        <h2>What about Build My Own?</h2>
+
+        <p>
+          When you build a custom recipe in the calculator, the default is 20%. That is the right answer for most stirred drinks. If you are making something shaken, switch to 25%. If you are making something already at the edge of pourability (most freezer recipes), drop to 0% and see if it works.
+        </p>
+
+        <p>
+          The single best way to know which dilution your batch needs is to make a one-drink test in a small jar before you batch the whole bottle. Pour the spirit, the modifiers, and a corresponding amount of water into the jar. Cap it, freeze it for 4 hours, and taste. If it tastes weak, drop the water on the next test. If it tastes hot, add water.
+        </p>
+
+        <aside class="editorial-recap">
+          <h2>The short version</h2>
+          <ul>
+            <li>Stirred classics: 0% or 20%, depending on whether the cocktail can take the water.</li>
+            <li>Shaken citrus drinks: 25%, but reduce if the drink already has a lot of juice.</li>
+            <li>Spirit-forward singles like the Sazerac: 0%.</li>
+            <li>Aim for final ABV at or above 22%; the calculator's status bar tells you when you are about to slip.</li>
+          </ul>
+        </aside>
+      </div>
+
+      <div class="mt-12 p-6 bg-accent-50 rounded-2xl border border-accent-200/60 text-center">
+        <p class="text-cognac mb-4">
+          The dilution slider sits right above the recipe form in the calculator. Try the same recipe at 0%, 20%, and 25% to see how the ABV moves.
+        </p>
+        <a href="/#calculator" class="btn-primary">Open the calculator</a>
+      </div>
+
+    </div>
+  </article>
+</Layout>

@@ -3,7 +3,33 @@ import Layout from '../../layouts/Layout.astro';
 import Calculator from '../../components/Calculator.astro';
 import CocktailCard from '../../components/CocktailCard.astro';
 import AffiliateLink from '../../components/AffiliateLink.astro';
+import GlassIcon from '../../components/GlassIcon.astro';
+import type { GlassType } from '../../components/GlassIcon.astro';
 import cocktailsData from '../../data/cocktails.json';
+import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../../lib/calculator';
+
+// Map each cocktail to the glass it's traditionally served in. Used to
+// give each recipe page a small piece of visual identity without photos.
+const GLASS_BY_SLUG: Record<string, GlassType> = {
+  negroni: 'rocks',
+  manhattan: 'coupe',
+  'old-fashioned': 'rocks',
+  boulevardier: 'rocks',
+  'dirty-martini': 'coupe',
+  margarita: 'coupe',
+  cosmopolitan: 'coupe',
+  'moscow-mule': 'mug',
+  'espresso-martini': 'coupe',
+  'paper-plane': 'coupe',
+  daiquiri: 'coupe',
+  vesper: 'coupe',
+  'mint-julep': 'julep',
+  'vieux-carre': 'rocks',
+  'hanky-panky': 'coupe',
+  aviation: 'coupe',
+  sazerac: 'rocks',
+  bijou: 'coupe',
+};
 
 export function getStaticPaths() {
   return cocktailsData.cocktails.map(cocktail => ({
@@ -13,6 +39,17 @@ export function getStaticPaths() {
 }
 
 const { cocktail } = Astro.props;
+
+// Single source of truth for ABV / servings: derive from the same
+// calculator the user interacts with below. Falls back to the JSON
+// value for cocktails that don't have a Milk Street batch defined.
+const liveBatch = MILK_STREET_BATCHES[cocktail.slug]
+  ? calculateMilkStreetBatch(cocktail.slug, 750)
+  : null;
+const displayAbv = liveBatch ? Math.round(liveBatch.finalAbv) : cocktail.finalAbv;
+const displayServings = liveBatch ? liveBatch.servings : cocktail.servings;
+const displayFreezeStatus = liveBatch ? liveBatch.freezeStatus : cocktail.freezeStatus;
+const glassType: GlassType = GLASS_BY_SLUG[cocktail.slug] ?? 'coupe';
 
 // Get related cocktails
 const relatedCocktails = cocktailsData.cocktails
@@ -25,7 +62,7 @@ const statusLabels = {
   freeze: { text: 'Will Freeze', icon: '✗', class: 'status-freeze' }
 };
 
-const status = statusLabels[cocktail.freezeStatus as keyof typeof statusLabels];
+const status = statusLabels[displayFreezeStatus as keyof typeof statusLabels];
 
 // Recipe schema for SEO
 const recipeSchema = {
@@ -97,97 +134,122 @@ const recipeSchema = {
         </ol>
       </nav>
 
-      <!-- Header -->
-      <header class="mb-8">
-        <div class="flex flex-wrap items-center gap-3 mb-4">
-          <span class={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${status.class}`}>
-            <span>{status.icon}</span>
-            {status.text}
-          </span>
-          {cocktail.reliability === 'bulletproof' && (
-            <span class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium">
-              Bulletproof
+      <!-- Header — title and metadata, with the served-glass illustration as
+           a small visual anchor on the right. -->
+      <header class="mb-8 flex items-start gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <span class={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${status.class}`}>
+              <span>{status.icon}</span>
+              {status.text}
             </span>
-          )}
+            {cocktail.reliability === 'bulletproof' && (
+              <span class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium" title="Spirit-forward — keeps for months in the freezer">
+                Lasts months
+              </span>
+            )}
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl font-bold text-charcoal mb-3">
+            {cocktail.name}
+          </h1>
+          <p class="text-lg text-gray-600">{cocktail.tagline}</p>
         </div>
 
-        <h1 class="text-3xl sm:text-4xl font-bold text-charcoal mb-3">
-          {cocktail.name}
-        </h1>
-        <p class="text-lg text-gray-600">{cocktail.tagline}</p>
+        <!-- Served-in glass illustration -->
+        <div class="hidden sm:flex shrink-0 w-20 h-20 items-center justify-center rounded-2xl bg-cream-200 border border-cognac-200/60 text-primary-600" title={`Served in a ${glassType} glass`}>
+          <GlassIcon type={glassType} class="w-12 h-12" />
+        </div>
       </header>
 
-      <!-- Quick Stats Bar -->
-      <div class="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-xl mb-8">
-        <div class="text-center">
-          <span class="block text-xl font-bold text-primary">{cocktail.finalAbv}%</span>
-          <span class="text-xs text-gray-500">ABV</span>
+      <!-- Quick Stats Bar — grouped: Yield (ABV / Drinks) and Time (Prep / Freeze)
+           with a divider between so the eye reads them as two pairs. -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-0 p-4 bg-gray-50 rounded-xl mb-8 sm:divide-x sm:divide-cognac-200/60">
+        <div class="grid grid-cols-2 gap-4 flex-1 sm:pr-4">
+          <div class="text-center">
+            <span class="block text-xl font-bold font-mono text-primary-600">{displayAbv}%</span>
+            <span class="text-xs uppercase tracking-wider text-cognac-400">ABV</span>
+          </div>
+          <div class="text-center">
+            <span class="block text-xl font-bold font-mono text-primary-600">{displayServings}</span>
+            <span class="text-xs uppercase tracking-wider text-cognac-400">Drinks</span>
+          </div>
         </div>
-        <div class="text-center">
-          <span class="block text-xl font-bold text-primary">{cocktail.servings}</span>
-          <span class="text-xs text-gray-500">Drinks</span>
-        </div>
-        <div class="text-center">
-          <span class="block text-xl font-bold text-primary">{cocktail.prepTime}</span>
-          <span class="text-xs text-gray-500">Prep</span>
-        </div>
-        <div class="text-center">
-          <span class="block text-xl font-bold text-primary">{cocktail.freezeTime}</span>
-          <span class="text-xs text-gray-500">Freeze</span>
+        <div class="grid grid-cols-2 gap-4 flex-1 sm:pl-4 border-t border-cognac-200/60 pt-3 sm:border-t-0 sm:pt-0">
+          <div class="text-center">
+            <span class="block text-xl font-bold font-mono text-cognac">{cocktail.prepTime}</span>
+            <span class="text-xs uppercase tracking-wider text-cognac-400">Prep</span>
+          </div>
+          <div class="text-center">
+            <span class="block text-xl font-bold font-mono text-cognac">{cocktail.freezeTime}</span>
+            <span class="text-xs uppercase tracking-wider text-cognac-400">Freeze</span>
+          </div>
         </div>
       </div>
 
-      <!-- Main Calculator Section - THE HERO -->
-      <section class="mb-12">
+      <!-- About — above the calculator so the user has context for what
+           they're batching before they start. Editorial deck treatment so
+           it reads as a deliberate intro, not stray text. -->
+      <section class="mb-10">
+        <p class="article-eyebrow mb-4">About this cocktail</p>
+        <p class="font-display text-lg sm:text-xl leading-relaxed text-cognac-800 max-w-2xl">
+          {cocktail.description}
+        </p>
+      </section>
+
+      <!-- Calculator — the main act. -->
+      <section class="mb-10">
         <Calculator cocktailSlug={cocktail.slug} />
       </section>
 
-      <!-- Description -->
-      <section class="mb-10">
-        <h2 class="text-xl font-bold text-charcoal mb-3">About This Cocktail</h2>
-        <p class="text-gray-600 leading-relaxed">{cocktail.description}</p>
-      </section>
-
-      <!-- How to Serve -->
-      <section class="mb-10 p-6 bg-primary-50 rounded-xl border border-primary-100">
-        <h2 class="text-xl font-bold text-charcoal mb-3">How to Serve</h2>
+      <!-- How to Serve — what to do once your batch is frozen. -->
+      <section class="mb-8 p-5 sm:p-6 bg-primary-50 rounded-xl border border-primary-100">
+        <h2 class="font-display text-xl font-semibold text-charcoal mb-2">How to serve</h2>
         <p class="text-gray-700">{cocktail.serve}</p>
         {cocktail.shelfLife && (
-          <p class="mt-3 text-sm text-gray-500">
-            <strong>Best within:</strong> {cocktail.shelfLife}
+          <p class="mt-3 text-sm text-cognac-500">
+            <strong class="text-cognac">Best within:</strong> {cocktail.shelfLife}
           </p>
         )}
       </section>
 
-      <!-- Tips -->
-      {cocktail.tips && cocktail.tips.length > 0 && (
-        <section class="mb-10">
-          <h2 class="text-xl font-bold text-charcoal mb-4">Pro Tips</h2>
-          <ul class="space-y-3">
-            {cocktail.tips.map((tip: string) => (
-              <li class="flex gap-3">
-                <span class="text-primary flex-shrink-0 font-bold">+</span>
-                <span class="text-gray-600">{tip}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <!-- Tips + Common Mistakes — side by side on desktop, stacked on mobile.
+           Both are pre-batch guidance the user wants to glance at quickly. -->
+      <section class="grid md:grid-cols-2 gap-5 mb-10">
+        {cocktail.tips && cocktail.tips.length > 0 && (
+          <div class="p-5 bg-white rounded-xl border border-cognac-200/60 shadow-sm">
+            <h2 class="font-display text-lg font-semibold text-charcoal mb-3 flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-accent-100 text-accent-700 text-sm">★</span>
+              Pro tips
+            </h2>
+            <ul class="space-y-2.5">
+              {cocktail.tips.map((tip: string) => (
+                <li class="flex gap-2 text-sm text-cognac">
+                  <span class="text-accent-500 flex-shrink-0 font-bold mt-0.5">+</span>
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      <!-- Common Mistakes -->
-      {cocktail.commonMistakes && cocktail.commonMistakes.length > 0 && (
-        <section class="mb-10">
-          <h2 class="text-xl font-bold text-charcoal mb-4">Avoid These Mistakes</h2>
-          <ul class="space-y-3">
-            {cocktail.commonMistakes.map((mistake: string) => (
-              <li class="flex gap-3 text-gray-600">
-                <span class="text-red-500 flex-shrink-0">-</span>
-                <span>{mistake}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        {cocktail.commonMistakes && cocktail.commonMistakes.length > 0 && (
+          <div class="p-5 bg-white rounded-xl border border-cognac-200/60 shadow-sm">
+            <h2 class="font-display text-lg font-semibold text-charcoal mb-3 flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-danger/15 text-danger text-sm">!</span>
+              Avoid these
+            </h2>
+            <ul class="space-y-2.5">
+              {cocktail.commonMistakes.map((mistake: string) => (
+                <li class="flex gap-2 text-sm text-cognac">
+                  <span class="text-danger flex-shrink-0 mt-0.5">−</span>
+                  <span>{mistake}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
 
       <!-- Event Planning CTA -->
       <section class="mb-10">

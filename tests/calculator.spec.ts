@@ -65,6 +65,7 @@ async function getFreezeStatus(page: Page): Promise<string> {
   if (className?.includes('status-safe')) return 'safe';
   if (className?.includes('status-slushy')) return 'slushy';
   if (className?.includes('status-freeze')) return 'freeze';
+  if (className?.includes('status-empty')) return 'empty';
   return 'unknown';
 }
 
@@ -126,22 +127,19 @@ test.describe('Freezer Batch Calculator', () => {
       expect(water.value).toBeGreaterThanOrEqual(0);
     });
 
-    test('should show all three Negroni ingredients', async ({ page }) => {
+    test('should show all three Negroni ingredients in the preset instructions', async ({ page }) => {
       await selectPreset(page, 'negroni');
 
-      // Check that there are 3 ingredient rows
-      const rows = page.locator('.ingredient-row');
-      await expect(rows).toHaveCount(3);
+      // The preset mode renders the recipe inside #preset-batch-instructions.
+      // It must NOT leak into the Build My Own ingredient rows (those stay
+      // independent, so user-entered values aren't overwritten).
+      const presetInstructions = page.locator('#preset-batch-instructions');
+      await expect(presetInstructions).toBeVisible();
 
-      // Verify ingredient names
-      const ingredientNames = await page.locator('.ingredient-row [name="name"]').allTextContents();
-      const ingredientValues = await page.locator('.ingredient-row [name="name"]').evaluateAll(
-        (inputs) => (inputs as HTMLInputElement[]).map(input => input.value)
-      );
-
-      expect(ingredientValues).toContain('Gin');
-      expect(ingredientValues).toContain('Campari');
-      expect(ingredientValues).toContain('Sweet Vermouth');
+      const presetText = (await presetInstructions.textContent()) ?? '';
+      expect(presetText).toContain('Gin');
+      expect(presetText).toContain('Campari');
+      expect(presetText).toContain('Sweet Vermouth');
     });
   });
 
@@ -178,22 +176,18 @@ test.describe('Freezer Batch Calculator', () => {
       expect(water.value).toBeGreaterThanOrEqual(0);
     });
 
-    test('should show Margarita ingredients with correct ratios', async ({ page }) => {
+    test('should show Margarita ingredients in the preset instructions', async ({ page }) => {
       await selectPreset(page, 'margarita');
 
-      // Margarita has: base spirit + 3 ingredients (lime, cointreau, agave)
-      const rows = page.locator('.ingredient-row');
-      await expect(rows).toHaveCount(4);
+      // Preset details render inside #preset-batch-instructions; they do not
+      // leak into the Build My Own form.
+      const presetInstructions = page.locator('#preset-batch-instructions');
+      await expect(presetInstructions).toBeVisible();
 
-      // Verify ingredient names (Milk Street uses full names)
-      const ingredientValues = await page.locator('.ingredient-row [name="name"]').evaluateAll(
-        (inputs) => (inputs as HTMLInputElement[]).map(input => input.value)
-      );
-
-      // Should contain the base spirit and the add-back ingredients
-      expect(ingredientValues.some(v => v.toLowerCase().includes('tequila'))).toBe(true);
-      expect(ingredientValues.some(v => v.toLowerCase().includes('lime'))).toBe(true);
-      expect(ingredientValues.some(v => v.toLowerCase().includes('cointreau') || v.toLowerCase().includes('orange'))).toBe(true);
+      const text = ((await presetInstructions.textContent()) ?? '').toLowerCase();
+      expect(text).toContain('tequila');
+      expect(text).toContain('lime');
+      expect(text).toMatch(/cointreau|orange/);
     });
   });
 
@@ -360,10 +354,10 @@ test.describe('Freezer Batch Calculator', () => {
       console.log(`Empty recipe ABV: ${abv}%`);
       expect(abv).toBe(0);
 
-      // Should show freeze status (likely freeze with 0 ABV)
+      // Empty state should be neutral (status-empty), not a red danger pulse.
       const freezeStatus = await getFreezeStatus(page);
       console.log(`Empty recipe freeze status: ${freezeStatus}`);
-      expect(freezeStatus).toBe('freeze');
+      expect(freezeStatus).toBe('empty');
     });
 
     test('should warn for very low ABV recipe (will freeze)', async ({ page }) => {
@@ -497,35 +491,29 @@ test.describe('Freezer Batch Calculator', () => {
 
   test.describe('7. Dilution Settings Tests', () => {
     test('should update ABV when changing dilution percentage', async ({ page }) => {
-      // Use custom mode for dilution testing (presets have fixed water amounts)
-      // Create a simple recipe first
+      // Use custom mode for dilution testing (presets have fixed water amounts).
+      // Default dilution is now 20% (Stirred). Buttons are 0% / 20% / 25%.
       await fillIngredientRow(page, 0, 'Vodka', '2', '40');
       await fillIngredientRow(page, 1, 'Lime Juice', '1', '0');
       await page.waitForTimeout(300);
 
-      // Get ABV with 22% dilution (default)
-      const abv22 = await getFinalABV(page);
-      console.log(`22% dilution ABV: ${abv22}%`);
-
-      // Switch to 20% dilution
-      await page.click('[data-dilution="20"]');
-      await page.waitForTimeout(300);
-
+      // 20% dilution (default)
       const abv20 = await getFinalABV(page);
       console.log(`20% dilution ABV: ${abv20}%`);
 
-      // Less dilution = higher ABV
-      expect(abv20).toBeGreaterThan(abv22);
+      // 0% dilution should be higher ABV (no water added)
+      await page.click('[data-dilution="0"]');
+      await page.waitForTimeout(300);
+      const abv0 = await getFinalABV(page);
+      console.log(`0% dilution ABV: ${abv0}%`);
+      expect(abv0).toBeGreaterThan(abv20);
 
-      // Switch to 25% dilution
+      // 25% dilution should be lower ABV (more water)
       await page.click('[data-dilution="25"]');
       await page.waitForTimeout(300);
-
       const abv25 = await getFinalABV(page);
       console.log(`25% dilution ABV: ${abv25}%`);
-
-      // More dilution = lower ABV
-      expect(abv25).toBeLessThan(abv22);
+      expect(abv25).toBeLessThan(abv20);
     });
   });
 

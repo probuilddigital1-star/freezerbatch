@@ -9,7 +9,9 @@
 
   body {
     @apply bg-cream text-warmgray antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* DM Sans — kern + standard ligatures + lining figures for stat numbers. */
+    font-feature-settings: "kern", "liga", "ss01", "lnum";
+    font-variation-settings: "opsz" 14;
     /* Subtle paper texture overlay */
     background-image:
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"),
@@ -43,21 +45,26 @@
     -moz-appearance: textfield;
   }
 
-  /* Better text rendering - display font for headings */
+  /* Headlines — Fraunces with SOFT axis for warmer curves and optical size
+     responding to type size. Slight negative tracking on display sizes. */
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
+    font-variation-settings: "SOFT" 50, "opsz" 30;
   }
 
   h1 {
-    letter-spacing: -0.03em;
+    letter-spacing: -0.025em;
+    font-variation-settings: "SOFT" 60, "opsz" 96;
   }
 
   h2 {
     letter-spacing: -0.02em;
+    font-variation-settings: "SOFT" 55, "opsz" 56;
   }
 
   h3, h4 {
-    letter-spacing: -0.01em;
+    letter-spacing: -0.012em;
+    font-variation-settings: "SOFT" 50, "opsz" 24;
   }
 }
 
@@ -107,10 +114,11 @@
            transition-all duration-200;
   }
 
-  /* Modern card - enhanced hover */
+  /* Modern card — white surface so it reads as a discrete object even
+     against the cream page texture. */
   .card {
-    @apply bg-cream rounded-2xl p-6
-           border-2 border-cognac-200
+    @apply bg-white rounded-2xl p-6
+           border border-cognac-200/80
            shadow-card
            transition-all duration-300 ease-out;
   }
@@ -123,6 +131,20 @@
       0 25px 30px -5px rgba(0,0,0,0.1),
       0 15px 15px -5px rgba(0,0,0,0.04),
       0 0 30px rgba(184, 134, 11, 0.08);
+  }
+
+  /* The calculator card is interactive (form), not a hover-target — disable
+     the hover lift so the form doesn't shift when the user reaches into it. */
+  .calculator-wrapper .card,
+  .calculator-wrapper .card:hover {
+    transform: none;
+  }
+  .calculator-wrapper .card:hover {
+    @apply border-cognac-200/80;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,0.05),
+      0 20px 25px -5px rgba(0,0,0,0.05),
+      0 10px 10px -5px rgba(0,0,0,0.02);
   }
 
   /* Glass effect card */
@@ -176,6 +198,12 @@
     transition: box-shadow 0.3s ease-out;
   }
 
+  /* Calm neutral state — used before any ingredients are entered */
+  .status-empty {
+    @apply text-cognac-500 border-l-4 border-cognac-200;
+    background: linear-gradient(135deg, rgba(93,64,55,0.05) 0%, rgba(93,64,55,0.02) 100%);
+  }
+
   /* Freeze status pulse animation */
   @keyframes freezePulse {
     0%, 100% { box-shadow: 0 0 20px rgba(239,68,68,0.2), inset 0 0 20px rgba(239,68,68,0.05); }
@@ -224,6 +252,285 @@
 
   .affiliate-link:hover svg {
     @apply translate-x-0.5;
+  }
+
+  /* ==========================================================================
+     EDITORIAL ARTICLE STYLES
+     Custom long-form prose for guides, how-it-works, about, and privacy.
+     The site does not use @tailwindcss/typography on purpose; these styles
+     are tuned to the Fraunces + DM Sans pairing and the brass/cream palette.
+     ========================================================================== */
+
+  .editorial {
+    font-family: theme('fontFamily.sans');
+    font-size: 1.0625rem;       /* 17px */
+    line-height: 1.75;
+    color: theme('colors.cognac.700');
+  }
+
+  .editorial > * + * {
+    margin-top: 1.25em;
+  }
+
+  .editorial p {
+    margin: 0 0 1.25em;
+    text-wrap: pretty;
+  }
+
+  .editorial p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* H2 — Fraunces with brass rule underneath, like an editorial section break */
+  .editorial h2 {
+    font-family: theme('fontFamily.display');
+    font-weight: 600;
+    font-size: 1.75rem;          /* 28px */
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    color: theme('colors.charcoal');
+    margin: 2.6em 0 0.8em;
+    font-variation-settings: "SOFT" 50, "opsz" 36;
+  }
+
+  .editorial h2::after {
+    content: '';
+    display: block;
+    width: 2.75rem;
+    height: 2px;
+    margin-top: 0.6em;
+    background: linear-gradient(
+      90deg,
+      theme('colors.accent.500'),
+      theme('colors.accent.300') 60%,
+      transparent
+    );
+  }
+
+  /* H3 — slightly smaller, no rule */
+  .editorial h3 {
+    font-family: theme('fontFamily.display');
+    font-weight: 500;
+    font-size: 1.3125rem;        /* 21px */
+    line-height: 1.3;
+    letter-spacing: -0.012em;
+    color: theme('colors.charcoal');
+    margin: 1.85em 0 0.5em;
+    font-variation-settings: "SOFT" 50, "opsz" 24;
+  }
+
+  /* Lead paragraph — first paragraph after the article header */
+  .editorial-lead p:first-of-type {
+    font-size: 1.1875rem;
+    color: theme('colors.cognac.800');
+    line-height: 1.65;
+  }
+
+  /* Drop cap on the very first paragraph, only when explicitly opted in */
+  .editorial-lead p:first-of-type::first-letter {
+    font-family: theme('fontFamily.display');
+    font-weight: 700;
+    font-size: 4.5rem;
+    line-height: 0.85;
+    float: left;
+    padding: 0.35rem 0.55rem 0 0;
+    color: theme('colors.accent.600');
+    font-variation-settings: "SOFT" 80, "opsz" 144;
+  }
+
+  /* Lists — custom bullets in brass */
+  .editorial ul {
+    margin: 0 0 1.25em;
+    padding: 0;
+    list-style: none;
+  }
+
+  .editorial ul > li {
+    position: relative;
+    padding-left: 1.5em;
+    margin: 0.55em 0;
+  }
+
+  .editorial ul > li::before {
+    content: '';
+    position: absolute;
+    left: 0.25em;
+    top: 0.7em;
+    width: 0.45em;
+    height: 0.45em;
+    border-radius: 9999px;
+    background: theme('colors.accent.500');
+  }
+
+  /* Ordered lists — brass numerals in display font */
+  .editorial ol {
+    margin: 0 0 1.25em;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: editorial-counter;
+  }
+
+  .editorial ol > li {
+    counter-increment: editorial-counter;
+    position: relative;
+    padding-left: 2.4em;
+    margin: 0.6em 0;
+  }
+
+  .editorial ol > li::before {
+    content: counter(editorial-counter) '.';
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: theme('fontFamily.display');
+    font-weight: 600;
+    font-size: 1.15em;
+    color: theme('colors.accent.600');
+    width: 1.8em;
+    text-align: left;
+  }
+
+  /* Inline emphasis */
+  .editorial strong {
+    color: theme('colors.charcoal');
+    font-weight: 600;
+  }
+
+  .editorial em {
+    font-style: italic;
+    color: theme('colors.cognac.800');
+  }
+
+  /* Links — underlined in brass, thicker on hover */
+  .editorial a {
+    color: theme('colors.cognac.700');
+    text-decoration: underline;
+    text-decoration-color: theme('colors.accent.300');
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s, text-decoration-thickness 0.15s;
+  }
+
+  .editorial a:hover {
+    text-decoration-color: theme('colors.accent.500');
+    text-decoration-thickness: 2.5px;
+  }
+
+  /* Inline code (rare but possible) */
+  .editorial code {
+    font-family: theme('fontFamily.mono');
+    font-size: 0.92em;
+    background: theme('colors.cognac.50');
+    padding: 0.12em 0.35em;
+    border-radius: 0.25em;
+    color: theme('colors.cognac.800');
+  }
+
+  /* Blockquote — brass left rule, italic display font */
+  .editorial blockquote {
+    border-left: 3px solid theme('colors.accent.500');
+    padding: 0.4em 0 0.4em 1.4em;
+    margin: 1.6em 0;
+    font-family: theme('fontFamily.display');
+    font-style: italic;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: theme('colors.cognac.800');
+    font-variation-settings: "SOFT" 60, "opsz" 36;
+  }
+
+  /* Hr — small brass diamond ornament instead of a line */
+  .editorial hr {
+    border: 0;
+    height: 24px;
+    margin: 2.5em auto;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B8860B' stroke-width='1.4'%3E%3Crect x='8' y='8' width='8' height='8' transform='rotate(45 12 12)'/%3E%3Ccircle cx='12' cy='12' r='1.5' fill='%23B8860B'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 24px 24px;
+    width: 100%;
+    opacity: 0.5;
+  }
+
+  /* Recap card — for "The short version" sections at end of guides */
+  .editorial-recap {
+    margin: 3em 0 0;
+    padding: 1.5em 1.75em 1.6em;
+    background: linear-gradient(
+      180deg,
+      theme('colors.cream.100'),
+      theme('colors.cream.200')
+    );
+    border: 1px solid theme('colors.cognac.200');
+    border-top: 3px solid theme('colors.accent.500');
+    border-radius: 0.875rem;
+    position: relative;
+  }
+
+  .editorial-recap > h2 {
+    margin-top: 0;
+    margin-bottom: 0.6em;
+    font-size: 0.875rem;
+    font-family: theme('fontFamily.sans');
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: theme('colors.accent.700');
+  }
+
+  .editorial-recap > h2::after {
+    display: none;          /* no rule for the recap header */
+  }
+
+  .editorial-recap > ul {
+    margin-bottom: 0;
+  }
+
+  /* Article header polish — used outside .editorial, so styled at the page level.
+     The Layout-level <header> uses these via class names directly. */
+  .article-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: theme('colors.accent.700');
+  }
+
+  .article-eyebrow::before,
+  .article-eyebrow::after {
+    content: '';
+    width: 1.5rem;
+    height: 1px;
+    background: theme('colors.accent.500');
+    opacity: 0.6;
+  }
+
+  .article-headline {
+    font-family: theme('fontFamily.display');
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+    color: theme('colors.charcoal');
+    font-variation-settings: "SOFT" 60, "opsz" 96;
+  }
+
+  @media (min-width: 640px) {
+    .article-headline { font-size: 2.75rem; }
+    .editorial h2 { font-size: 2rem; }
+  }
+
+  .article-deck {
+    font-family: theme('fontFamily.display');
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1.25rem;
+    line-height: 1.45;
+    color: theme('colors.cognac.700');
+    font-variation-settings: "SOFT" 70, "opsz" 30;
   }
 }
 

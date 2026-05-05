@@ -30,3 +30,9 @@ npm-debug.log*
 # Test output
 playwright-report/
 test-results/
+
+# Lighthouse audit artifacts
+lighthouse-*.json
+
+# Stray Windows redirect placeholder
+nul

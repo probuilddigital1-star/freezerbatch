@@ -1,16 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="ice" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2d7d7d;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#4daaaa;stop-opacity:1" />
+    <linearGradient id="brass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d9a820"/>
+      <stop offset="100%" style="stop-color:#B8860B"/>
     </linearGradient>
   </defs>
-  <!-- Ice cube -->
-  <rect x="20" y="25" width="60" height="60" rx="8" fill="url(#ice)" />
-  <!-- Ice highlights -->
-  <rect x="28" y="33" width="20" height="20" rx="4" fill="white" opacity="0.3" />
-  <rect x="52" y="55" width="15" height="15" rx="3" fill="white" opacity="0.2" />
-  <!-- Frost sparkle -->
-  <circle cx="75" cy="20" r="6" fill="#e8a83e" />
-  <path d="M75 12 L75 28 M67 20 L83 20" stroke="#e8a83e" stroke-width="2" stroke-linecap="round" />
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="url(#brass)"/>
+  <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 18h34"/>
+    <path d="M16.5 18 32 38l15.5-20"/>
+    <path d="M32 38v15"/>
+    <path d="M24 53h16"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" transform="translate(46 12)">
+    <path d="M0 -4v8"/>
+    <path d="M-3.5 -2l7 4"/>
+    <path d="M-3.5 2l7 -4"/>
+  </g>
 </svg>

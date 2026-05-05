@@ -6,7 +6,7 @@
       "slug": "negroni",
       "name": "Negroni",
       "tagline": "The perfect aperitivo, always ready",
-      "description": "The Negroni is the ideal freezer batch cocktail. Start with a 750ml bottle of gin, pour off 16oz to make room, then add equal parts Campari and sweet vermouth. No water needed - the freezer temperature smooths the alcohol beautifully.",
+      "description": "The Negroni was reportedly invented in Florence around 1919 when Count Camillo Negroni asked his bartender to fortify an Americano by replacing the soda water with gin. Equal parts gin, Campari, and sweet vermouth, no water, no fuss. Of every classic cocktail, this is probably the best argument for freezer batching: the balance only tightens when the drink is cold, and a properly batched bottle pours into the glass already at the right temperature. Use a London Dry gin and a fresh bottle of sweet vermouth (Cocchi Storico is the bartender's pick).",
       "reliability": "bulletproof",
       "baseSpirit": ["gin"],
       "tags": ["bitter", "aperitivo", "classic", "italian", "stirred"],
@@ -61,7 +61,7 @@
       "slug": "manhattan",
       "name": "Manhattan",
       "tagline": "Sophisticated sipping, zero wait time",
-      "description": "The Manhattan is an outstanding freezer batch candidate. Using the Milk Street method, pour off just 4.5oz from a bottle of rye, add vermouth and cherry syrup. The cold temperature tames the rye's spice beautifully.",
+      "description": "The Manhattan first appeared in print in the 1880s, supposedly created at the Manhattan Club in New York for a banquet hosted by Lady Randolph Churchill. Two parts rye, one part sweet vermouth, a couple dashes of bitters. Of the spirit-forward classics, the Manhattan is the one that benefits most from freezer batching. The rye's heat backs off and the vermouth's fruit rounds out; the bitters finish reads as more aromatic than at room temperature. The drink is famously sensitive to vermouth quality, so replace your bottle every six weeks.",
       "reliability": "bulletproof",
       "baseSpirit": ["rye", "bourbon"],
       "tags": ["whiskey", "classic", "stirred", "sophisticated"],
@@ -117,7 +117,7 @@
       "slug": "old-fashioned",
       "name": "Old Fashioned",
       "tagline": "Timeless simplicity, perfectly chilled",
-      "description": "The Old Fashioned is the simplest freezer batch - almost pure bourbon. Pour off just 1.33oz from a 750ml bottle, add agave syrup and bitters. The bourbon's vanilla notes become silky smooth at freezer temperatures.",
+      "description": "The Old Fashioned is older than the term \"cocktail\" itself. The 1806 definition of a cocktail was \"spirits, sugar, water, and bitters,\" which is a literal Old Fashioned. Bourbon (or rye), a small amount of rich simple syrup, two or three dashes of Angostura, and a lemon peel expressed over the surface. The freezer version skips the muddled-orange-and-cherry vandalism that took hold in the mid-twentieth century. As a freezer batch the bourbon's vanilla and oak come forward; the syrup mostly disappears, which is why we batch slightly less of it than you would pour over ice.",
       "reliability": "bulletproof",
       "baseSpirit": ["bourbon", "rye"],
       "tags": ["whiskey", "classic", "simple", "stirred"],
@@ -128,9 +128,9 @@
       "recipe": {
         "batch": {
           "baseBottle": "750ml Bourbon or Rye",
-          "pourOff": "1.33 oz",
+          "pourOff": "1.5 oz",
           "addBack": [
-            { "name": "Agave or Simple Syrup", "amount": "1 oz" }
+            { "name": "Rich Simple Syrup", "amount": "1.5 oz" }
           ],
           "extras": "0.5 tbsp Angostura bitters",
           "water": "None needed"
@@ -172,7 +172,7 @@
       "slug": "boulevardier",
       "name": "Boulevardier",
       "tagline": "A whiskey Negroni that improves with time",
-      "description": "The Boulevardier is essentially a bourbon Negroni, and it batches identically well. The bourbon's vanilla notes marry with the Campari over time - this one actually improves after a week in the freezer.",
+      "description": "The Boulevardier is what you get when you swap the Negroni's gin for bourbon. Erskine Gwynne, an American magazine editor in 1920s Paris, named the drink after his expat literary magazine of the same name. Equal parts bourbon, Campari, and sweet vermouth. The bourbon's caramel-vanilla makes it sweeter and softer than its gin parent, which is why some bartenders prefer it to a Negroni in cold weather. As a freezer batch it improves over the first week as the Campari and vermouth marry into the bourbon.",
       "reliability": "bulletproof",
       "baseSpirit": ["bourbon"],
       "tags": ["whiskey", "bitter", "negroni-family", "stirred"],
@@ -215,7 +215,7 @@
       "slug": "dirty-martini",
       "name": "Dirty Martini",
       "tagline": "Briny, cold, and always ready",
-      "description": "The Dirty Martini is an excellent and often overlooked freezer batch candidate. The olive brine is shelf-stable, and the high vodka ABV keeps everything beautifully liquid. Use quality olive brine for best results.",
+      "description": "The Dirty Martini is a 1980s American invention, not a true classic, but it is the rare modern drink that batches better than its standard form. Olive brine has more shelf life than fresh citrus, and the vodka-and-vermouth base barely changes character at -18°C. The \"dirty\" part is the brine, half an ounce per drink, which adds salinity without overwhelming the vermouth. Use a quality olive brine; the cheap stuff tastes industrial. Sicilian Castelvetrano olives produce the cleanest brine for batching.",
       "reliability": "bulletproof",
       "baseSpirit": ["vodka", "gin"],
       "tags": ["vodka", "gin", "savory", "martini", "stirred"],
@@ -270,7 +270,7 @@
       "slug": "margarita",
       "name": "Margarita",
       "tagline": "Party-ready lime perfection",
-      "description": "The Margarita batches beautifully using the Milk Street method. Start with a 750ml bottle of tequila, pour off 10oz to make room, then add fresh lime, orange liqueur, and agave. No water needed - the citrus provides the liquid balance.",
+      "description": "The Margarita's origin story has too many claimants for any of them to be definitive. The version most bartenders pour today comes from the early 1940s, somewhere between Tijuana and Acapulco. Tequila, fresh lime, orange liqueur, and a touch of agave syrup. Salt rim optional but traditional. As a freezer batch it works best within a week, while the lime is still bright; after that the citrus turns into a pale ghost of itself. Use a 100% agave blanco tequila and squeeze the limes the same day you batch.",
       "reliability": "bulletproof",
       "baseSpirit": ["tequila"],
       "tags": ["tequila", "citrus", "party", "shaken", "summer"],
@@ -330,7 +330,7 @@
       "slug": "cosmopolitan",
       "name": "Cosmopolitan",
       "tagline": "Perfectly pink and party-ready",
-      "description": "The Cosmopolitan batches beautifully. The cranberry and lime hold up great in the freezer - just shake the bottle before pouring. The pink color stays vibrant for weeks.",
+      "description": "The Cosmopolitan owes most of its fame to a single decade and a single TV show. The drink itself predates Sex and the City; bartender Toby Cecchini popularized the modern version at the Odeon in lower Manhattan around 1988. Vodka, orange liqueur, cranberry concentrate, and a bare quarter-ounce of fresh lime. In freezer-batch form the cranberry holds its color for weeks; the lime is the time-limited ingredient. Use cranberry concentrate, not the bottled red juice from the supermarket. The concentrate gives the right body and the right pink.",
       "reliability": "bulletproof",
       "baseSpirit": ["vodka"],
       "tags": ["vodka", "citrus", "fruity", "shaken", "party"],
@@ -388,7 +388,7 @@
       "slug": "moscow-mule",
       "name": "Moscow Mule",
       "tagline": "Spicy-sweet base, ready for fizz",
-      "description": "The Moscow Mule requires a partial-batch approach. Batch the vodka, lime, and ginger syrup, then add fresh ginger beer when serving. Never batch the ginger beer - you'll lose all carbonation.",
+      "description": "The Moscow Mule was invented in 1941 in Hollywood, the result of three inventory problems landing in the same room: too much vodka, too much ginger beer, and a stack of unsold copper mugs. The standard build is vodka, fresh lime, and ginger beer over crushed ice in the copper mug. The freezer batch handles only the vodka-and-lime portion. Carbonated ginger beer cannot be batched (it goes flat); add 2 oz fresh ginger beer in the mug at serve, after pouring the freezer mix. The copper mug is not just decoration; it stays cold longer than glass and carries a faint metallic note that flatters the ginger.",
       "reliability": "bulletproof",
       "baseSpirit": ["vodka"],
       "tags": ["vodka", "ginger", "refreshing", "shaken", "summer"],
@@ -435,7 +435,7 @@
       "slug": "espresso-martini",
       "name": "Espresso Martini",
       "tagline": "Coffee meets cocktail, chilled and ready",
-      "description": "The Espresso Martini batches perfectly using cold brew concentrate instead of fresh espresso. The cold environment preserves the coffee flavor beautifully, and a hard shake before serving creates the signature foam.",
+      "description": "The Espresso Martini was invented in 1983 by Dick Bradsell at the Soho Brasserie in London, after a young model walked up and asked him for something that would wake her up and knock her sideways. The result: vodka, Kahlúa, and fresh espresso. As a freezer batch we substitute cold-brew concentrate for the fresh espresso, which preserves the coffee character without the make-it-hot-then-cool-then-shake sequence. The bottle pours from the freezer into a chilled coupe; a hard shake just before serving brings back some of the foam.",
       "reliability": "bulletproof",
       "baseSpirit": ["vodka"],
       "tags": ["vodka", "coffee", "after-dinner", "shaken"],
@@ -489,7 +489,7 @@
       "slug": "paper-plane",
       "name": "Paper Plane",
       "tagline": "Modern classic, built for batching",
-      "description": "The Paper Plane is a modern classic that batches beautifully. Equal parts bourbon, Aperol, Amaro Nonino, and lemon create perfect balance. Fresh lemon juice stays delicious for weeks in the freezer - just shake before serving.",
+      "description": "The Paper Plane is a modern classic, created by Sam Ross at Milk & Honey New York around 2008 and named after the M.I.A. song that was on the speakers when he was working it out. Equal parts bourbon, Aperol, Amaro Nonino, and fresh lemon juice. The four-way equal-parts ratio is unusual and works because all four ingredients are roughly the same intensity. As a freezer batch the lemon juice is the limiting factor (best within a week); the bourbon, Aperol, and Amaro Nonino batch indefinitely on their own. Some bartenders pre-batch the three spirits and add fresh lemon at serve. Either approach works.",
       "reliability": "bulletproof",
       "baseSpirit": ["bourbon"],
       "tags": ["bourbon", "amaro", "modern-classic", "shaken", "bitter-sweet"],
@@ -536,7 +536,7 @@
       "slug": "daiquiri",
       "name": "Daiquiri",
       "tagline": "The original rum sour, perfected",
-      "description": "The classic Daiquiri batches beautifully using the Milk Street method. Pour off 7oz from a bottle of white rum, add fresh lime, a touch of water, and agave syrup. The freezer mellows the rum while keeping the citrus bright.",
+      "description": "The Daiquiri is the most under-appreciated drink in the canon. White rum, fresh lime, simple syrup. Three ingredients, no bitters, no garnish, nothing to hide behind. The version most bartenders pour today traces to the 1898 mining town of Daiquirí in eastern Cuba, where American engineer Jennings Cox combined rum, lime, and sugar after running out of gin. As a freezer batch the rum's character comes forward and the lime stays bright for about a week. Use a quality white rum (Plantation 3 Stars or Probitas are reliable picks) and squeeze the limes within hours of batching.",
       "reliability": "bulletproof",
       "baseSpirit": ["rum"],
       "tags": ["rum", "citrus", "classic", "shaken", "summer"],
@@ -592,7 +592,7 @@
       "slug": "vesper",
       "name": "Vesper",
       "tagline": "Bond's drink, from your freezer",
-      "description": "The Vesper is James Bond's signature cocktail and an excellent freezer batch candidate. Using the Milk Street method, pour off 10oz from a gin bottle, add vodka and Cocchi Americano. The high ABV keeps it perfectly pourable.",
+      "description": "Ian Fleming wrote the Vesper into the first James Bond novel, Casino Royale, in 1953. Three ingredients: London gin, vodka, and Lillet (or, since the original Kina Lillet was discontinued in 1986, Cocchi Americano as the modern stand-in). Bond's specification was \"shaken until ice-cold.\" As a freezer batch the cold is built in, and the high spirit content keeps the bottle perfectly pourable. The Cocchi Americano carries quinine bitterness that backs off in the freezer, leaving a cleaner, more spirit-forward Vesper than the shaken-with-ice version.",
       "reliability": "bulletproof",
       "baseSpirit": ["gin", "vodka"],
       "tags": ["gin", "vodka", "martini", "classic", "stirred"],
@@ -647,7 +647,7 @@
       "slug": "mint-julep",
       "name": "Mint Julep",
       "tagline": "Kentucky's finest, freezer-ready",
-      "description": "The Mint Julep adapts beautifully to freezer batching by using a homemade mint syrup. Pour off just 3.25oz from your bourbon bottle and add the mint syrup. The result is a smooth, minty bourbon that's ready for Derby Day or any day.",
+      "description": "The Mint Julep is the Kentucky Derby's official drink and the South's answer to the Old Fashioned. Bourbon, fresh mint, and a generous amount of crushed ice in a silver or copper cup. The traditional service involves muddling fresh mint into sugar, which doesn't translate to a bottle. Our freezer version uses a pre-made mint syrup (fresh mint blended into rich simple syrup, then strained), which delivers the same flavor without the texture risk. Pour the batched bourbon over crushed ice and garnish with a generous bouquet of fresh mint at serve. The mint flavor in the syrup peaks in the first 48 hours and stays acceptable for about a week.",
       "reliability": "bulletproof",
       "baseSpirit": ["bourbon"],
       "tags": ["bourbon", "mint", "southern", "classic", "stirred"],
@@ -694,6 +694,283 @@
         "title": "Freezer Batch Mint Julep Recipe & Calculator",
         "description": "Make a freezer-ready Mint Julep batch. Kentucky's classic, perfectly chilled and always ready.",
         "keywords": ["mint julep freezer", "batch mint julep", "freezer mint julep recipe"]
+      }
+    },
+    {
+      "slug": "vieux-carre",
+      "name": "Vieux Carré",
+      "tagline": "New Orleans' rye-and-cognac aristocrat",
+      "description": "The Vieux Carré is what the Roosevelt Hotel in New Orleans built around 1937, when bartender Walter Bergeron decided to put rye, cognac, and sweet vermouth in the same glass. Equal parts of each, with a quarter-ounce of Bénédictine and two kinds of bitters. Spirit-forward, lightly herbal, one of the easiest classics to batch. Pour off 17.5 oz from a bottle of rye, add cognac and vermouth, finish with the Bénédictine.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["rye"],
+      "tags": ["whiskey", "stirred", "classic", "spirit-forward", "new-orleans"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Rye Whiskey",
+          "pourOff": "17.5 oz",
+          "addBack": [
+            { "name": "Cognac", "amount": "7.75 oz" },
+            { "name": "Sweet Vermouth", "amount": "7.75 oz" },
+            { "name": "Bénédictine", "amount": "2 oz" }
+          ],
+          "extras": "Few dashes Peychaud's and Angostura bitters",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Rye Whiskey", "volumeMl": 30, "abv": 45 },
+          { "name": "Cognac", "volumeMl": 30, "abv": 40 },
+          { "name": "Sweet Vermouth", "volumeMl": 30, "abv": 16 },
+          { "name": "Bénédictine", "volumeMl": 7, "abv": 40 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 34,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use a 100-proof rye if you can find one. The slight ABV bump keeps the batch firmly in the safe zone",
+        "Bénédictine is the cocktail's signature; do not substitute. A 375ml bottle lasts forever",
+        "The original ratio is two dashes each of Peychaud's and Angostura. Both, not one or the other",
+        "Express a lemon peel over the glass at serve and let it drop in"
+      ],
+      "serve": "Pour into a chilled rocks glass over a single large ice cube. Garnish with a lemon peel.",
+      "commonMistakes": [
+        "Using cooking-grade cognac (any decent VS will do)",
+        "Forgetting the bitters; they are not optional"
+      ],
+      "affiliateProducts": [
+        { "name": "Rocks Glasses Set", "asin": "B07X89FYQ1", "category": "glassware" },
+        { "name": "Angostura Bitters", "asin": "B00MJ6P774", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["manhattan", "old-fashioned", "boulevardier"],
+      "seo": {
+        "title": "Freezer Batch Vieux Carré Recipe & Calculator",
+        "description": "Pre-batch the Vieux Carré for your freezer: rye, cognac, sweet vermouth, and Bénédictine, ready to pour straight from the bottle.",
+        "keywords": ["vieux carre freezer", "batch vieux carre", "freezer batch vieux carre", "vieux carre recipe"]
+      }
+    },
+    {
+      "slug": "hanky-panky",
+      "name": "Hanky-Panky",
+      "tagline": "Equal-parts gin and vermouth, with a wash of Fernet",
+      "description": "Created by Ada Coleman at the Savoy Hotel in London around 1903, the Hanky-Panky is gin and sweet vermouth in equal measure, knitted together by two dashes of Fernet-Branca. Coleman supposedly served the first one to actor Charles Hawtrey, who pronounced it 'the real hanky-panky.' The Fernet adds a savory, bitter herbal note that should sit just under the surface. As a freezer batch it pours straight, no ice, no fuss.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["gin"],
+      "tags": ["gin", "stirred", "classic", "vermouth", "british"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Gin",
+          "pourOff": "12.75 oz",
+          "addBack": [
+            { "name": "Sweet Vermouth", "amount": "12.5 oz" },
+            { "name": "Fernet-Branca", "amount": "0.25 oz" }
+          ],
+          "extras": "Express an orange peel over the glass at serve",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Gin", "volumeMl": 45, "abv": 40 },
+          { "name": "Sweet Vermouth", "volumeMl": 45, "abv": 16 },
+          { "name": "Fernet-Branca", "volumeMl": 1, "abv": 39 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 28,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use a London Dry gin (Plymouth, Beefeater, or Tanqueray work well). Skip the floral 'new western' style here",
+        "Fresh sweet vermouth is critical. If your bottle has been open more than four weeks, replace it before batching",
+        "Two dashes of Fernet means two dashes. This is not a cocktail where Fernet leads; it whispers"
+      ],
+      "serve": "Pour into a chilled coupe. Express an orange peel over the surface and either discard or twist and drop in.",
+      "commonMistakes": [
+        "Heavy-handed Fernet (the bitterness should be a hint, not a shout)",
+        "Old, oxidized vermouth"
+      ],
+      "affiliateProducts": [
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["negroni", "manhattan", "vesper"],
+      "seo": {
+        "title": "Freezer Batch Hanky-Panky Recipe & Calculator",
+        "description": "Pre-batch Ada Coleman's Hanky-Panky: gin, sweet vermouth, and a wash of Fernet-Branca, ready from your freezer.",
+        "keywords": ["hanky panky freezer", "batch hanky panky", "freezer batch hanky panky", "ada coleman cocktail"]
+      }
+    },
+    {
+      "slug": "aviation",
+      "name": "Aviation",
+      "tagline": "Gin, lemon, and a violet sky",
+      "description": "First printed in Hugo Ensslin's 1916 'Recipes for Mixed Drinks.' Gin, fresh lemon juice, maraschino liqueur, and a quarter-ounce of crème de violette that turns the drink the color of a clear sky right before sunset. Crème de violette nearly disappeared from the American market in the second half of the twentieth century, which is why most pre-1990s recipes call only for maraschino. Use violette if you can find it. Combier and Rothman & Winter both make a good one. Because of the fresh lemon juice, this batch is best within a week of making.",
+      "reliability": "needs-attention",
+      "baseSpirit": ["gin"],
+      "tags": ["gin", "shaken", "citrus", "classic", "floral"],
+      "difficulty": 2,
+      "servings": 7,
+      "prepTime": "10 min",
+      "freezeTime": "4+ hours",
+      "shelfLife": "5-7 days; the lemon juice mellows quickly",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Gin",
+          "pourOff": "10.75 oz",
+          "addBack": [
+            { "name": "Maraschino Liqueur", "amount": "3.5 oz" },
+            { "name": "Crème de Violette", "amount": "1.75 oz" },
+            { "name": "Fresh Lemon Juice", "amount": "5.5 oz" }
+          ],
+          "extras": "Strain the lemon juice through a fine mesh before adding",
+          "water": "None needed; lemon juice provides liquid"
+        },
+        "single": [
+          { "name": "Gin", "volumeMl": 60, "abv": 40 },
+          { "name": "Maraschino Liqueur", "volumeMl": 15, "abv": 32 },
+          { "name": "Crème de Violette", "volumeMl": 7, "abv": 20 },
+          { "name": "Fresh Lemon Juice", "volumeMl": 22, "abv": 0 }
+        ],
+        "dilutionType": "shaken",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 29,
+      "freezeStatus": "safe",
+      "tips": [
+        "Strain the lemon juice through fine mesh before batching. Pulp turns stringy in the freezer",
+        "Use Luxardo Maraschino. It is the standard against which substitutes are measured",
+        "Without crème de violette, this is technically called an Aviation No. 2 (just gin, lemon, and maraschino) and still works",
+        "Make smaller batches more often; the lemon juice peaks in the first 48 hours"
+      ],
+      "serve": "Strain into a chilled coupe. Garnish with a brandied cherry; add a lemon twist if you have one.",
+      "commonMistakes": [
+        "Using bottled lemon juice (the freezer makes it taste like cardboard)",
+        "Heavy-handed crème de violette. A teaspoon too much turns the drink into purple cough syrup"
+      ],
+      "affiliateProducts": [
+        { "name": "Luxardo Maraschino Cherries", "asin": "B00AQB146W", "category": "garnish" },
+        { "name": "Fine Mesh Strainer", "asin": "B00004OCLJ", "category": "bar-tool" },
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" }
+      ],
+      "relatedCocktails": ["daiquiri", "cosmopolitan", "vesper"],
+      "seo": {
+        "title": "Freezer Batch Aviation Recipe & Calculator",
+        "description": "Pre-batch the Aviation: gin, lemon, maraschino, and crème de violette, ready to pour for the next week.",
+        "keywords": ["aviation cocktail freezer", "batch aviation", "freezer batch aviation", "aviation recipe"]
+      }
+    },
+    {
+      "slug": "sazerac",
+      "name": "Sazerac",
+      "tagline": "New Orleans' oldest cocktail, ready in your freezer",
+      "description": "The Sazerac is among the strongest claimants to 'America's first cocktail.' It started in New Orleans in the 1830s with Sazerac de Forge cognac, then shifted to rye whiskey when phylloxera wiped out the French vineyards in the 1870s. The drink is rye, a small amount of simple syrup, Peychaud's bitters, and an absinthe rinse. As a freezer batch the rye and syrup go in the bottle; the bitters and absinthe rinse happen at the moment of service. Final ABV lands around 40%, so go easy.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["rye"],
+      "tags": ["whiskey", "stirred", "classic", "spirit-forward", "new-orleans"],
+      "difficulty": 2,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Rye Whiskey",
+          "pourOff": "2.75 oz",
+          "addBack": [
+            { "name": "Rich Simple Syrup", "amount": "2.75 oz" }
+          ],
+          "extras": "Peychaud's bitters and absinthe rinse at serve (not in the bottle)",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Rye Whiskey", "volumeMl": 60, "abv": 45 },
+          { "name": "Rich Simple Syrup", "volumeMl": 7, "abv": 0 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 40,
+      "freezeStatus": "safe",
+      "tips": [
+        "Use rich simple syrup (2:1 sugar to water) so a quarter-ounce sweetens properly",
+        "Peychaud's at the moment of service is the traditional method. To batch the bitters instead, use 1.5 tsp Peychaud's per 750ml batch",
+        "The absinthe rinse is a wash, not an addition. A few drops in the empty glass, swirled and dumped. The aroma sticks",
+        "Express a lemon peel over the surface and discard"
+      ],
+      "serve": "Rinse a chilled rocks glass with a few drops of absinthe (swirl, then dump). Pour the rye-and-syrup mix in. Add 3 dashes of Peychaud's. Express a lemon peel over the surface and discard the peel.",
+      "commonMistakes": [
+        "Using a sweet bourbon instead of rye (the spice is the point)",
+        "Skipping the absinthe rinse (it is doing more work than you think)"
+      ],
+      "affiliateProducts": [
+        { "name": "Rocks Glasses Set", "asin": "B07X89FYQ1", "category": "glassware" }
+      ],
+      "relatedCocktails": ["old-fashioned", "manhattan", "vieux-carre"],
+      "seo": {
+        "title": "Freezer Batch Sazerac Recipe & Calculator",
+        "description": "Pre-batch the Sazerac, New Orleans' oldest cocktail. Rye and simple syrup in the bottle; absinthe rinse and Peychaud's at serve.",
+        "keywords": ["sazerac freezer", "batch sazerac", "freezer batch sazerac", "sazerac recipe"]
+      }
+    },
+    {
+      "slug": "bijou",
+      "name": "Bijou",
+      "tagline": "The forgotten three-jewel cocktail",
+      "description": "The Bijou ('jewel' in French) was popularized by Harry Johnson's Bartender's Manual in 1900. Each of its three ingredients was named for a different precious stone: gin for diamond, sweet vermouth for ruby, and green Chartreuse for emerald. Equal parts of all three. The Chartreuse is the wildcard, made by French monks since 1764 with 130 botanicals at 55% ABV. It commands the cocktail unless you treat it carefully. As a freezer batch, the cold tames the Chartreuse's heat and lets the gin and vermouth come forward. A dash of orange bitters at serve ties the three together.",
+      "reliability": "bulletproof",
+      "baseSpirit": ["gin"],
+      "tags": ["gin", "stirred", "classic", "herbal", "vermouth"],
+      "difficulty": 1,
+      "servings": 8,
+      "prepTime": "5 min",
+      "freezeTime": "4+ hours",
+      "recipe": {
+        "batch": {
+          "baseBottle": "750ml Gin",
+          "pourOff": "17 oz",
+          "addBack": [
+            { "name": "Sweet Vermouth", "amount": "8.5 oz" },
+            { "name": "Green Chartreuse", "amount": "8.5 oz" }
+          ],
+          "extras": "Dash of orange bitters at serve",
+          "water": "None needed"
+        },
+        "single": [
+          { "name": "Gin", "volumeMl": 30, "abv": 40 },
+          { "name": "Sweet Vermouth", "volumeMl": 30, "abv": 16 },
+          { "name": "Green Chartreuse", "volumeMl": 30, "abv": 55 }
+        ],
+        "dilutionType": "stirred",
+        "dilutionPercent": 0
+      },
+      "finalAbv": 37,
+      "freezeStatus": "safe",
+      "tips": [
+        "Green Chartreuse only. Yellow is sweeter and less herbal, a fundamentally different cocktail",
+        "Older recipes used a 1:1:1/3 ratio (less Chartreuse). Try the equal-parts version first, then dial back if you find it too vegetal",
+        "Stir the bottle well after freezing; the Chartreuse can settle slightly",
+        "Garnish with a lemon twist or a brandied cherry"
+      ],
+      "serve": "Pour into a chilled coupe. Add a dash of orange bitters. Garnish with a lemon twist or a brandied cherry.",
+      "commonMistakes": [
+        "Substituting yellow Chartreuse to soften the herbal punch",
+        "Skipping the orange bitters at serve (the cocktail loses its lift)"
+      ],
+      "affiliateProducts": [
+        { "name": "Coupe Glasses Set of 4", "asin": "B07BMGSRMS", "category": "glassware" },
+        { "name": "Cocktail Jigger (Japanese Style)", "asin": "B08RCHQL11", "category": "bar-tool" }
+      ],
+      "relatedCocktails": ["negroni", "hanky-panky", "vesper"],
+      "seo": {
+        "title": "Freezer Batch Bijou Recipe & Calculator",
+        "description": "Pre-batch the Bijou: gin, sweet vermouth, and green Chartreuse, with a dash of orange bitters at serve.",
+        "keywords": ["bijou cocktail freezer", "batch bijou", "freezer batch bijou", "bijou recipe"]
       }
     }
   ],

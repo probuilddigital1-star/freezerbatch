@@ -177,27 +177,40 @@ export function calculateBatchFromBottle(
     return emptyResult();
   }
 
-  // Step 3: Calculate dilution water
-  const waterToAddMl = Math.round(bottleSizeMl * (dilutionPercent / 100));
+  // Step 3: Calculate dilution water (rounded to clean quarter-ounce)
+  const targetWaterMl = bottleSizeMl * (dilutionPercent / 100);
+  const waterToAddOz = roundToQuarter(targetWaterMl / ML_PER_OZ);
+  const waterToAddMl = Math.round(waterToAddOz * ML_PER_OZ);
 
   // Step 4: Calculate volume available for actual ingredients
   const volumeForIngredients = bottleSizeMl - waterToAddMl;
 
-  // Step 5: Calculate scale factor and scaled amounts
+  // Step 5: Calculate scale factor and scaled amounts.
+  // Round every ingredient to quarter-ounce increments so users get clean
+  // jigger-friendly numbers (matches the Milk Street preset path).
   const scaleFactor = volumeForIngredients / totalRecipeMl;
 
-  const scaledIngredients = ingredientsWithMl.map(ing => ({
-    ...ing,
-    scaledMl: Math.round(ing.recipeMl * scaleFactor)
-  }));
+  const scaledIngredients = ingredientsWithMl.map(ing => {
+    const idealOz = (ing.recipeMl * scaleFactor) / ML_PER_OZ;
+    const cleanOz = roundToQuarter(idealOz);
+    return {
+      ...ing,
+      scaledOz: cleanOz,
+      scaledMl: Math.round(cleanOz * ML_PER_OZ),
+    };
+  });
 
   // Step 6: Find the base spirit's scaled amount
   const baseSpiritScaled = scaledIngredients.find(ing => ing.isBaseSpirit)!;
   const baseSpiritInBottleMl = baseSpiritScaled.scaledMl;
+  const baseSpiritInBottleOz = baseSpiritScaled.scaledOz;
 
-  // Step 7: Calculate pour-off (how much to remove from full bottle)
-  // We start with a FULL bottle (750ml), we need to make room for other ingredients + water
-  const pourOffMl = bottleSizeMl - baseSpiritInBottleMl;
+  // Step 7: Calculate pour-off (how much to remove from full bottle).
+  // Pour-off is bottle minus the rounded base spirit ml — so it lands on a
+  // clean quarter-ounce too (since the base spirit amount is clean).
+  const bottleSizeOzClean = roundToQuarter(bottleSizeMl / ML_PER_OZ);
+  const pourOffOz = bottleSizeOzClean - baseSpiritInBottleOz;
+  const pourOffMl = Math.round(pourOffOz * ML_PER_OZ);
 
   // Step 8: Get ingredients to add (everything except base spirit)
   const ingredientsToAdd: IngredientToAdd[] = scaledIngredients
@@ -205,39 +218,43 @@ export function calculateBatchFromBottle(
     .map(ing => ({
       name: ing.name,
       amountMl: ing.scaledMl,
-      amountOz: mlToOz(ing.scaledMl),
+      amountOz: ing.scaledOz,
       abv: ing.abv
     }));
 
-  // Step 9: Calculate final ABV
+  // Step 9: Compute the actual final liquid volume (rounding may leave a
+  // small gap or overflow vs the nominal bottle size).
+  const addBackMl = ingredientsToAdd.reduce((sum, ing) => sum + ing.amountMl, 0);
+  const actualVolumeMl = Math.max(1, baseSpiritInBottleMl + addBackMl + waterToAddMl);
+
+  // Step 10: Calculate final ABV from the real volume
   let totalAlcoholMl = 0;
   scaledIngredients.forEach(ing => {
     totalAlcoholMl += ing.scaledMl * (ing.abv / 100);
   });
-  // Water adds no alcohol
-  const finalAbv = (totalAlcoholMl / bottleSizeMl) * 100;
+  const finalAbv = (totalAlcoholMl / actualVolumeMl) * 100;
 
-  // Step 10: Get freeze status
+  // Step 11: Get freeze status
   const { status: freezeStatus, message: freezeMessage } = getFreezeStatus(finalAbv);
 
-  // Step 11: Calculate servings
-  const servings = Math.floor(bottleSizeMl / SERVING_SIZE_ML);
+  // Step 12: Calculate servings from the actual volume
+  const servings = Math.floor(actualVolumeMl / SERVING_SIZE_ML);
 
   return {
     pourOffMl,
-    pourOffOz: mlToOz(pourOffMl),
+    pourOffOz,
     ingredientsToAdd,
     waterToAddMl,
-    waterToAddOz: mlToOz(waterToAddMl),
+    waterToAddOz,
     finalAbv: Math.round(finalAbv * 10) / 10,
-    totalVolumeMl: bottleSizeMl,
-    totalVolumeOz: mlToOz(bottleSizeMl),
+    totalVolumeMl: actualVolumeMl,
+    totalVolumeOz: mlToOz(actualVolumeMl),
     servings,
     freezeStatus,
     freezeMessage,
     baseSpiritName: baseSpiritScaled.name,
     baseSpiritInBottleMl,
-    baseSpiritInBottleOz: mlToOz(baseSpiritInBottleMl)
+    baseSpiritInBottleOz
   };
 }
 
@@ -356,9 +373,9 @@ export const MILK_STREET_BATCHES: Record<string, MilkStreetBatch> = {
   'old-fashioned': {
     baseSpirit: 'Bourbon',
     baseSpiritAbv: 45,
-    pourOffOz: 1.33,
+    pourOffOz: 1.5,
     addBack: [
-      { name: 'Agave/Simple Syrup', oz: 1, abv: 0 }
+      { name: 'Rich Simple Syrup', oz: 1.5, abv: 0 }
     ],
     waterOz: 0,
     extras: '½ tbsp Angostura bitters'
@@ -382,7 +399,7 @@ export const MILK_STREET_BATCHES: Record<string, MilkStreetBatch> = {
       { name: 'Dry Vermouth', oz: 4, abv: 18 },
       { name: 'Green Olive Brine', oz: 1.5, abv: 0 }
     ],
-    waterOz: 2.5,
+    waterOz: 0.5,
     extras: undefined
   },
   cosmopolitan: {
@@ -462,6 +479,62 @@ export const MILK_STREET_BATCHES: Record<string, MilkStreetBatch> = {
     ],
     waterOz: 0,
     extras: 'Few dashes orange bitters'
+  },
+  'vieux-carre': {
+    baseSpirit: 'Rye Whiskey',
+    baseSpiritAbv: 45,
+    pourOffOz: 17.5,
+    addBack: [
+      { name: 'Cognac', oz: 7.75, abv: 40 },
+      { name: 'Sweet Vermouth', oz: 7.75, abv: 16 },
+      { name: 'Bénédictine', oz: 2, abv: 40 }
+    ],
+    waterOz: 0,
+    extras: 'Few dashes Peychaud\'s and Angostura bitters'
+  },
+  'hanky-panky': {
+    baseSpirit: 'Gin',
+    baseSpiritAbv: 40,
+    pourOffOz: 12.75,
+    addBack: [
+      { name: 'Sweet Vermouth', oz: 12.5, abv: 16 },
+      { name: 'Fernet-Branca', oz: 0.25, abv: 39 }
+    ],
+    waterOz: 0,
+    extras: 'Express orange peel over the glass at serve'
+  },
+  aviation: {
+    baseSpirit: 'Gin',
+    baseSpiritAbv: 40,
+    pourOffOz: 10.75,
+    addBack: [
+      { name: 'Maraschino Liqueur', oz: 3.5, abv: 32 },
+      { name: 'Crème de Violette', oz: 1.75, abv: 20 },
+      { name: 'Fresh Lemon Juice', oz: 5.5, abv: 0 }
+    ],
+    waterOz: 0,
+    extras: 'Garnish with a brandied cherry'
+  },
+  sazerac: {
+    baseSpirit: 'Rye Whiskey',
+    baseSpiritAbv: 45,
+    pourOffOz: 2.75,
+    addBack: [
+      { name: 'Rich Simple Syrup', oz: 2.75, abv: 0 }
+    ],
+    waterOz: 0,
+    extras: 'Peychaud\'s bitters batched in (3 dashes per drink); absinthe rinse the glass at serve'
+  },
+  bijou: {
+    baseSpirit: 'Gin',
+    baseSpiritAbv: 40,
+    pourOffOz: 17,
+    addBack: [
+      { name: 'Sweet Vermouth', oz: 8.5, abv: 16 },
+      { name: 'Green Chartreuse', oz: 8.5, abv: 55 }
+    ],
+    waterOz: 0,
+    extras: 'Dash orange bitters at serve'
   }
 };
 
@@ -512,12 +585,18 @@ export function calculateMilkStreetBatch(
   const waterOz = roundToQuarter(recipe.waterOz * scaleFactor);
   const waterMl = Math.round(waterOz * ML_PER_OZ);
 
-  // Calculate final ABV using ml values
+  // Compute the ACTUAL final liquid volume in the bottle.
+  // Some Milk Street recipes intentionally leave headspace (bottle won't be full),
+  // so we must not use the nominal bottle size as the ABV denominator.
+  const addBackMl = ingredientsToAdd.reduce((sum, ing) => sum + ing.amountMl, 0);
+  const actualVolumeMl = Math.max(1, baseSpiritMl + addBackMl + waterMl);
+
+  // Calculate final ABV from the real volume
   let totalAlcoholMl = baseSpiritMl * (recipe.baseSpiritAbv / 100);
   ingredientsToAdd.forEach(ing => {
     totalAlcoholMl += ing.amountMl * (ing.abv / 100);
   });
-  const finalAbv = (totalAlcoholMl / bottleSizeMl) * 100;
+  const finalAbv = (totalAlcoholMl / actualVolumeMl) * 100;
 
   // Get freeze status
   const { status: freezeStatus, message: freezeMessage } = getFreezeStatus(finalAbv);
@@ -529,9 +608,9 @@ export function calculateMilkStreetBatch(
     waterToAddMl: waterMl,
     waterToAddOz: waterOz,
     finalAbv: Math.round(finalAbv * 10) / 10,
-    totalVolumeMl: bottleSizeMl,
-    totalVolumeOz: mlToOz(bottleSizeMl),
-    servings: Math.floor(bottleSizeMl / SERVING_SIZE_ML),
+    totalVolumeMl: actualVolumeMl,
+    totalVolumeOz: mlToOz(actualVolumeMl),
+    servings: Math.floor(actualVolumeMl / SERVING_SIZE_ML),
     freezeStatus,
     freezeMessage,
     baseSpiritName: recipe.baseSpirit,
@@ -688,9 +767,19 @@ export const ABV_DEFAULTS: Record<string, number> = {
   'amaretto': 28,
   'st germain': 20,
   'maraschino': 32,
+  'maraschino liqueur': 32,
   'amaro': 30,
   'amaro nonino': 35,
   'fernet': 39,
+  'fernet-branca': 39,
+  'fernet branca': 39,
+  'benedictine': 40,
+  'bénédictine': 40,
+  'creme de violette': 20,
+  'crème de violette': 20,
+  'green chartreuse': 55,
+  'yellow chartreuse': 40,
+  'chartreuse': 55,
 
   // Fortified
   'sweet vermouth': 16,
@@ -705,15 +794,35 @@ export const ABV_DEFAULTS: Record<string, number> = {
   'lime juice': 0,
   'lemon juice': 0,
   'orange juice': 0,
+  'pineapple juice': 0,
+  'grapefruit juice': 0,
   'cranberry juice': 0,
+  'tomato juice': 0,
   'simple syrup': 0,
   'honey syrup': 0,
   'ginger syrup': 0,
+  'agave syrup': 0,
+  'agave': 0,
+  'maple syrup': 0,
+  'grenadine': 0,
   'olive brine': 0,
+  'cream of coconut': 0,
+  'coconut cream': 0,
+  'coconut milk': 0,
+  'cream': 0,
+  'half and half': 0,
+  'milk': 0,
   'water': 0,
+  'club soda': 0,
+  'soda water': 0,
+  'tonic': 0,
+  'tonic water': 0,
+  'ginger beer': 0,
+  'ginger ale': 0,
   'cold brew': 0,
   'cold brew concentrate': 0,
-  'espresso': 0
+  'espresso': 0,
+  'coffee': 0
 };
 
 export function suggestABV(name: string): number | null {
