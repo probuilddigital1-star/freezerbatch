@@ -54,6 +54,24 @@
     -moz-appearance: textfield;
   }
 
+  /* Defensive: any unclassed text-like input picks up dark-theme defaults
+     so we never get cream text on a browser-default white background. */
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  textarea,
+  select {
+    background-color: #161310;
+    color: #f0e8da;
+    color-scheme: dark;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #9a8e7e;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
     color: #f0e8da;
