@@ -46,24 +46,25 @@ const schema = {
        HERO — cinematic typographic, with decanter photo backdrop
        ============================================================ -->
   <section class="relative overflow-hidden">
-    <!-- Backdrop photo -->
-    <div class="absolute inset-0">
+    <!-- Backdrop photo with Ken Burns slow zoom -->
+    <div class="absolute inset-0 overflow-hidden">
       <picture>
         <source media="(max-width: 639px)" srcset="/images/hero-decanters-mobile.webp" type="image/webp" />
         <source media="(min-width: 640px)" srcset="/images/hero-decanters.webp" type="image/webp" />
         <img
           src="/images/hero-decanters.jpg"
           alt=""
-          class="w-full h-full object-cover object-center opacity-30"
+          class="w-full h-full object-cover object-center opacity-70 ken-burns"
           loading="eager"
           fetchpriority="high"
         />
       </picture>
-      <!-- Vignette + gradient overlay -->
-      <div class="absolute inset-0" style="background:
-        radial-gradient(ellipse at center, rgba(12,10,8,0.55) 0%, rgba(12,10,8,0.92) 70%, #0c0a08 100%);
+      <!-- Soft vignette: keeps the headline readable without crushing the photo -->
+      <div class="absolute inset-0 pointer-events-none" style="background:
+        radial-gradient(ellipse at center, rgba(12,10,8,0.15) 0%, rgba(12,10,8,0.55) 70%, rgba(12,10,8,0.85) 100%);
       "></div>
-      <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(12,10,8,0.4) 0%, rgba(12,10,8,0.95) 100%);"></div>
+      <!-- Bottom-fade gradient: blends into the page below -->
+      <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(12,10,8,0.05) 0%, rgba(12,10,8,0.25) 50%, #0c0a08 100%);"></div>
     </div>
 
     <div class="relative z-10 max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20 pt-28 pb-32 sm:pt-32 sm:pb-40 text-center">
