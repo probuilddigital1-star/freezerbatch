@@ -9,8 +9,7 @@ import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../lib/calculator
 const title = 'Freezer Batch Cocktails';
 const description = 'Calculate exact measurements for freezer batch cocktails. Do the math once, drink well forever. Free batch calculator for pre-mixed cocktails.';
 
-// Derive ABV/freeze-status/servings from the same calculator users interact with,
-// so the cards never disagree with the calculator output.
+// Derive ABV/freeze-status/servings from the same calculator users interact with.
 const enriched = cocktailsData.cocktails.map(c => {
   const batch = MILK_STREET_BATCHES[c.slug] ? calculateMilkStreetBatch(c.slug, 750) : null;
   return {
@@ -42,253 +41,119 @@ const schema = {
 ---
 
 <Layout title={title} description={description} schema={schema}>
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-primary-800 via-primary-900 to-surface-950 grain-overlay">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
 
-    <!-- Ambient glow from image side -->
-    <div class="hidden lg:block absolute top-1/2 right-0 w-[600px] h-[600px] bg-amber-900/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4"></div>
-    <div class="hidden lg:block absolute bottom-0 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-[80px]"></div>
+  <!-- ============================================================
+       HERO — cinematic typographic, with decanter photo backdrop
+       ============================================================ -->
+  <section class="relative overflow-hidden">
+    <!-- Backdrop photo -->
+    <div class="absolute inset-0">
+      <picture>
+        <source media="(max-width: 639px)" srcset="/images/hero-decanters-mobile.webp" type="image/webp" />
+        <source media="(min-width: 640px)" srcset="/images/hero-decanters.webp" type="image/webp" />
+        <img
+          src="/images/hero-decanters.jpg"
+          alt=""
+          class="w-full h-full object-cover object-center opacity-30"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </picture>
+      <!-- Vignette + gradient overlay -->
+      <div class="absolute inset-0" style="background:
+        radial-gradient(ellipse at center, rgba(12,10,8,0.55) 0%, rgba(12,10,8,0.92) 70%, #0c0a08 100%);
+      "></div>
+      <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(12,10,8,0.4) 0%, rgba(12,10,8,0.95) 100%);"></div>
+    </div>
 
-    <div class="relative max-w-7xl mx-auto">
-      <div class="grid lg:grid-cols-2 gap-6 lg:gap-0 items-center min-h-[360px] lg:min-h-[440px]">
+    <div class="relative z-10 max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20 pt-28 pb-32 sm:pt-32 sm:pb-40 text-center">
+      <p class="reveal reveal-1 section-eyebrow">The Freezer Batch Calculator</p>
 
-        <!-- Text Content -->
-        <div class="px-4 sm:px-6 lg:px-12 pt-8 pb-4 sm:pt-12 sm:pb-8 lg:py-14">
-          <!-- Badge -->
-          <div class="reveal reveal-1 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5 mb-4 sm:mb-5 shadow-sm">
-            <span class="w-1.5 h-1.5 bg-accent-400 rounded-full animate-pulse"></span>
-            <span class="text-xs font-medium text-white/90">Free · No signup · Recipes from Milk Street</span>
+      <h1 class="reveal reveal-2 font-display italic font-normal text-cream-100 leading-[1.05] mb-8" style="font-size: clamp(2.75rem, 7vw, 5.125rem);">
+        Do the math once,<br/>drink well forever
+      </h1>
+
+      <p class="reveal reveal-3 max-w-xl mx-auto text-[17px] sm:text-[18px] leading-[1.7] text-study-muted font-light mb-12">
+        Pre-batch cocktails that stay perfectly pourable in your freezer.
+        Enter a recipe — we calculate the rest.
+      </p>
+
+      <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#calculator" class="btn-primary">Start batching</a>
+        <a href="/cocktails" class="btn-secondary">Browse {enriched.length} recipes</a>
+      </div>
+
+      <!-- Decorative gradient line -->
+      <div class="study-line mt-24"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       HOW IT WORKS — three steps, top brass border
+       ============================================================ -->
+  <section class="relative z-10 py-24 sm:py-32">
+    <div class="max-w-[1100px] mx-auto px-6 sm:px-10 lg:px-20">
+
+      <div class="text-center mb-20 scroll-reveal">
+        <p class="section-eyebrow">Method</p>
+        <h2 class="section-title italic">Three steps to perfection</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-12 lg:gap-16 scroll-reveal-stagger">
+        {[
+          { num: '01', title: 'Pour Off', desc: 'Remove the calculated amount of spirit from your bottle to make room for the other ingredients.' },
+          { num: '02', title: 'Add & Shake', desc: 'Add your ingredients and dilution water directly into the bottle. Seal and shake well.' },
+          { num: '03', title: 'Freeze & Pour', desc: 'Store for 4+ hours. Pour straight into a glass. Perfectly chilled, zero effort.' },
+        ].map(step => (
+          <div class="border-t border-study-border-light pt-8">
+            <div class="font-display italic text-[48px] text-accent-500 font-light leading-none mb-4">{step.num}</div>
+            <h3 class="font-display text-[22px] text-cream-100 font-medium mb-3">{step.title}</h3>
+            <p class="text-[15px] text-study-muted leading-[1.7] font-light">{step.desc}</p>
           </div>
+        ))}
+      </div>
 
-          <h1 class="reveal reveal-2 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-3 sm:mb-4 leading-[1.05]">
-            Cocktails That <span class="gold-foil">Wait for You</span>
-          </h1>
-
-          <p class="reveal reveal-3 text-base sm:text-lg text-white/80 mb-6 sm:mb-7 max-w-xl">
-            Pre-batch the math, freeze the bottle, pour a perfect drink straight from the freezer.
-          </p>
-
-          <div class="reveal reveal-scale reveal-4 flex flex-col sm:flex-row sm:items-center gap-3">
-            <a href="#calculator" class="btn-primary text-base self-start sm:self-auto">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-              </svg>
-              Pick a recipe
-            </a>
-            <a href="/cocktails" class="text-sm sm:text-base text-white/70 hover:text-white inline-flex items-center gap-1 self-start sm:self-auto px-2">
-              or browse all {enriched.length} →
-            </a>
-          </div>
-        </div>
-
-        <!-- Hero Image -->
-        <div class="relative lg:absolute lg:right-0 lg:top-0 lg:bottom-0 lg:w-1/2 overflow-hidden">
-          <!-- Gradient overlay to blend image into background -->
-          <div class="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/80 to-transparent z-10 hidden lg:block"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-primary-900 via-transparent to-primary-900/50 z-10 hidden lg:block"></div>
-
-          <!-- Mobile gradient overlay -->
-          <div class="absolute inset-0 bg-gradient-to-t from-primary-900 via-transparent to-primary-900/80 z-10 lg:hidden"></div>
-
-          <picture>
-            <source
-              media="(max-width: 639px)"
-              srcset="/images/hero-decanters-mobile.webp"
-              type="image/webp"
-            />
-            <source
-              media="(min-width: 640px)"
-              srcset="/images/hero-decanters.webp"
-              type="image/webp"
-            />
-            <img
-              src="/images/hero-decanters.jpg"
-              alt="Elegant glass decanters with amber spirits"
-              class="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-full object-cover object-center ken-burns"
-              loading="eager"
-              fetchpriority="high"
-              width="1400"
-              height="933"
-            />
-          </picture>
-
-          <!-- Subtle vignette -->
-          <div class="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)] z-20 pointer-events-none"></div>
-        </div>
-
+      <div class="text-center mt-20">
+        <a href="/how-it-works" class="btn-ghost">Learn the science →</a>
       </div>
     </div>
   </section>
 
-  <!-- Art Deco Divider -->
-  <div class="relative bg-cream py-6 overflow-hidden">
-    <div class="max-w-4xl mx-auto px-4">
-      <svg class="w-full h-8" viewBox="0 0 400 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <!-- Left line -->
-        <line x1="0" y1="16" x2="160" y2="16" stroke="#B8860B" stroke-width="1" stroke-opacity="0.4"/>
-        <!-- Center diamond ornament -->
-        <g transform="translate(200, 16)">
-          <rect x="-8" y="-8" width="16" height="16" transform="rotate(45)" fill="none" stroke="#B8860B" stroke-width="1.5"/>
-          <circle cx="0" cy="0" r="3" fill="#B8860B"/>
-        </g>
-        <!-- Right line -->
-        <line x1="240" y1="16" x2="400" y2="16" stroke="#B8860B" stroke-width="1" stroke-opacity="0.4"/>
-        <!-- Decorative end caps -->
-        <circle cx="160" cy="16" r="2" fill="#B8860B" fill-opacity="0.6"/>
-        <circle cx="240" cy="16" r="2" fill="#B8860B" fill-opacity="0.6"/>
-      </svg>
-    </div>
-  </div>
+  <!-- ============================================================
+       CALCULATOR — on bgCard, full functionality preserved
+       ============================================================ -->
+  <section id="calculator" class="relative z-10 bg-study-card py-24 sm:py-32 scroll-mt-24">
+    <div class="max-w-[1100px] mx-auto px-6 sm:px-10 lg:px-20">
 
-  <!-- Calculator section — comes first so the product is the second thing
-       a visitor sees after the hero. -->
-  <section id="calculator" class="py-8 md:py-12 scroll-mt-20 bg-white">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-6 md:mb-8 scroll-reveal">
-        <h2 class="section-title">Pick a recipe to batch</h2>
-        <p class="section-subtitle">
-          We'll do the math — pour amounts, ABV, freeze status.
+      <div class="text-center mb-16 scroll-reveal">
+        <p class="section-eyebrow">Calculator</p>
+        <h2 class="section-title italic">Build your batch</h2>
+        <p class="section-subtitle max-w-xl mx-auto">
+          Pick a classic recipe — we calculate pour amounts, ABV, and freeze status.
         </p>
       </div>
+
       <div class="scroll-reveal">
         <Calculator />
       </div>
     </div>
   </section>
 
-  <!-- How It Works — context for what just happened in the calculator above. -->
-  <section class="py-10 md:py-16 bg-cream">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-10 md:mb-16 scroll-reveal">
-        <h2 class="section-title">How It Works</h2>
-        <p class="section-subtitle">Three steps from spirit to cocktail</p>
-      </div>
+  <!-- ============================================================
+       FEATURED COCKTAILS — dark grid
+       ============================================================ -->
+  <section class="relative z-10 py-24 sm:py-32">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20">
 
-      <div class="grid md:grid-cols-3 gap-6 lg:gap-12 scroll-reveal-stagger">
-        <!-- Step 1: Calculate -->
-        <div class="flex flex-col items-center text-center">
-          <div class="relative mb-4 md:mb-6">
-            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md shadow-accent-500/30 z-10">1</div>
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-50 rounded-2xl flex items-center justify-center shadow-md shadow-accent-100/40">
-              <svg class="w-8 h-8 md:w-10 md:h-10 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-          <h3 class="font-display font-bold text-lg md:text-xl mb-2 md:mb-3 text-primary-600">Calculate</h3>
-          <p class="text-cognac text-sm md:text-base">
-            Enter your recipe. We calculate exactly how much to pour off and add back for a perfect batch.
-          </p>
-        </div>
-
-        <!-- Step 2: Batch -->
-        <div class="flex flex-col items-center text-center">
-          <div class="relative mb-4 md:mb-6">
-            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md shadow-accent-500/30 z-10">2</div>
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-50 rounded-2xl flex items-center justify-center shadow-md shadow-accent-100/40">
-              <svg class="w-8 h-8 md:w-10 md:h-10 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
-            </div>
-          </div>
-          <h3 class="font-display font-bold text-lg md:text-xl mb-2 md:mb-3 text-primary-600">Batch</h3>
-          <p class="text-cognac text-sm md:text-base">
-            Pour off some spirit, add your ingredients right in the bottle. Seal and shake well.
-          </p>
-        </div>
-
-        <!-- Step 3: Freeze & Serve — final step gets a deeper brass tile to
-             cap the progression visually. -->
-        <div class="flex flex-col items-center text-center">
-          <div class="relative mb-4 md:mb-6">
-            <div class="absolute -top-2 -left-2 w-7 h-7 md:w-8 md:h-8 bg-accent-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md shadow-accent-500/30 z-10">3</div>
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-accent-100 rounded-2xl flex items-center justify-center shadow-md shadow-accent-200/40">
-              <svg class="w-8 h-8 md:w-10 md:h-10 text-accent-700" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24">
-                <!-- Six-point snowflake -->
-                <path d="M12 3v18"/>
-                <path d="M3.34 7.5l17.32 9"/>
-                <path d="M3.34 16.5l17.32-9"/>
-                <path d="M9 5l3 1.6L15 5"/>
-                <path d="M9 19l3-1.6L15 19"/>
-                <path d="M5 9.5l1 3-1 3"/>
-                <path d="M19 9.5l-1 3 1 3"/>
-              </svg>
-            </div>
-          </div>
-          <h3 class="font-display font-bold text-lg md:text-xl mb-2 md:mb-3 text-primary-600">Freeze &amp; Serve</h3>
-          <p class="text-cognac text-sm md:text-base">
-            Store for 4+ hours. Pour straight into a glass. Perfectly chilled, zero effort.
-          </p>
-        </div>
-      </div>
-
-      <div class="text-center mt-8 md:mt-12">
-        <a href="/how-it-works" class="btn-ghost">
-          Learn the science
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Event Planning CTA -->
-  <section class="py-8 md:py-12 bg-gradient-to-r from-cream to-cream-200">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <a href="https://www.stocktheevent.com" target="_blank" rel="noopener" class="block group">
-        <div class="bg-white rounded-2xl border-2 border-accent-200 hover:border-accent-400 p-5 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300">
-          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <!-- Icon cluster -->
-            <div class="flex -space-x-2 flex-shrink-0">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-accent-100 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-md">🍷</div>
-              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-primary-100 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-md">🍺</div>
-              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-success/20 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-md">🥂</div>
-            </div>
-
-            <div class="flex-1 text-center sm:text-left">
-              <p class="text-sm font-medium text-accent-600 mb-1">Hosting an event?</p>
-              <h3 class="text-lg sm:text-2xl font-display font-bold text-primary-600 mb-2">
-                How much wine, beer, and spirits do you actually need?
-              </h3>
-              <p class="text-cognac text-sm sm:text-base">
-                Use our free event drink calculator to know exactly what to buy for your guest count.
-              </p>
-            </div>
-
-            <div class="flex-shrink-0">
-              <span class="inline-flex items-center gap-2 btn-primary group-hover:gap-3 transition-all">
-                Calculate Now
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- Featured Cocktails (moved before Email Signup) -->
-  <section class="py-12 md:py-20 bg-cream">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 md:mb-10 scroll-reveal">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-16 scroll-reveal">
         <div>
-          <h2 class="section-title">Batches that last in the freezer</h2>
-          <p class="section-subtitle">Spirit-forward recipes — keep for months, ready any time</p>
+          <p class="section-eyebrow">Collection</p>
+          <h2 class="section-title italic">Classic freezer batches</h2>
         </div>
-        <a href="/cocktails" class="btn-ghost">
-          View all recipes
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
+        <a href="/cocktails" class="btn-ghost shrink-0">View all {enriched.length} recipes →</a>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 scroll-reveal-stagger">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal-stagger">
         {featuredCocktails.map(cocktail => (
           <CocktailCard
             slug={cocktail.slug}
@@ -306,155 +171,92 @@ const schema = {
     </div>
   </section>
 
-  <!-- Email Signup CTA -->
-  <section class="py-10 md:py-16 bg-primary-600">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+  <!-- ============================================================
+       SCIENCE SECTION — bgCard with stat callouts
+       ============================================================ -->
+  <section class="relative z-10 bg-study-card py-24 sm:py-32">
+    <div class="max-w-[820px] mx-auto px-6 sm:px-10 lg:px-20 text-center">
+      <p class="section-eyebrow">The Science</p>
+      <h2 class="section-title italic mb-8">Why it works</h2>
+
+      <p class="text-[17px] leading-[1.8] text-study-muted font-light mb-16 max-w-xl mx-auto">
+        Alcohol freezes at −114°C. By keeping your cocktail above 22% ABV, it stays perfectly pourable at standard freezer temperatures. We calculate the exact dilution water to replicate what ice would normally contribute, giving you a perfectly balanced, ice-cold cocktail ready to pour.
+      </p>
+
+      <div class="grid grid-cols-3 gap-8 sm:gap-12">
+        {[
+          { val: '−18°C', label: 'Your freezer' },
+          { val: '22%+', label: 'Minimum ABV' },
+          { val: '4 hrs', label: 'Minimum chill' },
+        ].map(s => (
+          <div>
+            <div class="font-display italic text-[32px] sm:text-[40px] text-accent-500 font-light mb-3 leading-none">{s.val}</div>
+            <div class="text-[11px] tracking-[0.2em] uppercase text-study-muted font-medium">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-12">
+        <a href="/how-it-works" class="btn-ghost">Deep dive into the science →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       NEWSLETTER
+       ============================================================ -->
+  <section class="relative z-10 py-16">
+    <div class="max-w-[820px] mx-auto px-6 sm:px-10">
       <EmailSignup
-        headline="Get New Recipes & Pro Tips"
-        subheadline="Join fellow cocktail enthusiasts. New batch recipes, freezer hacks, and the occasional spirit recommendation."
+        headline="Join the batch"
+        subheadline="New recipes, freezer hacks, and the occasional spirit recommendation."
         buttonText="Subscribe"
-        variant="gradient"
       />
     </div>
   </section>
 
-  <!-- The Science -->
-  <section class="py-12 md:py-20 bg-primary-700 text-white overflow-hidden grain-overlay">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-        <div class="scroll-reveal">
-          <span class="badge bg-accent-500/20 text-accent-300 mb-4 md:mb-6">The Science</span>
-          <h2 class="text-2xl sm:text-4xl font-display font-bold mb-4 md:mb-6">
-            Why It Stays Pourable
-          </h2>
-          <p class="text-white/70 text-base md:text-lg mb-3 md:mb-4">
-            Alcohol freezes at -114°C. By keeping your cocktail above
-            <strong class="text-accent-300">22% ABV</strong>, it stays perfectly pourable at standard freezer temperatures (-18°C).
-          </p>
-          <p class="text-white/70 text-base md:text-lg mb-6 md:mb-8">
-            We also calculate the exact <strong class="text-accent-300">dilution water</strong> to replicate what ice would normally contribute. The result? A perfectly balanced, ice-cold cocktail ready to pour.
-          </p>
-          <a href="/how-it-works" class="inline-flex items-center gap-2 text-accent-300 font-semibold hover:gap-3 transition-all">
-            Deep dive into the science
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+  <!-- ============================================================
+       BAR TOOLS (affiliate) — minimal, two-column
+       ============================================================ -->
+  <section class="relative z-10 bg-study-card py-24 border-t border-study-border">
+    <div class="max-w-[1100px] mx-auto px-6 sm:px-10 lg:px-20">
+      <div class="text-center mb-12">
+        <p class="section-eyebrow">The Tools</p>
+        <h2 class="section-title italic">Stock your bar</h2>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { name: 'Japanese Jigger', desc: 'Precise measurements', url: 'https://www.amazon.com/s?k=cocktail+jigger+japanese&tag=probuild20-20' },
+          { name: 'Mini Funnel', desc: 'No-spill bottle filling', url: 'https://www.amazon.com/s?k=stainless+steel+funnel+small&tag=probuild20-20' },
+          { name: 'Swing-Top Bottles', desc: 'Batch storage', url: 'https://www.amazon.com/s?k=swing+top+glass+bottles+750ml&tag=probuild20-20' },
+          { name: 'Pour Spouts', desc: 'Controlled pours', url: 'https://www.amazon.com/s?k=liquor+pour+spouts+stainless&tag=probuild20-20' },
+        ].map(item => (
+          <a href={item.url} target="_blank" rel="noopener noreferrer"
+             class="group block bg-study-bg border border-study-border p-6 hover:border-accent-500 transition-all">
+            <h3 class="font-display italic text-[20px] text-cream-100 font-normal mb-2">{item.name}</h3>
+            <p class="text-[13px] text-study-muted leading-[1.6] font-light mb-4">{item.desc}</p>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-accent-500 group-hover:text-accent-300 transition-colors">Shop →</span>
           </a>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 md:gap-4">
-          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 md:p-6 text-center border border-white/10">
-            <span class="block text-2xl md:text-4xl font-display font-bold text-accent-300 mb-1 md:mb-2">22%</span>
-            <span class="text-xs md:text-sm text-white/50">Minimum ABV</span>
-          </div>
-          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 md:p-6 text-center border border-white/10">
-            <span class="block text-2xl md:text-4xl font-display font-bold text-accent-300 mb-1 md:mb-2">-18°C</span>
-            <span class="text-xs md:text-sm text-white/50">Freezer Temp</span>
-          </div>
-          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 md:p-6 text-center border border-white/10">
-            <span class="block text-2xl md:text-4xl font-display font-bold text-accent-300 mb-1 md:mb-2">20-25%</span>
-            <span class="text-xs md:text-sm text-white/50">Dilution</span>
-          </div>
-          <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 md:p-6 text-center border border-white/10">
-            <span class="block text-2xl md:text-4xl font-display font-bold text-accent-300 mb-1 md:mb-2">4+ hrs</span>
-            <span class="text-xs md:text-sm text-white/50">Freeze Time</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Essential Bar Tools - Amazon Affiliate Section -->
-  <section class="py-12 md:py-20 bg-cream">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-8 md:mb-12">
-        <h2 class="section-title">Level Up Your Home Bar</h2>
-        <p class="section-subtitle">Quality tools make batch cocktails even easier</p>
+        ))}
       </div>
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
-        <!-- Jigger -->
-        <a href="https://www.amazon.com/s?k=cocktail+jigger+japanese&tag=probuild20-20"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="group card hover:border-accent-300 flex flex-col items-center text-center">
-          <div class="w-12 h-12 md:w-16 md:h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-3 md:mb-4 group-hover:bg-primary-200 transition-colors">
-            <svg class="w-6 h-6 md:w-8 md:h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-primary-600 mb-1 text-sm md:text-base">Japanese Jigger</h3>
-          <p class="text-xs md:text-sm text-cognac mb-2 md:mb-3">Precise measurements</p>
-          <span class="text-accent-500 text-xs md:text-sm font-medium group-hover:underline">Shop on Amazon</span>
-        </a>
-
-        <!-- Funnel -->
-        <a href="https://www.amazon.com/s?k=stainless+steel+funnel+small&tag=probuild20-20"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="group card hover:border-accent-300 flex flex-col items-center text-center">
-          <div class="w-12 h-12 md:w-16 md:h-16 bg-accent-100 rounded-2xl flex items-center justify-center mb-3 md:mb-4 group-hover:bg-accent-200 transition-colors">
-            <svg class="w-6 h-6 md:w-8 md:h-8 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-primary-600 mb-1 text-sm md:text-base">Mini Funnel</h3>
-          <p class="text-xs md:text-sm text-cognac mb-2 md:mb-3">No-spill filling</p>
-          <span class="text-accent-500 text-xs md:text-sm font-medium group-hover:underline">Shop on Amazon</span>
-        </a>
-
-        <!-- Bottles -->
-        <a href="https://www.amazon.com/s?k=swing+top+glass+bottles+750ml&tag=probuild20-20"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="group card hover:border-accent-300 flex flex-col items-center text-center">
-          <div class="w-12 h-12 md:w-16 md:h-16 bg-success/10 rounded-2xl flex items-center justify-center mb-3 md:mb-4 group-hover:bg-success/20 transition-colors">
-            <svg class="w-6 h-6 md:w-8 md:h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-primary-600 mb-1 text-sm md:text-base">Swing-Top Bottles</h3>
-          <p class="text-xs md:text-sm text-cognac mb-2 md:mb-3">Batch storage</p>
-          <span class="text-accent-500 text-xs md:text-sm font-medium group-hover:underline">Shop on Amazon</span>
-        </a>
-
-        <!-- Pour Spouts -->
-        <a href="https://www.amazon.com/s?k=liquor+pour+spouts+stainless&tag=probuild20-20"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="group card hover:border-accent-300 flex flex-col items-center text-center">
-          <div class="w-12 h-12 md:w-16 md:h-16 bg-cognac-100 rounded-2xl flex items-center justify-center mb-3 md:mb-4 group-hover:bg-cognac-200 transition-colors">
-            <svg class="w-6 h-6 md:w-8 md:h-8 text-cognac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-primary-600 mb-1 text-sm md:text-base">Pour Spouts</h3>
-          <p class="text-xs md:text-sm text-cognac mb-2 md:mb-3">Controlled pours</p>
-          <span class="text-accent-500 text-xs md:text-sm font-medium group-hover:underline">Shop on Amazon</span>
-        </a>
-      </div>
-
-      <p class="text-center text-xs text-cognac-400 mt-6 md:mt-8">
+      <p class="text-center text-[11px] text-study-muted/70 mt-10 uppercase tracking-[0.2em]">
         As an Amazon Associate, we earn from qualifying purchases.
       </p>
     </div>
   </section>
 
-  <!-- Final CTA Section -->
-  <section class="py-12 md:py-20 bg-white">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-      <h2 class="section-title mb-3 md:mb-4">
-        Ready to Make Your First Batch?
-      </h2>
-      <p class="text-base md:text-lg text-cognac mb-8 md:mb-10">
+  <!-- ============================================================
+       FINAL CTA
+       ============================================================ -->
+  <section class="relative z-10 py-24 sm:py-32 text-center">
+    <div class="max-w-[700px] mx-auto px-6 sm:px-10">
+      <h2 class="section-title italic mb-4">Ready to make your first batch?</h2>
+      <p class="text-[16px] text-study-muted leading-[1.7] font-light mb-10">
         The Negroni is the perfect place to start. Equal parts, foolproof, and it actually improves with freezer time.
       </p>
-      <a href="/cocktails/negroni" class="btn-primary text-base">
-        Start with the Negroni
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
-      </a>
+      <a href="/cocktails/negroni" class="btn-primary">Start with the Negroni</a>
     </div>
   </section>
 

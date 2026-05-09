@@ -121,111 +121,104 @@ const recipeSchema = {
   description={cocktail.seo.description}
   schema={recipeSchema}
 >
-  <article class="py-8 sm:py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+  <article class="py-12 sm:py-16">
+    <div class="max-w-[920px] mx-auto px-6 sm:px-10 lg:px-20">
+
       <!-- Breadcrumb -->
-      <nav class="mb-6 text-sm" aria-label="Breadcrumb">
-        <ol class="flex items-center gap-2">
-          <li><a href="/" class="text-gray-500 hover:text-primary">Home</a></li>
-          <li class="text-gray-400">/</li>
-          <li><a href="/cocktails" class="text-gray-500 hover:text-primary">Cocktails</a></li>
-          <li class="text-gray-400">/</li>
-          <li class="text-charcoal font-medium">{cocktail.name}</li>
+      <nav class="mb-8 text-[11px] uppercase tracking-[0.2em]" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-3 text-study-muted">
+          <li><a href="/" class="hover:text-accent-500 transition-colors">Home</a></li>
+          <li class="text-study-border-light">/</li>
+          <li><a href="/cocktails" class="hover:text-accent-500 transition-colors">Recipes</a></li>
+          <li class="text-study-border-light">/</li>
+          <li class="text-cream-200">{cocktail.name}</li>
         </ol>
       </nav>
 
-      <!-- Header — title and metadata, with the served-glass illustration as
-           a small visual anchor on the right. -->
-      <header class="mb-8 flex items-start gap-6">
+      <!-- Header — title and metadata, with the glass illustration -->
+      <header class="mb-10 flex items-start gap-8">
         <div class="flex-1 min-w-0">
-          <div class="flex flex-wrap items-center gap-3 mb-4">
-            <span class={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${status.class}`}>
+          <div class="flex flex-wrap items-center gap-3 mb-6">
+            <span class={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] uppercase tracking-[0.18em] font-medium border ${status.class}`}>
               <span>{status.icon}</span>
               {status.text}
             </span>
             {cocktail.reliability === 'bulletproof' && (
-              <span class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm font-medium" title="Spirit-forward — keeps for months in the freezer">
+              <span class="px-3 py-1 text-[10px] uppercase tracking-[0.18em] font-medium border border-accent-500/40 text-accent-300 bg-accent-500/5" title="Spirit-forward — keeps for months in the freezer">
                 Lasts months
               </span>
             )}
           </div>
 
-          <h1 class="text-3xl sm:text-4xl font-bold text-charcoal mb-3">
+          <h1 class="font-display italic text-cream-100 font-normal mb-3" style="font-size: clamp(2.5rem, 5vw, 3.75rem); line-height: 1.05;">
             {cocktail.name}
           </h1>
-          <p class="text-lg text-gray-600">{cocktail.tagline}</p>
+          <p class="font-display italic text-[20px] sm:text-[22px] text-cognac-700 font-normal">
+            {cocktail.tagline}
+          </p>
         </div>
 
-        <!-- Served-in glass illustration -->
-        <div class="hidden sm:flex shrink-0 w-20 h-20 items-center justify-center rounded-2xl bg-cream-200 border border-cognac-200/60 text-primary-600" title={`Served in a ${glassType} glass`}>
-          <GlassIcon type={glassType} class="w-12 h-12" />
+        <!-- Glass illustration — brass on dark -->
+        <div class="hidden sm:flex shrink-0 w-24 h-24 items-center justify-center bg-study-card border border-study-border text-accent-500" title={`Served in a ${glassType} glass`}>
+          <GlassIcon type={glassType} class="w-14 h-14" />
         </div>
       </header>
 
-      <!-- Quick Stats Bar — grouped: Yield (ABV / Drinks) and Time (Prep / Freeze)
-           with a divider between so the eye reads them as two pairs. -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-0 p-4 bg-gray-50 rounded-xl mb-8 sm:divide-x sm:divide-cognac-200/60">
-        <div class="grid grid-cols-2 gap-4 flex-1 sm:pr-4">
-          <div class="text-center">
-            <span class="block text-xl font-bold font-mono text-primary-600">{displayAbv}%</span>
-            <span class="text-xs uppercase tracking-wider text-cognac-400">ABV</span>
-          </div>
-          <div class="text-center">
-            <span class="block text-xl font-bold font-mono text-primary-600">{displayServings}</span>
-            <span class="text-xs uppercase tracking-wider text-cognac-400">Drinks</span>
-          </div>
+      <!-- Quick Stats Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-0 mb-12 border-t border-b border-study-border py-6">
+        <div class="text-center sm:border-r sm:border-study-border">
+          <span class="block font-display italic text-[36px] text-accent-500 font-light leading-none">{displayAbv}<span class="text-[18px]">%</span></span>
+          <span class="block text-[10px] uppercase tracking-[0.2em] text-study-muted mt-2 font-medium">ABV</span>
         </div>
-        <div class="grid grid-cols-2 gap-4 flex-1 sm:pl-4 border-t border-cognac-200/60 pt-3 sm:border-t-0 sm:pt-0">
-          <div class="text-center">
-            <span class="block text-xl font-bold font-mono text-cognac">{cocktail.prepTime}</span>
-            <span class="text-xs uppercase tracking-wider text-cognac-400">Prep</span>
-          </div>
-          <div class="text-center">
-            <span class="block text-xl font-bold font-mono text-cognac">{cocktail.freezeTime}</span>
-            <span class="text-xs uppercase tracking-wider text-cognac-400">Freeze</span>
-          </div>
+        <div class="text-center sm:border-r sm:border-study-border">
+          <span class="block font-display italic text-[36px] text-cream-100 font-light leading-none">{displayServings}</span>
+          <span class="block text-[10px] uppercase tracking-[0.2em] text-study-muted mt-2 font-medium">Drinks</span>
+        </div>
+        <div class="text-center sm:border-r sm:border-study-border border-t border-study-border pt-4 sm:border-t-0 sm:pt-0 mt-4 sm:mt-0">
+          <span class="block font-display italic text-[28px] text-cream-100 font-light leading-none">{cocktail.prepTime}</span>
+          <span class="block text-[10px] uppercase tracking-[0.2em] text-study-muted mt-2 font-medium">Prep</span>
+        </div>
+        <div class="text-center border-t border-study-border pt-4 sm:border-t-0 sm:pt-0 mt-4 sm:mt-0">
+          <span class="block font-display italic text-[28px] text-cream-100 font-light leading-none">{cocktail.freezeTime}</span>
+          <span class="block text-[10px] uppercase tracking-[0.2em] text-study-muted mt-2 font-medium">Freeze</span>
         </div>
       </div>
 
-      <!-- About — above the calculator so the user has context for what
-           they're batching before they start. Editorial deck treatment so
-           it reads as a deliberate intro, not stray text. -->
-      <section class="mb-10">
-        <p class="article-eyebrow mb-4">About this cocktail</p>
-        <p class="font-display text-lg sm:text-xl leading-relaxed text-cognac-800 max-w-2xl">
+      <!-- About — editorial intro -->
+      <section class="mb-12">
+        <p class="article-eyebrow mb-5">About this cocktail</p>
+        <p class="font-display text-[19px] sm:text-[21px] leading-[1.55] text-cognac-700 italic max-w-[640px] font-normal">
           {cocktail.description}
         </p>
       </section>
 
-      <!-- Calculator — the main act. -->
-      <section class="mb-10">
+      <!-- Calculator -->
+      <section class="mb-12">
         <Calculator cocktailSlug={cocktail.slug} />
       </section>
 
-      <!-- How to Serve — what to do once your batch is frozen. -->
-      <section class="mb-8 p-5 sm:p-6 bg-primary-50 rounded-xl border border-primary-100">
-        <h2 class="font-display text-xl font-semibold text-charcoal mb-2">How to serve</h2>
-        <p class="text-gray-700">{cocktail.serve}</p>
+      <!-- How to Serve -->
+      <section class="mb-10 p-6 sm:p-8 bg-study-card border border-study-border">
+        <p class="section-eyebrow mb-3">At Serve</p>
+        <h2 class="font-display italic text-[24px] text-cream-100 font-normal mb-4">How to serve</h2>
+        <p class="text-[15px] text-cognac-700 leading-[1.7] font-light">{cocktail.serve}</p>
         {cocktail.shelfLife && (
-          <p class="mt-3 text-sm text-cognac-500">
-            <strong class="text-cognac">Best within:</strong> {cocktail.shelfLife}
+          <p class="mt-4 text-[12px] uppercase tracking-[0.18em] text-study-muted">
+            <strong class="text-accent-500 font-medium">Best within:</strong> {cocktail.shelfLife}
           </p>
         )}
       </section>
 
       <!-- Tips + Common Mistakes — side by side on desktop, stacked on mobile.
            Both are pre-batch guidance the user wants to glance at quickly. -->
-      <section class="grid md:grid-cols-2 gap-5 mb-10">
+      <section class="grid md:grid-cols-2 gap-5 mb-12">
         {cocktail.tips && cocktail.tips.length > 0 && (
-          <div class="p-5 bg-white rounded-xl border border-cognac-200/60 shadow-sm">
-            <h2 class="font-display text-lg font-semibold text-charcoal mb-3 flex items-center gap-2">
-              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-accent-100 text-accent-700 text-sm">★</span>
-              Pro tips
-            </h2>
-            <ul class="space-y-2.5">
+          <div class="p-6 bg-study-card border border-study-border">
+            <p class="section-eyebrow mb-3">Pro Tips</p>
+            <ul class="space-y-3">
               {cocktail.tips.map((tip: string) => (
-                <li class="flex gap-2 text-sm text-cognac">
-                  <span class="text-accent-500 flex-shrink-0 font-bold mt-0.5">+</span>
+                <li class="flex gap-3 text-[14px] text-cognac-700 leading-[1.6] font-light">
+                  <span class="text-accent-500 flex-shrink-0 font-medium mt-0.5">+</span>
                   <span>{tip}</span>
                 </li>
               ))}
@@ -234,14 +227,11 @@ const recipeSchema = {
         )}
 
         {cocktail.commonMistakes && cocktail.commonMistakes.length > 0 && (
-          <div class="p-5 bg-white rounded-xl border border-cognac-200/60 shadow-sm">
-            <h2 class="font-display text-lg font-semibold text-charcoal mb-3 flex items-center gap-2">
-              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-danger/15 text-danger text-sm">!</span>
-              Avoid these
-            </h2>
-            <ul class="space-y-2.5">
+          <div class="p-6 bg-study-card border border-study-border">
+            <p class="section-eyebrow mb-3" style="color:#ef4444;">Avoid These</p>
+            <ul class="space-y-3">
               {cocktail.commonMistakes.map((mistake: string) => (
-                <li class="flex gap-2 text-sm text-cognac">
+                <li class="flex gap-3 text-[14px] text-cognac-700 leading-[1.6] font-light">
                   <span class="text-danger flex-shrink-0 mt-0.5">−</span>
                   <span>{mistake}</span>
                 </li>
@@ -252,20 +242,20 @@ const recipeSchema = {
       </section>
 
       <!-- Event Planning CTA -->
-      <section class="mb-10">
+      <section class="mb-12">
         <a href="https://www.stocktheevent.com" target="_blank" rel="noopener" class="block group">
-          <div class="p-5 bg-gradient-to-r from-accent-50 to-primary-50 rounded-xl border border-accent-200 hover:border-accent-400 transition-all">
-            <div class="flex items-center gap-4">
-              <div class="text-3xl">🎉</div>
+          <div class="p-6 bg-study-card border border-study-border hover:border-accent-500 transition-all">
+            <div class="flex items-center gap-5">
               <div class="flex-1">
-                <p class="font-semibold text-surface-900 group-hover:text-primary-700 transition-colors">
+                <p class="section-eyebrow mb-2">For Hosts</p>
+                <p class="font-display italic text-[20px] text-cream-100 group-hover:text-accent-300 transition-colors mb-1">
                   Batching for a party?
                 </p>
-                <p class="text-sm text-surface-600">
+                <p class="text-[13px] text-study-muted leading-[1.6] font-light">
                   Find out exactly how much wine, beer, and spirits to buy for your guest count.
                 </p>
               </div>
-              <svg class="w-5 h-5 text-surface-400 group-hover:text-primary-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-study-muted group-hover:text-accent-500 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
@@ -273,10 +263,11 @@ const recipeSchema = {
         </a>
       </section>
 
-      <!-- Recommended Tools (Affiliate Links) -->
+      <!-- Recommended Tools -->
       {cocktail.affiliateProducts && cocktail.affiliateProducts.length > 0 && (
-        <section class="mb-10 p-6 bg-white rounded-xl border border-gray-200">
-          <h2 class="text-xl font-bold text-charcoal mb-4">Recommended Tools</h2>
+        <section class="mb-12 p-6 sm:p-8 bg-study-card border border-study-border">
+          <p class="section-eyebrow mb-3">The Tools</p>
+          <h2 class="font-display italic text-[24px] text-cream-100 font-normal mb-5">Recommended for this batch</h2>
           <ul class="space-y-3">
             {cocktail.affiliateProducts.map((product: any) => (
               <li>
@@ -288,18 +279,19 @@ const recipeSchema = {
               </li>
             ))}
           </ul>
-          <p class="mt-4 text-xs text-gray-400">
-            As an Amazon Associate we earn from qualifying purchases
+          <p class="mt-5 text-[10px] uppercase tracking-[0.2em] text-study-muted/70">
+            As an Amazon Associate we earn from qualifying purchases.
           </p>
         </section>
       )}
     </div>
 
-    <!-- Related Cocktails - Full Width -->
+    <!-- Related Cocktails -->
     {relatedCocktails.length > 0 && (
-      <section class="mt-16 pt-12 border-t bg-gray-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 class="text-2xl font-bold text-charcoal mb-8">You Might Also Like</h2>
+      <section class="mt-20 py-16 bg-study-card border-t border-study-border">
+        <div class="max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20">
+          <p class="section-eyebrow mb-3">More to Try</p>
+          <h2 class="font-display italic text-[32px] text-cream-100 font-normal mb-10">You might also like</h2>
           <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedCocktails.map(related => (
               <CocktailCard

@@ -4,108 +4,149 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // "Timeless Bar" palette - sophisticated speakeasy aesthetic
+        // ==============================================================
+        // The Study — dark editorial speakeasy palette (Direction A)
+        // ==============================================================
+        // New canonical token namespace. Prefer these in new components.
+        study: {
+          bg: '#0c0a08',
+          card: '#161310',
+          elevated: '#1e1a16',
+          border: '#2e2720',
+          'border-light': '#3d3428',
+          text: '#e8e0d4',
+          muted: '#9a8e7e',
+          accent: '#c8a55c',
+          'accent-hover': '#d4b76e',
+          'accent-dim': 'rgba(200,165,92,0.15)',
+          cream: '#f0e8da',
+        },
+
+        // ==============================================================
+        // Existing semantic scales — REMAPPED for the dark theme so
+        // existing component classes keep working.
+        // ==============================================================
+        // primary scale = brass-on-dark (the brand emphasis in The Study)
         primary: {
-          DEFAULT: '#1B3A4B', // Navy
-          50: '#f0f5f7',
-          100: '#d9e4e9',
-          200: '#b3c9d3',
-          300: '#8daebd',
-          400: '#5d8a9e',
-          500: '#3d6a7e',
-          600: '#1B3A4B',
-          700: '#162f3d',
-          800: '#11242f',
-          900: '#0c1921',
-          950: '#070d11',
+          DEFAULT: '#c8a55c',
+          50: 'rgba(200,165,92,0.05)',
+          100: 'rgba(200,165,92,0.1)',
+          200: 'rgba(200,165,92,0.2)',
+          300: '#d4b76e',
+          400: '#cdaa60',
+          500: '#c8a55c',
+          600: '#a88945',          // text-primary-600 -> deeper brass
+          700: '#896d34',          // text-primary-700 -> deepest brass
+          800: '#5e4b22',
+          900: '#332810',
+          950: '#161310',
         },
+        // accent scale = brass-gold tuned to The Study (#c8a55c)
         accent: {
-          DEFAULT: '#B8860B', // Brass Gold
-          50: '#fdf8eb',
-          100: '#f9ebc7',
-          200: '#f3d78f',
-          300: '#edc357',
-          400: '#d9a820',
-          500: '#B8860B',
-          600: '#946c09',
-          700: '#705207',
-          800: '#4c3805',
-          900: '#281e03',
+          DEFAULT: '#c8a55c',
+          50: '#f5e8c8',
+          100: '#e8d4a0',
+          200: '#dcc188',
+          300: '#d4b76e',          // accentHover
+          400: '#cdaa60',
+          500: '#c8a55c',          // primary brass
+          600: '#a88945',
+          700: '#896d34',
+          800: '#5e4b22',
+          900: '#332810',
         },
+        // cognac scale = warm muted text on dark
         cognac: {
-          DEFAULT: '#5D4037', // Cognac Brown
-          50: '#f5f0ee',
-          100: '#e6dcd8',
-          200: '#cdb9b1',
-          300: '#b4968a',
-          400: '#8b6b5e',
-          500: '#5D4037',
-          600: '#4a332c',
-          700: '#382721',
-          800: '#251a16',
-          900: '#130d0b',
+          DEFAULT: '#9a8e7e',      // textMuted
+          50: '#161310',
+          100: '#1e1a16',
+          200: '#2e2720',
+          300: '#3d3428',
+          400: '#7a6f60',
+          500: '#9a8e7e',
+          600: '#b5a99a',
+          700: '#c8bca9',
+          800: '#dcd0bd',
+          900: '#f0e8da',
         },
         deepred: {
-          DEFAULT: '#8B0000', // Deep Red
+          DEFAULT: '#8B0000',
           500: '#8B0000',
         },
+        // cream scale = light text colors on dark
         cream: {
-          DEFAULT: '#FDF8F3',
-          50: '#FFFFFF',
-          100: '#FDF8F3',
-          200: '#F5E6D8',
+          DEFAULT: '#e8e0d4',      // text
+          50: '#f5efe2',           // brightest
+          100: '#f0e8da',          // headlines
+          200: '#e8e0d4',          // body text
         },
-        // Neutral grays with slight warmth
+        // surface scale = neutral dark grays
         surface: {
-          50: '#fafafa',
-          100: '#f5f5f5',
-          200: '#e5e5e5',
-          300: '#d4d4d4',
-          400: '#a3a3a3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717',
-          950: '#0a0a0a',
+          50: '#1e1a16',
+          100: '#161310',
+          200: '#2e2720',
+          300: '#3d3428',
+          400: '#5a4f42',
+          500: '#7a6f60',
+          600: '#9a8e7e',
+          700: '#b5a99a',
+          800: '#dcd0bd',
+          900: '#f0e8da',
+          950: '#f5efe2',
         },
-        // Status colors - refined
         success: '#10b981',
         warning: '#f59e0b',
         danger: '#ef4444',
-        // Legacy aliases
-        charcoal: '#171717',
+
+        // Legacy aliases — repointed for dark theme
+        charcoal: '#f0e8da',       // was dark heading; now light cream
         freeze: '#ef4444',
-        slushy: '#B8860B',
+        slushy: '#c8a55c',
         safe: '#10b981',
-        warmgray: '#4A4A4A',
+        warmgray: '#e8e0d4',       // was dark body; now light text
+
+        // Tailwind built-in overrides so existing components adapt to dark.
+        // bg-white -> dark elevated surface; text-white -> dark text on brass.
+        white: '#1e1a16',
+        black: '#0c0a08',
+        gray: {
+          50: '#1e1a16',
+          100: '#161310',
+          200: '#2e2720',
+          300: '#3d3428',
+          400: '#5a4f42',
+          500: '#9a8e7e',
+          600: '#b5a99a',
+          700: '#c8bca9',
+          800: '#dcd0bd',
+          900: '#f0e8da',
+          950: '#f5efe2',
+        },
       },
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Fraunces', '"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {
         '2xs': ['0.65rem', { lineHeight: '1rem' }],
       },
       boxShadow: {
-        'glow': '0 0 20px rgba(27, 58, 75, 0.15)',
-        'glow-lg': '0 0 40px rgba(27, 58, 75, 0.2)',
-        'card': '0 1px 3px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02)',
-        'card-hover': '0 1px 3px rgba(0,0,0,0.05), 0 25px 30px -5px rgba(0,0,0,0.1), 0 15px 15px -5px rgba(0,0,0,0.04)',
+        'glow': '0 0 20px rgba(200, 165, 92, 0.15)',
+        'glow-lg': '0 0 40px rgba(200, 165, 92, 0.2)',
+        'card': '0 1px 3px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)',
+        'card-hover': '0 1px 3px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.35), 0 0 0 1px rgba(200,165,92,0.2)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'grid-pattern': 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+        'grid-pattern': 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23c8a55c\' fill-opacity=\'0.04\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
         'slide-up': 'slideUp 0.5s ease-out',
         'scale-in': 'scaleIn 0.3s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 8s ease-in-out infinite',
-        'float-delayed': 'floatDelayed 10s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -119,17 +160,6 @@ module.exports = {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
-          '25%': { transform: 'translate(10px, -15px) rotate(2deg)' },
-          '50%': { transform: 'translate(-5px, -25px) rotate(-1deg)' },
-          '75%': { transform: 'translate(-15px, -10px) rotate(1deg)' },
-        },
-        floatDelayed: {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '33%': { transform: 'translate(-20px, 15px) scale(1.02)' },
-          '66%': { transform: 'translate(15px, -10px) scale(0.98)' },
         },
       },
       borderRadius: {

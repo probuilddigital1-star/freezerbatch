@@ -33,36 +33,38 @@ const posts = [
 ---
 
 <Layout title={title} description={description}>
-  <article class="py-12">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6">
-      <header class="text-center mb-12">
-        <h1 class="text-4xl font-bold text-charcoal mb-3">Guides</h1>
-        <p class="text-lg text-cognac max-w-xl mx-auto">
-          Short, opinionated guides to the small judgment calls behind a great freezer batch.
+  <article class="py-20 sm:py-28">
+    <div class="max-w-[820px] mx-auto px-6 sm:px-10 lg:px-20">
+      <header class="text-center mb-16">
+        <p class="section-eyebrow">The Guides</p>
+        <h1 class="section-title italic">Short, sharp guides</h1>
+        <p class="section-subtitle max-w-xl mx-auto">
+          The small judgment calls behind a great freezer batch.
         </p>
       </header>
 
       <div class="space-y-5">
         {posts.map(post => (
-          <a href={`/blog/${post.slug}`} class="group block bg-white rounded-2xl p-6 border border-cognac-200/80 shadow-card hover:border-accent-300 hover:shadow-card-hover transition-all">
-            <div class="flex items-baseline justify-between gap-4 mb-2">
-              <h2 class="font-display text-2xl font-semibold text-charcoal group-hover:text-primary-600 transition-colors leading-tight">
-                {post.title}
-              </h2>
-              <span class="shrink-0 text-xs text-cognac-400 uppercase tracking-wider">{post.readTime}</span>
+          <a href={`/blog/${post.slug}`} class="group block bg-study-card border border-study-border p-8 hover:border-accent-500 transition-all">
+            <div class="flex items-baseline justify-between gap-4 mb-3">
+              <p class="text-[10px] uppercase tracking-[0.2em] text-accent-500 font-medium">{post.readTime} read</p>
+              <span class="text-[10px] uppercase tracking-[0.2em] text-study-muted">Guide</span>
             </div>
-            <p class="text-cognac">{post.hook}</p>
-            <p class="mt-3 text-sm font-medium text-accent-600 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+            <h2 class="font-display italic text-[26px] sm:text-[28px] text-cream-100 group-hover:text-accent-300 transition-colors font-normal leading-[1.2] mb-3">
+              {post.title}
+            </h2>
+            <p class="text-[15px] text-cognac-700 leading-[1.7] font-light mb-5">{post.hook}</p>
+            <p class="text-[11px] uppercase tracking-[0.2em] text-study-muted group-hover:text-accent-500 inline-flex items-center gap-2 transition-colors">
               Read the guide
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/>
               </svg>
             </p>
           </a>
         ))}
       </div>
 
-      <div class="mt-16 text-center">
+      <div class="mt-20 text-center">
         <a href="/#calculator" class="btn-primary">Open the calculator</a>
       </div>
     </div>

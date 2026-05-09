@@ -2,119 +2,66 @@
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="bg-primary-600 text-cream-200 mt-auto">
-  <!-- Art Deco Top Border -->
-  <div class="relative">
-    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-500/50 to-transparent"></div>
-    <div class="absolute left-1/2 -translate-x-1/2 -top-2 w-4 h-4">
-      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full" aria-hidden="true">
-        <rect x="8" y="0" width="8" height="8" transform="rotate(45 8 4)" fill="none" stroke="#B8860B" stroke-width="1"/>
-        <circle cx="8" cy="8" r="2" fill="#B8860B"/>
-      </svg>
-    </div>
-  </div>
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
-      <!-- Brand -->
+<footer class="bg-study-bg border-t border-study-border mt-auto relative z-10">
+  <div class="max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20 pt-16 pb-12">
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <!-- Brand column -->
       <div class="md:col-span-2">
-        <a href="/" class="flex items-center gap-3 mb-4">
-          <div class="w-9 h-9 bg-gradient-to-br from-accent-400 to-accent-500 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M5 6h14"/>
-              <path d="M5.5 6 12 14l6.5-8"/>
-              <path d="M12 14v6"/>
-              <path d="M9 20h6"/>
-              <g transform="translate(17.2 3.5)" stroke-width="1.6">
-                <path d="M0 -1.6v3.2"/>
-                <path d="M-1.4 -0.8l2.8 1.6"/>
-                <path d="M-1.4 0.8l2.8 -1.6"/>
-              </g>
-            </svg>
-          </div>
-          <span class="font-display font-semibold text-xl text-white tracking-tight">
-            Freezer<span class="text-accent-300">Batch</span>
-          </span>
+        <a href="/" class="inline-block font-display text-[26px] font-semibold tracking-[0.02em] text-cream-100 mb-5">
+          FREEZER<span class="text-accent-500">BATCH</span>
         </a>
-        <p class="text-white/90 max-w-sm leading-relaxed">
+        <p class="text-study-muted text-[15px] leading-[1.7] max-w-sm font-light">
           Pre-batch cocktails that stay perfectly pourable in your freezer.
           Do the math once, drink well forever.
         </p>
       </div>
 
-      <!-- Quick Links -->
+      <!-- Navigation -->
       <div>
-        <h3 class="font-display font-semibold text-white mb-4">Navigation</h3>
+        <h3 class="text-[11px] uppercase tracking-[0.3em] text-accent-500 font-medium mb-5">Navigate</h3>
         <ul class="space-y-3">
-          <li>
-            <a href="/" class="text-white/90 hover:text-accent-300 transition-colors">Home</a>
-          </li>
-          <li>
-            <a href="/cocktails" class="text-white/90 hover:text-accent-300 transition-colors">All Recipes</a>
-          </li>
-          <li>
-            <a href="/blog" class="text-white/90 hover:text-accent-300 transition-colors">Guides</a>
-          </li>
-          <li>
-            <a href="/how-it-works" class="text-white/90 hover:text-accent-300 transition-colors">How It Works</a>
-          </li>
+          <li><a href="/" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Home</a></li>
+          <li><a href="/cocktails" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">All Recipes</a></li>
+          <li><a href="/blog" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Guides</a></li>
+          <li><a href="/how-it-works" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Method</a></li>
         </ul>
       </div>
 
-      <!-- Popular Recipes -->
+      <!-- Popular recipes -->
       <div>
-        <h3 class="font-display font-semibold text-white mb-4">Popular Batches</h3>
+        <h3 class="text-[11px] uppercase tracking-[0.3em] text-accent-500 font-medium mb-5">Classics</h3>
         <ul class="space-y-3">
-          <li>
-            <a href="/cocktails/negroni" class="text-white/90 hover:text-accent-300 transition-colors">Negroni</a>
-          </li>
-          <li>
-            <a href="/cocktails/margarita" class="text-white/90 hover:text-accent-300 transition-colors">Margarita</a>
-          </li>
-          <li>
-            <a href="/cocktails/manhattan" class="text-white/90 hover:text-accent-300 transition-colors">Manhattan</a>
-          </li>
-          <li>
-            <a href="/cocktails/old-fashioned" class="text-white/90 hover:text-accent-300 transition-colors">Old Fashioned</a>
-          </li>
+          <li><a href="/cocktails/negroni" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Negroni</a></li>
+          <li><a href="/cocktails/manhattan" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Manhattan</a></li>
+          <li><a href="/cocktails/old-fashioned" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Old Fashioned</a></li>
+          <li><a href="/cocktails/sazerac" class="text-[14px] text-study-muted hover:text-cream-100 transition-colors">Sazerac</a></li>
         </ul>
       </div>
     </div>
 
-    <!-- Event Planning Tool -->
-    <div class="border-t border-white/10 pt-8 pb-4 mb-6">
-      <p class="text-sm text-white/50 mb-3">Planning a party?</p>
-      <a href="https://www.stocktheevent.com" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-accent-300 hover:text-accent-200 transition-colors font-medium">
-        <span>Calculate how much to buy for your guests</span>
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-
-    <hr class="border-white/10 my-6" />
-
-    <!-- Responsible-drinking notice — required signal for AdSense / age-gated networks -->
-    <div class="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
-      <p class="text-xs text-white/70 leading-relaxed text-center sm:text-left">
-        FreezerBatchCocktails is intended for readers <strong class="text-white">21 and older</strong>
-        (or the legal drinking age in your country). Please drink responsibly. Never drink and drive.
-        If you or someone you know needs help, call the SAMHSA National Helpline at
-        <a href="tel:18006624357" class="underline hover:text-white">1-800-662-4357</a>.
+    <!-- Responsible drinking notice -->
+    <div class="mt-14 pt-8 border-t border-study-border">
+      <p class="text-[12px] text-study-muted leading-[1.7] text-center sm:text-left max-w-3xl">
+        FreezerBatchCocktails is intended for readers
+        <strong class="text-cream-100 font-medium">21 and older</strong>
+        (or the legal drinking age in your country). Please drink responsibly. Never drink and drive. If you or someone you know needs help, call the SAMHSA National Helpline at
+        <a href="tel:18006624357" class="underline hover:text-accent-500">1-800-662-4357</a>.
       </p>
     </div>
 
-    <!-- Legal / housekeeping links -->
-    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 mb-4 text-xs text-white/60">
-      <a href="/about" class="hover:text-white transition-colors">About</a>
-      <a href="/privacy" class="hover:text-white transition-colors">Privacy</a>
-      <a href="/terms" class="hover:text-white transition-colors">Terms</a>
-      <a href="mailto:hello@freezerbatchcocktails.com" class="hover:text-white transition-colors">Contact</a>
+    <!-- Legal links -->
+    <div class="mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-x-8 gap-y-2 text-[12px] uppercase tracking-[0.2em] text-study-muted">
+      <a href="/about" class="hover:text-cream-100 transition-colors">About</a>
+      <a href="/privacy" class="hover:text-cream-100 transition-colors">Privacy</a>
+      <a href="/terms" class="hover:text-cream-100 transition-colors">Terms</a>
+      <a href="mailto:hello@freezerbatchcocktails.com" class="hover:text-cream-100 transition-colors">Contact</a>
     </div>
 
-    <!-- Bottom Bar -->
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-      <p class="text-sm text-white/50">&copy; {currentYear} FreezerBatchCocktails.com</p>
-      <p class="text-xs text-white/40 text-center sm:text-right max-w-md">
+    <!-- Bottom -->
+    <div class="mt-8 pt-6 border-t border-study-border/50 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <p class="text-[12px] text-study-muted">© {currentYear} FreezerBatchCocktails.com</p>
+      <p class="text-[11px] text-study-muted/70 text-center sm:text-right max-w-md">
         Some links are affiliate links. We may earn a commission at no extra cost to you.
       </p>
     </div>

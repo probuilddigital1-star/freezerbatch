@@ -42,12 +42,14 @@ const tagFilters: Array<{ tag: string; label: string }> = [
 ---
 
 <Layout title={title} description={description}>
-  <section class="py-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+  <section class="py-20 sm:py-28">
+    <div class="max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20">
+
       <!-- Header -->
-      <div class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-charcoal mb-3">Freezer Cocktail Recipes</h1>
-        <p class="text-lg text-cognac max-w-xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="section-eyebrow">The Collection</p>
+        <h1 class="section-title italic">Freezer cocktail recipes</h1>
+        <p class="section-subtitle max-w-xl mx-auto">
           Every recipe calculated for perfect freezer storage.
         </p>
       </div>
@@ -57,7 +59,7 @@ const tagFilters: Array<{ tag: string; label: string }> = [
         <p class="sr-only" id="spirit-filter-label">Filter by base spirit</p>
         <div class="flex flex-wrap justify-center gap-2" role="radiogroup" aria-labelledby="spirit-filter-label">
           <button
-            class="filter-btn spirit-filter px-4 py-2 rounded-full text-sm font-medium border transition-colors active"
+            class="filter-btn spirit-filter active"
             role="radio" aria-checked="true"
             data-spirit="all"
           >
@@ -65,7 +67,7 @@ const tagFilters: Array<{ tag: string; label: string }> = [
           </button>
           {allSpirits.map(spirit => (
             <button
-              class="filter-btn spirit-filter px-4 py-2 rounded-full text-sm font-medium border transition-colors capitalize"
+              class="filter-btn spirit-filter capitalize"
               role="radio" aria-checked="false"
               data-spirit={spirit}
             >
@@ -76,11 +78,11 @@ const tagFilters: Array<{ tag: string; label: string }> = [
       </div>
 
       <!-- Filter by Tag (flavor / technique / mood) -->
-      <div class="mb-12">
+      <div class="mb-16">
         <p class="sr-only" id="tag-filter-label">Filter by style</p>
         <div class="flex flex-wrap justify-center gap-2" role="radiogroup" aria-labelledby="tag-filter-label">
           <button
-            class="filter-btn tag-filter px-3 py-1.5 rounded-full text-xs font-medium border transition-colors active"
+            class="filter-btn tag-filter tag-style active"
             role="radio" aria-checked="true"
             data-tag="all"
           >
@@ -88,7 +90,7 @@ const tagFilters: Array<{ tag: string; label: string }> = [
           </button>
           {tagFilters.map(({ tag, label }) => (
             <button
-              class="filter-btn tag-filter px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+              class="filter-btn tag-filter tag-style"
               role="radio" aria-checked="false"
               data-tag={tag}
             >
@@ -99,12 +101,12 @@ const tagFilters: Array<{ tag: string; label: string }> = [
       </div>
 
       <!-- Long shelf life: spirit-forward, no fresh ingredients -->
-      <div class="mb-16" data-section="bulletproof">
-        <div class="flex items-center gap-3 mb-6">
-          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-success/15 text-success text-base">✓</span>
+      <div class="mb-20" data-section="bulletproof">
+        <div class="flex items-baseline gap-4 mb-10 pb-5 border-b border-study-border">
+          <span class="text-accent-500 text-2xl font-display italic font-light leading-none">01</span>
           <div>
-            <h2 class="text-2xl font-bold text-charcoal">Lasts 2–3 months</h2>
-            <p class="text-gray-500">Spirit-forward batches that keep in the freezer indefinitely</p>
+            <h2 class="font-display italic text-[28px] sm:text-[32px] text-cream-100 font-normal leading-tight">Lasts months</h2>
+            <p class="text-[13px] text-study-muted mt-1 font-light">Spirit-forward batches that keep in the freezer indefinitely</p>
           </div>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="bulletproof-grid">
@@ -128,11 +130,11 @@ const tagFilters: Array<{ tag: string; label: string }> = [
 
       <!-- Shorter shelf life: contains fresh citrus or coffee -->
       <div data-section="attention">
-        <div class="flex items-center gap-3 mb-6">
-          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-warning/15 text-amber-700 text-base">●</span>
+        <div class="flex items-baseline gap-4 mb-10 pb-5 border-b border-study-border">
+          <span class="text-accent-500 text-2xl font-display italic font-light leading-none">02</span>
           <div>
-            <h2 class="text-2xl font-bold text-charcoal">Best within a week</h2>
-            <p class="text-gray-500">Fresh citrus or coffee — flavor peaks early, still drinkable longer</p>
+            <h2 class="font-display italic text-[28px] sm:text-[32px] text-cream-100 font-normal leading-tight">Best within a week</h2>
+            <p class="text-[13px] text-study-muted mt-1 font-light">Fresh citrus or coffee. Flavor peaks early, still drinkable longer.</p>
           </div>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="attention-grid">
@@ -154,12 +156,13 @@ const tagFilters: Array<{ tag: string; label: string }> = [
         </div>
       </div>
 
-      <!-- Tip Box -->
-      <div class="mt-16 bg-primary-50 rounded-xl p-6 border border-primary-100">
-        <h3 class="font-bold text-lg text-charcoal mb-2">Pro Tip: Fresh Vermouth Matters</h3>
-        <p class="text-gray-600">
-          Vermouth is wine and it oxidizes. For the best batches, use vermouth that's been open less than
-          4-6 weeks. Store open bottles in the refrigerator. Old vermouth is the #1 cause of
+      <!-- Pro tip card -->
+      <div class="mt-20 bg-study-card border border-study-border p-8 sm:p-10 max-w-2xl mx-auto">
+        <p class="section-eyebrow mb-3">Pro Tip</p>
+        <h3 class="font-display italic text-[24px] text-cream-100 font-normal mb-3">Fresh vermouth matters</h3>
+        <p class="text-[15px] text-study-muted leading-[1.7] font-light">
+          Vermouth is wine; it oxidizes. For the best batches, use vermouth that has been open less than
+          four to six weeks. Store opened bottles in the refrigerator. Old vermouth is the single biggest cause of
           disappointing batch cocktails.
         </p>
       </div>
@@ -168,11 +171,31 @@ const tagFilters: Array<{ tag: string; label: string }> = [
 </Layout>
 
 <style>
-  .filter-btn.active {
-    @apply bg-primary text-white border-primary;
+  .filter-btn {
+    padding: 0.55rem 1.1rem;
+    font-size: 11px;
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    border: 1px solid #2e2720;
+    background: transparent;
+    color: #9a8e7e;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
-  .filter-btn:not(.active) {
-    @apply bg-white text-gray-600 border-gray-200 hover:border-gray-300;
+  .filter-btn:hover {
+    color: #e8e0d4;
+    border-color: #3d3428;
+  }
+  .filter-btn.active {
+    background: rgba(200, 165, 92, 0.12);
+    border-color: #c8a55c;
+    color: #c8a55c;
+  }
+  .filter-btn.tag-style {
+    padding: 0.4rem 0.9rem;
+    font-size: 10px;
   }
   .cocktail-item.hidden {
     display: none;

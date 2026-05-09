@@ -406,71 +406,175 @@ const recipeTiles = cocktailsData.cocktails
 </datalist>
 
 <style is:global>
-  /* Batch step + ingredient item styles must be global because the markup
-     is injected at runtime via innerHTML, so Astro's scoped class hashes
-     would never match. */
+  /* Batch step styles — global because the markup is injected via innerHTML,
+     so Astro's scoped class hashes would not match. The Study treatment:
+     italic Cormorant step numerals on dark, brass accents. */
   .batch-step {
-    @apply flex gap-4 py-4 border-b border-gray-100 last:border-0;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #2e2720;
+  }
+  .batch-step:last-child {
+    border-bottom: 0;
   }
   .batch-step-number {
-    @apply flex-shrink-0 w-8 h-8 bg-accent-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md shadow-accent-500/20;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.625rem;
+    font-style: italic;
+    font-weight: 400;
+    color: #c8a55c;
   }
   .batch-step-content {
-    @apply flex-1;
+    flex: 1;
   }
   .batch-step h4 {
-    @apply font-semibold text-charcoal mb-1;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+    font-size: 1.15rem;
+    color: #f0e8da;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.005em;
   }
   .batch-step p {
-    @apply text-gray-600 text-sm;
+    font-size: 0.875rem;
+    color: #b5a99a;
+    line-height: 1.6;
+    font-weight: 300;
   }
   .batch-ingredient-item {
-    @apply flex justify-between items-center py-1;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #2e2720;
+  }
+  .batch-ingredient-item:last-child {
+    border-bottom: 0;
+  }
+  .batch-ingredient-item span:first-child {
+    color: #b5a99a;
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+  .batch-ingredient-item span:last-child {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: #f0e8da;
+    font-size: 1.25rem;
+    font-weight: 400;
   }
 </style>
 
 <style>
-  /* Mode toggle sliding pill styles */
+  /* Mode toggle — dark container, brass-tinted indicator slides */
   .mode-toggle-container {
-    @apply border-2 border-primary-200;
+    border: 1px solid #2e2720;
+    background: #0c0a08;
+  }
+
+  .mode-toggle-indicator {
+    background: rgba(200, 165, 92, 0.15);
+    border: 1px solid rgba(200, 165, 92, 0.4);
+    box-shadow: 0 0 20px rgba(200, 165, 92, 0.1);
+  }
+
+  .entry-mode-btn {
+    font-family: 'Outfit', system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 12px;
+    font-weight: 500;
   }
 
   .entry-mode-btn[aria-pressed="true"] {
-    @apply text-primary-700 bg-transparent;
+    color: #c8a55c;
+    background: transparent;
   }
   .entry-mode-btn[aria-pressed="false"] {
-    @apply text-primary-400 bg-transparent hover:text-primary-600;
+    color: #9a8e7e;
+    background: transparent;
+  }
+  .entry-mode-btn[aria-pressed="false"]:hover {
+    color: #e8e0d4;
   }
 
-  /* Slide indicator to right when Custom is active.
-     Preset is now the first / default position (left edge). */
   .mode-toggle-container:has(.entry-mode-btn[data-mode="custom"][aria-pressed="true"]) .mode-toggle-indicator {
     left: calc(50% + 3px);
   }
 
-  /* Recipe tile selection state */
+  /* Recipe tile selection state — brass border + tint */
+  .recipe-tile {
+    background: #0c0a08;
+    border: 1px solid #2e2720;
+    transition: all 0.2s ease;
+  }
+  .recipe-tile:hover {
+    border-color: #3d3428;
+    background: #161310;
+  }
   .recipe-tile-active {
-    @apply border-accent-500 bg-accent-50 shadow-md ring-2 ring-accent-500/20;
+    background: rgba(200, 165, 92, 0.1) !important;
+    border-color: #c8a55c !important;
+    box-shadow: 0 0 0 1px rgba(200, 165, 92, 0.3);
+  }
+  .recipe-tile span:first-child {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: #f0e8da;
+  }
+  .recipe-tile span:last-child {
+    color: #9a8e7e;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 500;
   }
 
-  /* ABV cheatsheet — hide the default disclosure marker across browsers */
+  /* ABV cheatsheet disclosure */
   .abv-help summary {
     list-style: none;
   }
   .abv-help summary::-webkit-details-marker { display: none; }
   .abv-help summary::marker { content: ''; }
+
+  /* Toggle button rows: bottle-size, unit, dilution */
+  .bottle-size-btn,
+  .unit-btn,
+  .dilution-btn {
+    font-family: 'Outfit', system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+  }
+
   .bottle-size-btn.active,
   .unit-btn.active,
   .dilution-btn.active {
-    @apply border-primary bg-primary text-white;
+    border-color: #c8a55c !important;
+    background: rgba(200, 165, 92, 0.12);
+    color: #c8a55c;
   }
-  .dilution-btn.active span {
-    @apply text-white/80;
-  }
+
   .bottle-size-btn:not(.active),
   .unit-btn:not(.active),
   .dilution-btn:not(.active) {
-    @apply border-gray-200 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50;
+    border-color: #2e2720;
+    background: transparent;
+    color: #9a8e7e;
+  }
+  .bottle-size-btn:not(.active):hover,
+  .unit-btn:not(.active):hover,
+  .dilution-btn:not(.active):hover {
+    border-color: #3d3428;
+    color: #e8e0d4;
   }
 </style>
 
@@ -843,23 +947,24 @@ const recipeTiles = cocktailsData.cocktails
       const statusLabel = result.freezeStatus === 'safe' ? 'Perfect for Freezer' : result.freezeStatus === 'slushy' ? 'Will Be Slushy' : 'May Freeze Solid';
 
       presetInstructions.innerHTML = `
-        <div class="bg-gradient-to-br from-primary-50 to-white rounded-xl border-2 border-primary-100 p-6">
-          <h3 class="text-xl font-bold text-charcoal mb-2">${this.getRecipeName(presetId)} Batch</h3>
-          <p class="text-gray-600 mb-6">Follow these steps to make a ${this.bottleSizeMl}ml batch</p>
+        <div style="background: #161310; border: 1px solid #2e2720; padding: 2rem;">
+          <p style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #c8a55c; font-weight: 500; margin: 0 0 0.75rem;">Your Batch</p>
+          <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2rem; font-style: italic; font-weight: 400; color: #f0e8da; margin: 0 0 0.5rem; line-height: 1.1;">${this.getRecipeName(presetId)}</h3>
+          <p style="color: #9a8e7e; font-size: 14px; margin: 0 0 2rem; font-weight: 300;">Follow these steps for a ${this.bottleSizeMl}ml batch</p>
 
           <!-- Stats Row -->
-          <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-white rounded-lg">
-            <div class="text-center">
-              <span class="block text-2xl font-bold font-mono text-primary">${result.finalAbv.toFixed(1)}%</span>
-              <span class="text-xs text-gray-500">ABV</span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; margin-bottom: 2rem; padding: 1.5rem 0; border-top: 1px solid #2e2720; border-bottom: 1px solid #2e2720;">
+            <div style="text-align: center; border-right: 1px solid #2e2720;">
+              <span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.25rem; font-weight: 400; color: #c8a55c; line-height: 1;">${result.finalAbv.toFixed(1)}<span style="font-size: 1.25rem;">%</span></span>
+              <span style="display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #9a8e7e; margin-top: 0.5rem; font-weight: 500;">ABV</span>
             </div>
-            <div class="text-center">
-              <span class="block text-2xl font-bold font-mono text-primary">${result.servings}</span>
-              <span class="text-xs text-gray-500">Drinks</span>
+            <div style="text-align: center; border-right: 1px solid #2e2720;">
+              <span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.25rem; font-weight: 400; color: #f0e8da; line-height: 1;">${result.servings}</span>
+              <span style="display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #9a8e7e; margin-top: 0.5rem; font-weight: 500;">Drinks</span>
             </div>
-            <div class="text-center">
-              <span class="block text-2xl font-bold font-mono text-primary">${statusIcon}</span>
-              <span class="text-xs text-gray-500">${statusLabel}</span>
+            <div style="text-align: center;">
+              <span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.25rem; font-weight: 400; color: ${result.freezeStatus === 'safe' ? '#10b981' : result.freezeStatus === 'slushy' ? '#fbbf24' : '#ef4444'}; line-height: 1;">${statusIcon}</span>
+              <span style="display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #9a8e7e; margin-top: 0.5rem; font-weight: 500;">${statusLabel}</span>
             </div>
           </div>
 
@@ -885,7 +990,7 @@ const recipeTiles = cocktailsData.cocktails
               <span class="batch-step-number">3</span>
               <div class="batch-step-content">
                 <h4>Add these ingredients</h4>
-                <div class="mt-2 bg-white rounded-lg p-3 border">
+                <div style="margin-top: 0.75rem; background: #1e1a16; border: 1px solid #2e2720; padding: 0.75rem 1rem;">
                   ${ingredientsHtml}
                 </div>
                 ${extrasNote}
@@ -902,12 +1007,12 @@ const recipeTiles = cocktailsData.cocktails
           </div>
 
           <!-- Composition bar -->
-          <div class="mt-6 pt-4 border-t border-primary-100">
+          <div class="mt-6 pt-4 border-t border-study-border">
             ${compositionHtml}
           </div>
 
           <!-- Actions -->
-          <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-primary-100">
+          <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-study-border">
             <button type="button" class="preset-copy-btn btn-primary flex-1 flex items-center justify-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
@@ -929,7 +1034,7 @@ const recipeTiles = cocktailsData.cocktails
           </div>
 
           <!-- Inline email recipe form (no modal) -->
-          <form class="email-recipe-row preset-email-form mt-5 pt-5 border-t border-primary-100">
+          <form class="email-recipe-row preset-email-form mt-5 pt-5 border-t border-study-border">
             <div class="flex flex-col sm:flex-row gap-2 items-stretch">
               <input type="email" name="email" required placeholder="your@email.com" autocomplete="email"
                 class="flex-1 px-4 py-2.5 border border-cognac-200 rounded-lg text-sm bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 focus:outline-none transition-all"

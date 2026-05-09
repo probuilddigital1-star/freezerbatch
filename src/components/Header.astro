@@ -1,103 +1,82 @@
 ---
 const navLinks = [
-  { href: '/', label: 'Home' },
   { href: '/cocktails', label: 'Recipes' },
+  { href: '/#calculator', label: 'Calculator' },
   { href: '/blog', label: 'Guides' },
-  { href: '/how-it-works', label: 'How It Works' },
+  { href: '/how-it-works', label: 'Method' },
 ];
 
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="sticky top-0 z-50 bg-primary-600/95 backdrop-blur-xl border-b border-primary-700/50">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6">
-    <nav class="flex items-center justify-between h-16" aria-label="Main navigation">
-      <!-- Logo: martini glass + frost crystal — signals "frozen cocktail" at a glance. -->
-      <a href="/" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 bg-gradient-to-br from-accent-400 to-accent-500 rounded-xl flex items-center justify-center shadow-lg shadow-accent-500/20 group-hover:shadow-accent-500/30 transition-shadow">
-          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 6h14"/>
-            <path d="M5.5 6 12 14l6.5-8"/>
-            <path d="M12 14v6"/>
-            <path d="M9 20h6"/>
-            <g transform="translate(17.2 3.5)" stroke-width="1.6">
-              <path d="M0 -1.6v3.2"/>
-              <path d="M-1.4 -0.8l2.8 1.6"/>
-              <path d="M-1.4 0.8l2.8 -1.6"/>
-            </g>
-          </svg>
-        </div>
-        <span class="font-display font-semibold text-xl text-white tracking-tight">
-          Freezer<span class="text-accent-300">Batch</span>
-        </span>
+<header class="sticky top-0 z-50 bg-study-bg/95 backdrop-blur-xl border-b border-study-border">
+  <div class="max-w-[1280px] mx-auto px-6 sm:px-10 lg:px-20">
+    <nav class="flex items-center justify-between h-20" aria-label="Main navigation">
+
+      <!-- Brand wordmark — Cormorant serif, FREEZER + amber BATCH -->
+      <a href="/" class="font-display text-[26px] sm:text-[28px] font-semibold tracking-[0.02em] text-cream-100 hover:text-cream-50 transition-colors">
+        FREEZER<span class="text-accent-500">BATCH</span>
       </a>
 
-      <!-- Desktop Nav -->
-      <ul class="hidden md:flex items-center gap-1">
-        {navLinks.map(link => (
-          <li>
-            <a
-              href={link.href}
-              class:list={[
-                'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
-                currentPath === link.href
-                  ? 'bg-accent-500/20 text-accent-300'
-                  : 'text-white/90 hover:text-white hover:bg-white/10'
-              ]}
-              aria-current={currentPath === link.href ? 'page' : undefined}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-        <li class="ml-2">
-          <a href="#calculator" class="btn-primary text-sm py-2 px-4 whitespace-nowrap">
-            Start
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-            </svg>
-          </a>
-        </li>
+      <!-- Desktop nav — uppercase tracked links -->
+      <ul class="hidden md:flex items-center gap-10">
+        {navLinks.map(link => {
+          const isCurrent =
+            link.href === currentPath ||
+            (link.href.startsWith('/#') && currentPath === '/');
+          return (
+            <li>
+              <a
+                href={link.href}
+                class:list={[
+                  'text-[13px] tracking-[0.12em] uppercase font-light transition-colors',
+                  isCurrent ? 'text-accent-500' : 'text-study-muted hover:text-cream-100',
+                ]}
+                aria-current={isCurrent ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          );
+        })}
       </ul>
 
-      <!-- Mobile Menu Button -->
+      <!-- Mobile hamburger -->
       <button
         type="button"
-        class="md:hidden p-3 rounded-xl text-white/90 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+        class="md:hidden p-2 -mr-2 text-study-muted hover:text-cream-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="mobile-menu"
         id="mobile-menu-button"
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </nav>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden pb-6">
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-6 border-t border-study-border -mx-6 sm:-mx-10 px-6 sm:px-10 pt-4 mt-0">
       <ul class="flex flex-col gap-1">
-        {navLinks.map(link => (
-          <li>
-            <a
-              href={link.href}
-              class:list={[
-                'block px-4 py-3 rounded-xl font-medium transition-all duration-200',
-                currentPath === link.href
-                  ? 'bg-accent-500/20 text-accent-300'
-                  : 'text-white/90 hover:text-white hover:bg-white/10'
-              ]}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-        <li class="mt-2">
-          <a href="#calculator" class="btn-primary w-full text-center">
-            Start calculating
-          </a>
-        </li>
+        {navLinks.map(link => {
+          const isCurrent =
+            link.href === currentPath ||
+            (link.href.startsWith('/#') && currentPath === '/');
+          return (
+            <li>
+              <a
+                href={link.href}
+                class:list={[
+                  'block px-2 py-3 text-[13px] tracking-[0.12em] uppercase font-light transition-colors',
+                  isCurrent ? 'text-accent-500' : 'text-study-muted hover:text-cream-100',
+                ]}
+              >
+                {link.label}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </div>
   </div>
