@@ -11,8 +11,9 @@ webhook workflow. Do not remove v1 until the staging matrix below passes.
    - `N8N_WEBHOOK_SECRET` — must match the Pages `N8N_WEBHOOK_SECRET` binding.
    - `RESEND_API_KEY` — the Resend API credential used by the HTTP request nodes.
    - `FBC_CRM_SHEET_ID` — the Subscribers spreadsheet identifier.
-3. Attach a Google Sheets OAuth2 credential to **Upsert Pending Marketing Consent** and
-   **Record Unsubscribe**, and confirm the `Subscribers` sheet has the mapped columns:
+3. Attach a Google Sheets OAuth2 credential to **Upsert Newsletter Pending Consent**,
+   **Upsert Recipe Pending Consent**, and **Record Unsubscribe**, and confirm the
+   `Subscribers` sheet has the mapped columns:
    `Email`, `Status`, `Source`, `Consent Version`, `Consent Timestamp`, `Page`, and
    `Unsubscribed At`.
 4. Configure the double-opt-in mechanism used by the subscriber system. This workflow records

@@ -2,8 +2,117 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const workflow = JSON.parse(readFileSync(new URL('./FreezerBatchCocktails-v2.json', import.meta.url)));
+assert.equal(workflow.nodes.length, 25, 'workflow contains only the 25 purposeful v2 nodes');
+assert.equal(
+  workflow.nodes.some((node) => node.name === 'Legacy Flat Recipe Email (unconnected)'),
+  false,
+  'workflow excludes the stale flat-payload renderer',
+);
 const recipeNode = workflow.nodes.find((node) => node.name === 'Build Transactional Recipe Email');
 assert.ok(recipeNode, 'workflow includes the transactional recipe-email Code node');
+
+const nodeNames = workflow.nodes.map((node) => node.name);
+const nodeIds = workflow.nodes.map((node) => node.id);
+assert.equal(new Set(nodeNames).size, nodeNames.length, 'node names are unique');
+assert.equal(new Set(nodeIds).size, nodeIds.length, 'node IDs are unique');
+
+const nodeNameSet = new Set(nodeNames);
+for (const [source, connectionTypes] of Object.entries(workflow.connections)) {
+  assert.ok(nodeNameSet.has(source), `connection source exists: ${source}`);
+  for (const outputGroups of Object.values(connectionTypes)) {
+    for (const outputGroup of outputGroups) {
+      for (const connection of outputGroup ?? []) {
+        assert.ok(nodeNameSet.has(connection.node), `connection target exists: ${connection.node}`);
+      }
+    }
+  }
+}
+
+function outputTargets(nodeName, outputIndex) {
+  return (workflow.connections[nodeName]?.main?.[outputIndex] ?? []).map((edge) => edge.node);
+}
+
+function reachableFrom(startName) {
+  const reached = new Set();
+  const pending = [startName];
+  while (pending.length) {
+    const name = pending.pop();
+    if (reached.has(name)) continue;
+    reached.add(name);
+    for (const outputGroup of workflow.connections[name]?.main ?? []) {
+      for (const edge of outputGroup ?? []) pending.push(edge.node);
+    }
+  }
+  return reached;
+}
+
+const allReachable = reachableFrom('Webhook Trigger');
+assert.deepEqual([...nodeNameSet].filter((name) => !allReachable.has(name)), [], 'all nodes are reachable');
+
+const switches = workflow.nodes.filter((node) => node.type === 'n8n-nodes-base.switch');
+assert.equal(switches.length, 1, 'workflow has exactly one Switch');
+assert.equal(switches[0].name, 'Route by action');
+assert.deepEqual(
+  switches[0].parameters.rules.values.map((rule) => rule.outputKey),
+  ['send_recipe', 'subscribe', 'unsubscribe'],
+);
+assert.equal(switches[0].parameters.options.fallbackOutput, 'extra', 'Switch has a default output');
+assert.deepEqual(outputTargets('Route by action', 0), ['Build Transactional Recipe Email']);
+assert.deepEqual(outputTargets('Route by action', 1), ['Prepare Newsletter Marketing Consent']);
+assert.deepEqual(outputTargets('Route by action', 2), ['Record Unsubscribe']);
+assert.deepEqual(outputTargets('Route by action', 3), ['Respond Invalid Action']);
+const actionReachability = [0, 1, 2, 3].map(
+  (output) => new Set(outputTargets('Route by action', output).flatMap((name) => [...reachableFrom(name)])),
+);
+for (const name of nodeNameSet) {
+  const reachableCaseCount = actionReachability.filter((reached) => reached.has(name)).length;
+  if (reachableCaseCount > 0) assert.equal(reachableCaseCount, 1, `${name} belongs to exactly one action case`);
+}
+assert.deepEqual(
+  outputTargets('Recipe Includes Marketing Consent', 0),
+  ['Prepare Recipe Marketing Consent'],
+  'recipe consent true is the only recipe path that writes marketing state',
+);
+assert.deepEqual(
+  outputTargets('Recipe Includes Marketing Consent', 1),
+  ['Respond Recipe Sent'],
+  'recipe consent false responds without a CRM write or confirmation send',
+);
+
+const resendNodes = workflow.nodes.filter(
+  (node) => node.type === 'n8n-nodes-base.httpRequest' && node.parameters.url === 'https://api.resend.com/emails',
+);
+const resendNames = new Set(resendNodes.map((node) => node.name));
+const reachableResendNames = (routeOutput) => {
+  const reached = new Set(outputTargets('Route by action', routeOutput).flatMap((name) => [...reachableFrom(name)]));
+  return [...resendNames].filter((name) => reached.has(name)).sort();
+};
+assert.deepEqual(reachableResendNames(0), [
+  'Send Recipe Double Opt-In Confirmation',
+  'Send Transactional Recipe Email',
+]);
+assert.deepEqual(reachableResendNames(1), ['Send Newsletter Double Opt-In Confirmation']);
+assert.deepEqual(reachableResendNames(2), [], 'unsubscribe reaches no email-send node');
+assert.deepEqual(reachableResendNames(3), [], 'invalid action reaches no email-send node');
+
+function headerValue(node, headerName) {
+  return node.parameters.headerParameters.parameters.find((header) => header.name === headerName)?.value;
+}
+
+const transactionalSend = resendNodes.find((node) => node.name === 'Send Transactional Recipe Email');
+assert.equal(headerValue(transactionalSend, 'Idempotency-Key'), '={{ $json.requestId }}');
+for (const confirmationName of [
+  'Send Recipe Double Opt-In Confirmation',
+  'Send Newsletter Double Opt-In Confirmation',
+]) {
+  const confirmationSend = resendNodes.find((node) => node.name === confirmationName);
+  assert.equal(headerValue(confirmationSend, 'Idempotency-Key'), "={{ $json.requestId + '-consent' }}");
+}
+
+for (const codeNode of workflow.nodes.filter((node) => node.type === 'n8n-nodes-base.code')) {
+  assert.doesNotThrow(() => new Function('$input', '$json', '$env', codeNode.parameters.jsCode), `${codeNode.name} compiles`);
+}
+assert.ok(workflow.nodes.every((node) => node.credentials === undefined), 'export contains no credential values');
 
 function render(recipe) {
   const run = new Function('$input', recipeNode.parameters.jsCode);
@@ -32,9 +141,19 @@ const custom = render({
   ],
 });
 assert.equal(custom.subject, 'Your Custom Freezer Batch recipe');
-assert.match(custom.html, /500 oz/);
+assert.match(custom.html, /500 ml/);
+assert.doesNotMatch(custom.html, /500 oz/);
 assert.match(custom.html, /20%/);
 assert.match(custom.text, /1.5 oz/);
+
+const formattedBottle = render({
+  mode: 'custom',
+  bottleMl: 500,
+  unit: 'oz',
+  display: { bottleSize: '16.9 fl oz' },
+});
+assert.match(formattedBottle.html, /16\.9 fl oz/);
+assert.doesNotMatch(formattedBottle.html, /500 ml/);
 
 const hostile = render({
   mode: 'preset', slug: 'negroni', bottleMl: 750, unit: 'ml',
@@ -49,4 +168,4 @@ assert.match(hostile.html, /1 &lt; 2/);
 assert.doesNotMatch(hostile.html, /<img src=x|<svg onload=/);
 assert.doesNotMatch(hostile.subject, /[\r\n]/);
 
-console.log('n8n v2 recipe-email static rendering: pass');
+console.log('n8n v2 graph and recipe-email static checks: pass');
