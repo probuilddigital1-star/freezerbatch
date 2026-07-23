@@ -21,7 +21,7 @@
 | 2 | 1 | A1 | `cf/a1-share-state` | `gpt-5.6-terra` / high | 2 | Merged | `cb72357` |
 | 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 2 | Merged | `c14c622` |
 | 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` → `gpt-5.6-sol` / high | 3 | Merged | `6d7b6c3` |
-| 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 0 | Pending | - |
+| 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 1 | Merged | `93daa21` |
 | 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 0 | Pending | - |
 | 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 0 | Pending | - |
 | 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 0 | Pending | - |
@@ -234,6 +234,61 @@ checks are recorded here before the next agent starts.
     attachment, staging, activation, and cutover remain Human Checklist work.
 - Merge: `6d7b6c39f864443c41cff620f65a8521fc7b75d8`
   (`[orchestrator] merge A5 CF-03D`).
+- Post-merge:
+  - `npm run test:unit`: passed, 80 tests.
+  - `npx astro check`: passed with 0 errors (6 existing hints).
+  - `npm run build`: passed, 30 pages.
+
+### A2 - Calculator DOM-injection removal
+
+- Branch base: `9cd7e2bcfedf051a283a28057f3c63cfd8d5a32c`.
+- Agent commit:
+  - `4643852` - `[A2/CF-03A] remove calculator DOM injection paths`
+- Gate attempt 1: **passed**.
+  - `tests/injection.spec.ts` passed independently in Chromium: 3 tests in
+    8.8 seconds against an isolated static server on port 4333.
+  - `npm run build`: passed with 0 errors and 30 generated pages.
+  - Diff/check ownership: clean and confined to
+    `src/components/Calculator.astro` plus the explicitly required
+    `tests/injection.spec.ts`.
+  - Sink grep found one remaining `innerHTML` assignment and no
+    `insertAdjacentHTML` or `outerHTML` assignments. Manual review confirmed
+    the retained assignment builds only the validated, repository-authored
+    preset shell; the composition is inserted separately with safe DOM APIs.
+  - Hostile custom names now reach only `.textContent` and the `.title`
+    property. The behavioral test verifies both supplied injection strings
+    remain inert visible text and create no `img` or event-handler execution.
+  - C2 UX/runtime review confirmed name/amount/ABV limits, a hard maximum of
+    eight rows, bounded bottle/dilution setters, and exactly one normalized
+    base spirit for non-empty valid custom input.
+  - `git diff --check critical-fixes...cf/a2-dom-safety`: passed.
+- Prompt ownership ruling:
+  - A2's prompt says to add `tests/injection.spec.ts` but separately names only
+    `Calculator.astro` as owned and requires an owned-files-only diff. Before
+    editing the test, the agent stopped and asked for a ruling. The
+    orchestrator authorized that exact required spec as the sole exception;
+    A8's `tests/**` work occurs in a later wave.
+- Playwright environment note:
+  - The repository-default command reused a pre-existing stale Vite server on
+    port 4321 and timed out with dependency-resolution/access errors unrelated
+    to the branch. A temporary managed-server attempt executed the assertions
+    but hung in teardown. The agent was interrupted after the timebox, resumed
+    to commit, and both agent and orchestrator obtained clean 3/3 runs against
+    the built site on isolated port 4333.
+- Sink report:
+  - Three clear-only `innerHTML` assignments were replaced by
+    `replaceChildren()`.
+  - The user-controlled composition renderer now returns a
+    `DocumentFragment` built with `createElement`, `.textContent`, `.title`,
+    `.style`, and `replaceChildren()`.
+  - The sole retained preset-shell `innerHTML` is at the agent's reported
+    current line 970; no user-controlled custom ingredient data enters it.
+  - Agent-reported changed ranges:
+    `Calculator.astro` 199-203, 345-371, 408-412, 713-903, 954-1085,
+    1207-1260, 1282-1370, and 1479-1488; `injection.spec.ts` 1-84.
+- Contract deviations: none.
+- Merge: `93daa21872f138d2453f6209c92d90bf864e260b`
+  (`[orchestrator] merge A2 CF-03A`).
 - Post-merge:
   - `npm run test:unit`: passed, 80 tests.
   - `npx astro check`: passed with 0 errors (6 existing hints).
