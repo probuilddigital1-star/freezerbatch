@@ -36,6 +36,13 @@ const recipeTiles = cocktailsData.cocktails
   data-simple={simple}
 >
   <div class="card">
+    <p
+      id="share-state-status"
+      class="hidden mb-4 rounded-lg border border-cognac-200 bg-cognac-100/40 px-3 py-2 text-sm text-cognac"
+      role="status"
+      aria-live="polite"
+    ></p>
+
     <!-- Entry Mode Toggle — preset is default (most users want a known recipe) -->
     <div class="mode-toggle-container relative bg-primary-100 rounded-2xl p-1.5 mb-6">
       <div class="mode-toggle-indicator absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-3px)] bg-white rounded-xl shadow-lg transition-all duration-300 ease-out"></div>
@@ -592,6 +599,12 @@ const recipeTiles = cocktailsData.cocktails
     type RecipeIngredient,
     type BatchResult
   } from '../lib/calculator';
+  import {
+    buildShareUrl,
+    parseLegacyShareState,
+    parseShareState,
+    type ShareStateV1
+  } from '../lib/shareState';
 
   class BatchCalculator extends HTMLElement {
     private unit: 'oz' | 'ml' = 'oz';
@@ -600,16 +613,44 @@ const recipeTiles = cocktailsData.cocktails
     private mode: 'custom' | 'preset' = 'preset';
     private currentPresetId: string | null = null;
     private dilutionPercent: number = 20;
+    private isHydrating = false;
 
     connectedCallback() {
       this.setupEventListeners();
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const batchValue = searchParams.get('batch');
+      const hasLegacyState = searchParams.has('recipe') || searchParams.has('ingredients');
+      const hasUrlState = batchValue !== null || hasLegacyState;
+      const parsedState = batchValue !== null
+        ? parseShareState(batchValue)
+        : hasLegacyState
+          ? parseLegacyShareState(searchParams)
+          : null;
+
+      // Keep the normal blank custom form ready when a preset is active. Custom
+      // hydration replaces these rows with the validated shared ingredients.
       this.addIngredientRow();
       this.addIngredientRow();
 
-      // Default to preset mode (visible state matches mode field)
+      if (parsedState?.ok) {
+        this.hydrateSharedState(parsedState.state);
+        this.showShareStateStatus('Shared recipe loaded');
+        return;
+      }
+
+      this.initializeDefaults();
+
+      if (hasUrlState) {
+        this.showShareStateStatus("Couldn't load the shared recipe — showing defaults", true);
+      }
+    }
+
+    private initializeDefaults() {
+      // Default to preset mode (visible state matches mode field).
       this.setMode(this.mode);
 
-      // Check if we have a pre-selected cocktail (from URL or data attribute)
+      // A recipe page supplies its normal preset through the data attribute.
       const presetSlug = this.dataset.cocktail;
       if (presetSlug && MILK_STREET_BATCHES[presetSlug]) {
         const select = this.querySelector('#recipe-select') as HTMLSelectElement;
@@ -618,6 +659,51 @@ const recipeTiles = cocktailsData.cocktails
       } else {
         this.recalculate();
       }
+    }
+
+    private hydrateSharedState(state: ShareStateV1) {
+      this.isHydrating = true;
+
+      if (state.mode === 'preset') {
+        this.setMode('preset');
+        this.setBottleSize(state.bottleMl);
+        this.setUnit(state.unit);
+
+        const select = this.querySelector('#recipe-select') as HTMLSelectElement | null;
+        if (select) select.value = state.recipe;
+        this.markActiveTile(state.recipe);
+
+        this.isHydrating = false;
+        this.loadPreset(state.recipe);
+        return;
+      }
+
+      this.setMode('custom');
+      const container = this.querySelector('#ingredients-container');
+      container?.replaceChildren();
+      state.ingredients.forEach((ingredient) => {
+        this.addIngredientRow({
+          name: ingredient.name,
+          amount: String(ingredient.amount),
+          abv: String(ingredient.abv)
+        });
+      });
+      this.setBottleSize(state.bottleMl);
+      this.setUnit(state.unit);
+      this.setDilution(state.dilutionPercent);
+
+      this.isHydrating = false;
+      this.recalculate();
+    }
+
+    private showShareStateStatus(message: string, isError = false) {
+      const status = this.querySelector('#share-state-status');
+      if (!status) return;
+
+      status.textContent = message;
+      status.classList.remove('hidden');
+      status.classList.toggle('border-danger/30', isError);
+      status.classList.toggle('text-danger', isError);
     }
 
     private setupEventListeners() {
@@ -775,7 +861,7 @@ const recipeTiles = cocktailsData.cocktails
         customForm?.classList.remove('hidden');
         dilutionSection?.classList.remove('hidden');
         this.currentPresetId = null;
-        this.recalculate();
+        if (!this.isHydrating) this.recalculate();
       }
     }
 
@@ -798,6 +884,7 @@ const recipeTiles = cocktailsData.cocktails
       if (input) input.value = String(sizeMl);
 
       // Refresh display
+      if (this.isHydrating) return;
       if (this.currentPresetId) {
         this.loadPreset(this.currentPresetId);
       } else {
@@ -823,6 +910,7 @@ const recipeTiles = cocktailsData.cocktails
       if (amountUnitLabel) amountUnitLabel.textContent = unit;
 
       // Refresh display
+      if (this.isHydrating) return;
       if (this.currentPresetId) {
         this.loadPreset(this.currentPresetId);
       } else {
@@ -843,6 +931,7 @@ const recipeTiles = cocktailsData.cocktails
       });
 
       // Refresh display based on mode
+      if (this.isHydrating) return;
       if (this.currentPresetId) {
         this.loadPreset(this.currentPresetId);
       } else {
@@ -1490,27 +1579,57 @@ const recipeTiles = cocktailsData.cocktails
     }
 
     private async shareRecipe() {
-      const url = new URL(window.location.href);
+      const state: ShareStateV1 = this.mode === 'preset' && this.currentPresetId
+        ? {
+            v: 1,
+            mode: 'preset',
+            recipe: this.currentPresetId,
+            bottleMl: this.bottleSizeMl,
+            unit: this.unit
+          }
+        : {
+            v: 1,
+            mode: 'custom',
+            bottleMl: this.bottleSizeMl,
+            unit: this.unit,
+            dilutionPercent: this.dilutionPercent,
+            ingredients: this.getRecipeIngredients().map((ingredient) => ({
+              name: ingredient.name,
+              amount: ingredient.amount,
+              abv: ingredient.abv,
+              isBaseSpirit: ingredient.isBaseSpirit
+            }))
+          };
+      const shareUrl = buildShareUrl(state, window.location.origin);
 
-      if (this.currentPresetId) {
-        url.searchParams.set('recipe', this.currentPresetId);
-      } else {
-        const ingredients = this.getRecipeIngredients();
-        url.searchParams.set('ingredients', JSON.stringify(ingredients));
+      if (!shareUrl.ok) {
+        if (shareUrl.reason === 'url_too_long') {
+          await this.copyRecipe();
+          this.showToast('Share link was too long, so the recipe was copied instead.', 'success');
+        } else {
+          this.showToast('Add a complete recipe before sharing.', 'error');
+        }
+        return;
       }
-      url.searchParams.set('bottle', String(this.bottleSizeMl));
+
+      const url = shareUrl.url.toString();
+      const title = state.mode === 'preset'
+        ? `${this.getRecipeName(state.recipe)} Freezer Batch`
+        : 'My Freezer Batch Recipe';
+      const text = 'Batch responsibly and keep frozen cocktails clearly labeled.';
 
       if (navigator.share) {
         try {
           await navigator.share({
-            title: 'My Freezer Batch Recipe',
-            url: url.toString()
+            title,
+            text,
+            url
           });
-        } catch (err) {
-          this.copyToClipboard(url.toString());
+        } catch {
+          this.copyToClipboard(url);
         }
       } else {
-        this.copyToClipboard(url.toString());
+        this.copyToClipboard(url);
       }
     }
 
