@@ -199,7 +199,7 @@ const recipeTiles = cocktailsData.cocktails
           <button
             type="button"
             id="add-ingredient"
-            class="inline-flex items-center gap-1 text-primary hover:text-primary-600 font-medium text-sm"
+            class="inline-flex items-center gap-1 text-primary hover:text-primary-600 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -347,6 +347,7 @@ const recipeTiles = cocktailsData.cocktails
         placeholder="Ingredient name"
         class="col-span-5 input-field py-2 text-sm border-0 bg-white/80"
         name="name"
+        maxlength="60"
         autocomplete="off"
         list="ingredient-suggestions"
       />
@@ -355,7 +356,8 @@ const recipeTiles = cocktailsData.cocktails
         placeholder="2"
         class="col-span-3 input-field py-2 text-sm text-center border-0 bg-white/80"
         name="amount"
-        min="0"
+        min="0.01"
+        max="100"
         step="0.25"
         inputmode="decimal"
       />
@@ -406,8 +408,8 @@ const recipeTiles = cocktailsData.cocktails
 </datalist>
 
 <style is:global>
-  /* Batch step styles — global because the markup is injected via innerHTML,
-     so Astro's scoped class hashes would not match. The Study treatment:
+  /* Batch step styles — global because the trusted preset template is injected
+     via innerHTML, so Astro's scoped class hashes would not match. The Study treatment:
      italic Cormorant step numerals on dark, brass accents. */
   .batch-step {
     display: flex;
@@ -715,6 +717,7 @@ const recipeTiles = cocktailsData.cocktails
         if (removeBtn) {
           const row = removeBtn.closest('.ingredient-row');
           row?.remove();
+          this.updateAddIngredientState();
           this.recalculate();
         }
       });
@@ -777,6 +780,9 @@ const recipeTiles = cocktailsData.cocktails
     }
 
     private setBottleSize(sizeMl: number) {
+      // C2 guard: input attributes are UX hints, so reject invalid values again
+      // before they can reach calculations or trusted preset-template rendering.
+      if (!Number.isInteger(sizeMl) || sizeMl < 100 || sizeMl > 3000) return;
       this.bottleSizeMl = sizeMl;
 
       // Update button states + aria-checked for screen readers
@@ -825,6 +831,7 @@ const recipeTiles = cocktailsData.cocktails
     }
 
     private setDilution(percent: number) {
+      if (!Number.isFinite(percent) || percent < 0 || percent > 35) return;
       this.dilutionPercent = percent;
 
       // Update button states + aria-checked for screen readers
@@ -848,6 +855,11 @@ const recipeTiles = cocktailsData.cocktails
       const container = this.querySelector('#ingredients-container');
 
       if (template && container) {
+        if (container.querySelectorAll('.ingredient-row').length >= 8) {
+          this.updateAddIngredientState();
+          return;
+        }
+
         const clone = template.content.cloneNode(true) as DocumentFragment;
         if (values) {
           const row = clone.querySelector('.ingredient-row');
@@ -858,13 +870,24 @@ const recipeTiles = cocktailsData.cocktails
           }
         }
         container.appendChild(clone);
+        this.updateAddIngredientState();
       }
+    }
+
+    private updateAddIngredientState() {
+      const addButton = this.querySelector('#add-ingredient') as HTMLButtonElement | null;
+      if (!addButton) return;
+
+      const atLimit = this.querySelectorAll('#ingredients-container .ingredient-row').length >= 8;
+      addButton.disabled = atLimit;
+      addButton.setAttribute('aria-disabled', String(atLimit));
+      addButton.title = atLimit ? 'Maximum of 8 ingredients' : '';
     }
 
     private loadSampleRecipe() {
       const container = this.querySelector('#ingredients-container');
       if (!container) return;
-      container.innerHTML = '';
+      container.replaceChildren();
       // Classic 1:1:1 Negroni — a forgiving 28% ABV batch
       this.addIngredientRow({ name: 'Gin', amount: '1', abv: '40' });
       this.addIngredientRow({ name: 'Campari', amount: '1', abv: '25' });
@@ -876,7 +899,7 @@ const recipeTiles = cocktailsData.cocktails
       this.currentPresetId = null;
       const presetInstructions = this.querySelector('#preset-batch-instructions');
       presetInstructions?.classList.add('hidden');
-      if (presetInstructions) presetInstructions.innerHTML = '';
+      if (presetInstructions) presetInstructions.replaceChildren();
       this.markActiveTile(null);
     }
 
@@ -939,8 +962,6 @@ const recipeTiles = cocktailsData.cocktails
         ...result.ingredientsToAdd.map(i => ({ name: i.name, ml: i.amountMl, abv: i.abv })),
         ...(result.waterToAddMl > 0 ? [{ name: 'Water', ml: result.waterToAddMl, abv: 0 }] : []),
       ];
-      const compositionHtml = this.renderCompositionBar(compositionParts);
-
       // Freeze status styling
       const statusClass = result.freezeStatus === 'safe' ? 'status-safe' : result.freezeStatus === 'slushy' ? 'status-slushy' : 'status-freeze';
       const statusIcon = result.freezeStatus === 'safe' ? '✓' : result.freezeStatus === 'slushy' ? '⚠' : '✗';
@@ -1007,9 +1028,7 @@ const recipeTiles = cocktailsData.cocktails
           </div>
 
           <!-- Composition bar -->
-          <div class="mt-6 pt-4 border-t border-study-border">
-            ${compositionHtml}
-          </div>
+          <div class="preset-composition mt-6 pt-4 border-t border-study-border"></div>
 
           <!-- Actions -->
           <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-study-border">
@@ -1058,6 +1077,11 @@ const recipeTiles = cocktailsData.cocktails
           </form>
         </div>
       `;
+
+      // The preset shell above contains only trusted, authored recipe data. Build the
+      // composition separately with DOM APIs so this renderer is also safe for custom data.
+      const presetComposition = presetInstructions.querySelector('.preset-composition');
+      presetComposition?.replaceChildren(this.renderCompositionBar(compositionParts));
 
       // Add event listeners for the new buttons
       presetInstructions.querySelector('.preset-copy-btn')?.addEventListener('click', () => {
@@ -1183,7 +1207,7 @@ const recipeTiles = cocktailsData.cocktails
     }
 
     private getRecipeIngredients(): RecipeIngredient[] {
-      const rows = this.querySelectorAll('.ingredient-row');
+      const rows = Array.from(this.querySelectorAll('.ingredient-row')).slice(0, 8);
       const ingredients: RecipeIngredient[] = [];
       let foundBaseSpirit = false;
 
@@ -1192,11 +1216,26 @@ const recipeTiles = cocktailsData.cocktails
         const amountInput = row.querySelector('[name="amount"]') as HTMLInputElement;
         const abvInput = row.querySelector('[name="abv"]') as HTMLInputElement;
 
-        const name = nameInput?.value.trim() || 'Ingredient';
-        const amount = parseFloat(amountInput?.value || '0') || 0;
-        const abv = parseFloat(abvInput?.value || '0') || 0;
+        const name = nameInput?.value.trim() || '';
+        const amountValue = amountInput?.value.trim() || '';
+        const abvValue = abvInput?.value.trim() || '';
+        const amount = Number(amountValue);
+        const abv = Number(abvValue);
+        const nameLength = Array.from(name).length;
 
-        if (amount > 0) {
+        // C2 guard: reject invalid rows instead of trusting maxlength/min/max.
+        if (
+          nameLength >= 1 &&
+          nameLength <= 60 &&
+          amountValue !== '' &&
+          Number.isFinite(amount) &&
+          amount > 0 &&
+          amount <= 100 &&
+          abvValue !== '' &&
+          Number.isFinite(abv) &&
+          abv >= 0 &&
+          abv <= 100
+        ) {
           // First ingredient with ABV >= 20% is base spirit
           const isBase = !foundBaseSpirit && abv >= 20;
           if (isBase) foundBaseSpirit = true;
@@ -1205,7 +1244,7 @@ const recipeTiles = cocktailsData.cocktails
             name,
             amount,
             unit: this.unit,
-            abv: Math.max(0, Math.min(100, abv)),
+            abv,
             isBaseSpirit: isBase
           });
         }
@@ -1246,7 +1285,7 @@ const recipeTiles = cocktailsData.cocktails
         if (el) el.textContent = '0';
       });
       const output = this.querySelector('#ingredients-output');
-      if (output) output.innerHTML = '';
+      if (output) output.replaceChildren();
 
       // Hide the live result bar + composition bar when there's nothing to show
       this.querySelector('#custom-live-bar')?.classList.add('hidden');
@@ -1266,12 +1305,14 @@ const recipeTiles = cocktailsData.cocktails
 
     /**
      * Build the visual composition bar — a horizontal stacked bar showing
-     * each component's share of the bottle, plus a legend.
-     * Pure function: returns HTML string. Used by both preset + custom paths.
+     * each component's share of the bottle, plus a legend. All names are
+     * assigned through textContent/title properties because custom names are
+     * user-controlled.
      */
-    private renderCompositionBar(parts: Array<{name: string; ml: number; abv: number}>): string {
+    private renderCompositionBar(parts: Array<{name: string; ml: number; abv: number}>): DocumentFragment {
+      const fragment = document.createDocumentFragment();
       const total = parts.reduce((s, p) => s + p.ml, 0);
-      if (total <= 0) return '';
+      if (!Number.isFinite(total) || total <= 0) return fragment;
 
       // Color by ABV bucket — gives a consistent visual code for "what is this"
       const colorFor = (p: {name: string; abv: number}): string => {
@@ -1283,38 +1324,49 @@ const recipeTiles = cocktailsData.cocktails
         return '#d9a820';                           // amber — vermouth/low-alc
       };
 
-      const segments = parts
-        .filter(p => p.ml > 0)
-        .map(p => {
-          const pct = (p.ml / total) * 100;
-          const color = colorFor(p);
-          // Tiny segments get min-width so they're still visible
-          const widthCss = `flex: 0 0 ${Math.max(pct, 2)}%; background: ${color};`;
-          return `<div class="composition-seg" style="${widthCss}" title="${p.name}: ${Math.round(pct)}%"></div>`;
-        })
-        .join('');
+      const heading = document.createElement('p');
+      heading.className = 'text-xs uppercase tracking-wider text-cognac-400 mb-2';
+      heading.textContent = "What's in the bottle";
 
-      const legend = parts
-        .filter(p => p.ml > 0)
-        .map(p => {
-          const pct = Math.round((p.ml / total) * 100);
-          const color = colorFor(p);
-          return `
-            <span class="inline-flex items-center gap-1.5 text-xs text-cognac">
-              <span class="w-2.5 h-2.5 rounded-sm" style="background:${color}"></span>
-              <span class="font-medium">${p.name}</span>
-              <span class="text-cognac-400">${pct}%</span>
-            </span>`;
-        })
-        .join('');
+      const track = document.createElement('div');
+      track.className = 'composition-bar-track flex h-3 rounded-full overflow-hidden border border-cognac-200 bg-white';
 
-      return `
-        <p class="text-xs uppercase tracking-wider text-cognac-400 mb-2">What's in the bottle</p>
-        <div class="composition-bar-track flex h-3 rounded-full overflow-hidden border border-cognac-200 bg-white">
-          ${segments}
-        </div>
-        <div class="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">${legend}</div>
-      `;
+      const legend = document.createElement('div');
+      legend.className = 'flex flex-wrap gap-x-4 gap-y-1.5 mt-3';
+
+      parts.filter(p => Number.isFinite(p.ml) && p.ml > 0).forEach(p => {
+        const pct = (p.ml / total) * 100;
+        const color = colorFor(p);
+
+        const segment = document.createElement('div');
+        segment.className = 'composition-seg';
+        // Tiny segments get min-width so they're still visible.
+        segment.style.flex = `0 0 ${Math.max(pct, 2)}%`;
+        segment.style.backgroundColor = color;
+        segment.title = `${p.name}: ${Math.round(pct)}%`;
+        track.appendChild(segment);
+
+        const legendItem = document.createElement('span');
+        legendItem.className = 'inline-flex items-center gap-1.5 text-xs text-cognac';
+
+        const swatch = document.createElement('span');
+        swatch.className = 'w-2.5 h-2.5 rounded-sm';
+        swatch.style.backgroundColor = color;
+
+        const name = document.createElement('span');
+        name.className = 'font-medium';
+        name.textContent = p.name;
+
+        const percentage = document.createElement('span');
+        percentage.className = 'text-cognac-400';
+        percentage.textContent = `${Math.round(pct)}%`;
+
+        legendItem.append(swatch, name, percentage);
+        legend.appendChild(legendItem);
+      });
+
+      fragment.append(heading, track, legend);
+      return fragment;
     }
 
     private updateLiveBar(result: BatchResult) {
@@ -1432,7 +1484,7 @@ const recipeTiles = cocktailsData.cocktails
           ...result.ingredientsToAdd.map(i => ({ name: i.name, ml: i.amountMl, abv: i.abv })),
           ...(result.waterToAddMl > 0 ? [{ name: 'Water', ml: result.waterToAddMl, abv: 0 }] : []),
         ];
-        compEl.innerHTML = this.renderCompositionBar(parts);
+        compEl.replaceChildren(this.renderCompositionBar(parts));
         compEl.classList.remove('hidden');
       }
     }
