@@ -20,7 +20,7 @@
 | 1 | 1 | A4 | `cf/a4-url-cleanup` | `gpt-5.6-terra` / medium | 2 | Merged | `5ba7969` |
 | 2 | 1 | A1 | `cf/a1-share-state` | `gpt-5.6-terra` / high | 2 | Merged | `cb72357` |
 | 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 2 | Merged | `c14c622` |
-| 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` / high | 0 | Pending | - |
+| 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` → `gpt-5.6-sol` / high | 3 | Merged | `6d7b6c3` |
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 0 | Pending | - |
 | 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 0 | Pending | - |
 | 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 0 | Pending | - |
@@ -159,6 +159,81 @@ checks are recorded here before the next agent starts.
   - HTTP 429 remains the access-gated Cloudflare WAF responsibility.
 - Merge: `c14c6229070c8873cc372076d109e4c7c87352c7`
   (`[orchestrator] merge A3 CF-03B`).
+- Post-merge:
+  - `npm run test:unit`: passed, 80 tests.
+  - `npx astro check`: passed with 0 errors (6 existing hints).
+  - `npm run build`: passed, 30 pages.
+
+### A5 - n8n workflow v2
+
+- Branch base: `c75473b32fc77f0ddd7097aecc2f7bc0e9fd49d9`.
+- Agent commits:
+  - `4f5349d` - `[A5/CF-03D] add n8n workflow v2`
+  - `3659e2a` - `[A5/CF-03D] isolate n8n action branches`
+  - `fa3fdf7` - `[A5/CF-03D] render normalized recipe email payload`
+  - `0bb0fa7` - revert of the first normalized-renderer attempt
+  - `ef9aea5` - `[A5/CF-03D] render normalized recipe email payload`
+  - `c1acca9` - `[A5/CF-03D] correct v2 recipe fallback and graph`
+- Gate attempt 1: **failed** integration-contract review.
+  - The structural acceptance checks passed, but the connected recipe renderer
+    consumed the legacy flat `recipe.name` shape rather than A3's normalized
+    C3 `RecipeEmailPayload` union.
+- Gate attempt 2: **failed** representative-payload review.
+  - The A3-aware renderer and static test were present, but the core custom
+    fallback rendered `bottleMl: 500` as `500 oz`; `bottleMl` is always
+    millilitres under C1/C3.
+  - An obsolete flat-payload renderer also remained as a dead, unconnected
+    node.
+- Escalation: after two failed gates, A5 was relaunched one model tier up from
+  `gpt-5.6-terra` to `gpt-5.6-sol`, high effort, with both failures.
+  The escalated task committed the correction at `c1acca9` but stalled while
+  returning its report; the orchestrator interrupted the stalled session and
+  independently gated the committed result.
+- Gate attempt 3: **passed**.
+  - JSON parses as an importable 25-node workflow.
+  - Graph verification found exactly one three-case action Switch plus
+    fallback, unique node names/IDs, no dangling or unreachable nodes, and
+    isolated terminal response paths.
+  - Unsubscribe and invalid-action paths reach no email node. Recipe delivery
+    without consent reaches no CRM or confirmation node.
+  - All three Resend calls carry deterministic idempotency headers: the
+    transactional send uses the exact request ID required by C5, while the
+    distinct confirmation send uses the deterministic
+    `<requestId>-consent` derivative.
+  - `node n8n/FreezerBatchCocktails-v2.static-test.mjs`: passed, including
+    preset, custom, formatted-display, hostile-string, branch-isolation, and
+    idempotency checks.
+  - Credential review found no credential bindings or values, no suspect token
+    literals, and only named environment references.
+  - First-party host scan: no `www` references.
+  - `git diff --check critical-fixes...cf/a5-n8n-v2`: passed.
+  - UTF-8 review of `MIGRATION.md`: no replacement or mojibake characters.
+- Ownership review:
+  - The diff is confined to `n8n/**`, A5's exclusive wave ownership.
+  - It includes `n8n/FreezerBatchCocktails-v2.static-test.mjs` in addition to
+    the two files named by the narrower agent prompt. The orchestrator accepted
+    this documented deviation because the wave table grants A5 `n8n/**` and
+    the global rules require an automated test for changed behavior.
+- Switch report:
+  - `send_recipe`: one transactional recipe message; consent false terminates
+    without CRM or confirmation work; consent true records pending consent and
+    sends a separate confirmation.
+  - `subscribe`: records pending consent and sends confirmation.
+  - `unsubscribe`: upserts unsubscribed status and returns without email.
+  - default: deterministic invalid-action response with no side effects.
+- Template review:
+  - Recipe/display name, ingredient names and amounts, ABV, servings, bottle
+    size, dilution, pour-off, and water-to-add values are escaped before HTML
+    interpolation. Text/subject values strip CR/LF.
+  - All links use the apex host; sender/reply-to, 22% threshold copy, and
+    nuanced citrus guidance match the prompt.
+- Carry-over limitation / production dependency:
+  - The repository workflow can record `pending` consent and send a
+    confirmation message, but promotion to `subscribed` depends on the
+    access-gated subscriber/CRM double-opt-in mechanism. Import, credential
+    attachment, staging, activation, and cutover remain Human Checklist work.
+- Merge: `6d7b6c39f864443c41cff620f65a8521fc7b75d8`
+  (`[orchestrator] merge A5 CF-03D`).
 - Post-merge:
   - `npm run test:unit`: passed, 80 tests.
   - `npx astro check`: passed with 0 errors (6 existing hints).
