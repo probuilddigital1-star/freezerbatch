@@ -187,7 +187,7 @@
         "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'pending', consentSource: data.action === 'send_recipe' ? 'recipe-email-consent' : 'newsletter' } }];"
       },
       "id": "fbc-v2-prepare-consent",
-      "name": "Prepare Pending Marketing Consent",
+      "name": "Prepare Newsletter Marketing Consent",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1510, 60]
@@ -225,17 +225,118 @@
         "options": {}
       },
       "id": "fbc-v2-upsert-consent",
-      "name": "Upsert Pending Marketing Consent",
+      "name": "Upsert Newsletter Pending Consent",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [1770, 60]
     },
     {
       "parameters": {
+        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'pending', consentSource: 'recipe-email-consent' } }];"
+      },
+      "id": "fbc-v2-prepare-recipe-consent",
+      "name": "Prepare Recipe Marketing Consent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1770, 400]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "value": "={{ $env.FBC_CRM_SHEET_ID }}", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Subscribers", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Status": "pending",
+            "Source": "={{ $json.consentSource }}",
+            "Consent Version": "={{ $json.consentVersion }}",
+            "Consent Timestamp": "={{ $json.receivedAt }}",
+            "Page": "={{ $json.page }}"
+          },
+          "matchingColumns": ["Email"],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "fbc-v2-upsert-recipe-consent",
+      "name": "Upsert Recipe Pending Consent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2010, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const request = $('Prepare Recipe Marketing Consent').item.json;\nreturn [{ json: request }];"
+      },
+      "id": "fbc-v2-restore-recipe-consent",
+      "name": "Restore Recipe Consent Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2250, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Confirm your subscription</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Thanks for opting in while requesting a recipe. Your marketing status is pending until double-opt-in confirmation is completed in the configured subscriber system.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nThanks for opting in while requesting a recipe. Your marketing status is pending until double-opt-in confirmation is completed in the configured subscriber system.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Confirm your Freezer Batch Cocktails subscription' } }];"
+      },
+      "id": "fbc-v2-build-recipe-confirmation",
+      "name": "Build Recipe Double Opt-In Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2490, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.RESEND_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Idempotency-Key", "value": "={{ $json.requestId + '-consent' }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+        "options": {}
+      },
+      "id": "fbc-v2-send-recipe-confirmation",
+      "name": "Send Recipe Double Opt-In Confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2730, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}",
+        "options": { "responseCode": 202 }
+      },
+      "id": "fbc-v2-respond-recipe-consent",
+      "name": "Respond Recipe Consent Recorded",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2970, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const request = $('Prepare Newsletter Marketing Consent').item.json;\nreturn [{ json: request }];"
+      },
+      "id": "fbc-v2-restore-newsletter-consent",
+      "name": "Restore Newsletter Consent Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1890, 60]
+    },
+    {
+      "parameters": {
         "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Confirm your subscription</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Thanks for opting in. Your marketing status is pending until the double-opt-in confirmation is completed in the configured subscriber system.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nThanks for opting in. Your marketing status is pending until the double-opt-in confirmation is completed in the configured subscriber system.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Confirm your Freezer Batch Cocktails subscription' } }];"
       },
       "id": "fbc-v2-build-confirmation",
-      "name": "Build Double Opt-In Confirmation",
+      "name": "Build Newsletter Double Opt-In Confirmation",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [2010, 160]
@@ -258,7 +359,7 @@
         "options": {}
       },
       "id": "fbc-v2-send-confirmation",
-      "name": "Send Double Opt-In Confirmation",
+      "name": "Send Newsletter Double Opt-In Confirmation",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [2250, 160]
@@ -270,7 +371,7 @@
         "options": { "responseCode": 202 }
       },
       "id": "fbc-v2-respond-consent",
-      "name": "Respond Consent Recorded",
+      "name": "Respond Newsletter Consent Recorded",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [2490, 160]
@@ -330,15 +431,21 @@
     "Webhook Trigger": { "main": [[{ "node": "Authorize and Normalize Request", "type": "main", "index": 0 }]] },
     "Authorize and Normalize Request": { "main": [[{ "node": "Webhook Secret Valid", "type": "main", "index": 0 }]] },
     "Webhook Secret Valid": { "main": [[{ "node": "Route by action", "type": "main", "index": 0 }], [{ "node": "Respond Unauthorized", "type": "main", "index": 0 }]] },
-    "Route by action": { "main": [[{ "node": "Build Transactional Recipe Email", "type": "main", "index": 0 }], [{ "node": "Prepare Pending Marketing Consent", "type": "main", "index": 0 }], [{ "node": "Record Unsubscribe", "type": "main", "index": 0 }], [{ "node": "Respond Invalid Action", "type": "main", "index": 0 }]] },
+    "Route by action": { "main": [[{ "node": "Build Transactional Recipe Email", "type": "main", "index": 0 }], [{ "node": "Prepare Newsletter Marketing Consent", "type": "main", "index": 0 }], [{ "node": "Record Unsubscribe", "type": "main", "index": 0 }], [{ "node": "Respond Invalid Action", "type": "main", "index": 0 }]] },
     "Build Transactional Recipe Email": { "main": [[{ "node": "Send Transactional Recipe Email", "type": "main", "index": 0 }]] },
     "Send Transactional Recipe Email": { "main": [[{ "node": "Restore Recipe Request", "type": "main", "index": 0 }]] },
     "Restore Recipe Request": { "main": [[{ "node": "Recipe Includes Marketing Consent", "type": "main", "index": 0 }]] },
-    "Recipe Includes Marketing Consent": { "main": [[{ "node": "Prepare Pending Marketing Consent", "type": "main", "index": 0 }], [{ "node": "Respond Recipe Sent", "type": "main", "index": 0 }]] },
-    "Prepare Pending Marketing Consent": { "main": [[{ "node": "Upsert Pending Marketing Consent", "type": "main", "index": 0 }]] },
-    "Upsert Pending Marketing Consent": { "main": [[{ "node": "Build Double Opt-In Confirmation", "type": "main", "index": 0 }]] },
-    "Build Double Opt-In Confirmation": { "main": [[{ "node": "Send Double Opt-In Confirmation", "type": "main", "index": 0 }]] },
-    "Send Double Opt-In Confirmation": { "main": [[{ "node": "Respond Consent Recorded", "type": "main", "index": 0 }]] },
+    "Recipe Includes Marketing Consent": { "main": [[{ "node": "Prepare Recipe Marketing Consent", "type": "main", "index": 0 }], [{ "node": "Respond Recipe Sent", "type": "main", "index": 0 }]] },
+    "Prepare Newsletter Marketing Consent": { "main": [[{ "node": "Upsert Newsletter Pending Consent", "type": "main", "index": 0 }]] },
+    "Upsert Newsletter Pending Consent": { "main": [[{ "node": "Restore Newsletter Consent Request", "type": "main", "index": 0 }]] },
+    "Restore Newsletter Consent Request": { "main": [[{ "node": "Build Newsletter Double Opt-In Confirmation", "type": "main", "index": 0 }]] },
+    "Build Newsletter Double Opt-In Confirmation": { "main": [[{ "node": "Send Newsletter Double Opt-In Confirmation", "type": "main", "index": 0 }]] },
+    "Send Newsletter Double Opt-In Confirmation": { "main": [[{ "node": "Respond Newsletter Consent Recorded", "type": "main", "index": 0 }]] },
+    "Prepare Recipe Marketing Consent": { "main": [[{ "node": "Upsert Recipe Pending Consent", "type": "main", "index": 0 }]] },
+    "Upsert Recipe Pending Consent": { "main": [[{ "node": "Restore Recipe Consent Request", "type": "main", "index": 0 }]] },
+    "Restore Recipe Consent Request": { "main": [[{ "node": "Build Recipe Double Opt-In Confirmation", "type": "main", "index": 0 }]] },
+    "Build Recipe Double Opt-In Confirmation": { "main": [[{ "node": "Send Recipe Double Opt-In Confirmation", "type": "main", "index": 0 }]] },
+    "Send Recipe Double Opt-In Confirmation": { "main": [[{ "node": "Respond Recipe Consent Recorded", "type": "main", "index": 0 }]] },
     "Record Unsubscribe": { "main": [[{ "node": "Respond Unsubscribed", "type": "main", "index": 0 }]] }
   },
   "active": false,
