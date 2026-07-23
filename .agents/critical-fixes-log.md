@@ -19,7 +19,7 @@
 |---:|---:|---|---|---|---:|---|---|
 | 1 | 1 | A4 | `cf/a4-url-cleanup` | `gpt-5.6-terra` / medium | 2 | Merged | `5ba7969` |
 | 2 | 1 | A1 | `cf/a1-share-state` | `gpt-5.6-terra` / high | 2 | Merged | `cb72357` |
-| 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 0 | Pending | - |
+| 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 2 | Merged | `c14c622` |
 | 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` / high | 0 | Pending | - |
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 0 | Pending | - |
 | 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 0 | Pending | - |
@@ -112,3 +112,54 @@ checks are recorded here before the next agent starts.
   - `npm run test:unit`: passed, 15 tests.
   - `npx astro check`: passed with 0 errors (6 existing hints).
   - `npm run build`: passed.
+
+### A3 - Pages Function email boundary
+
+- Branch base: `aee708226298e29ec67ff7a87a0af9ce6a003fe5`.
+- Agent commits:
+  - `1d57e2b` - `[A3/CF-03B] WIP checkpoint before shutdown`
+  - `cc9d7ad` - `[A3/CF-03B] complete email boundary tests`
+  - `809f976` - `[A3/CF-03B] reject deeply encoded path traversal`
+- Continuity note: A3 was interrupted for an imminent laptop shutdown. The
+  orchestrator checkpointed only A3-owned files at `1d57e2b`; the same A3 task
+  later resumed from that commit and completed the package.
+- Gate attempt 1: **failed** adversarial contract review.
+  - Formal checks passed: 60 Functions tests, Astro 0 errors, 30-page build,
+    exact ownership, clean diff, exact `/api/*` routes, and no real secret
+    literals.
+  - Direct reproduction showed that four- and five-layer percent-encoded `..`
+    page segments passed `normalizePage()` because decoding stopped after three
+    rounds.
+- Gate attempt 2: **passed**.
+  - Diff ownership: only `functions/**` and `public/_routes.json`.
+  - `npx vitest run functions`: 65 tests passed across payload, handler, and
+    Turnstile suites.
+  - `npx astro check`: passed with 0 errors.
+  - `npm run build`: passed, 30 pages.
+  - Direct adversarial reproduction confirmed three-, four-, five-, and
+    deeper-layer traversal inputs fail closed after the bounded decode-until-
+    stable fix.
+  - `public/_routes.json` exactly includes only `/api/*`.
+  - Secret-literal sweep: clean; only named bindings and the official
+    Cloudflare Siteverify URL are present.
+  - Cloudflare Pages Functions documentation was checked to confirm
+    verb-specific `onRequestPost` takes precedence over generic `onRequest`,
+    leaving the generic handler as the non-POST 405 fallback.
+- Required environment bindings: `TURNSTILE_SECRET_KEY`,
+  `N8N_WEBHOOK_URL`, and `N8N_WEBHOOK_SECRET`.
+- Preset allow-list: 18 slugs duplicated from `MILK_STREET_BATCHES` with a
+  deployment-boundary comment because Pages Functions cannot import `src/` at
+  runtime.
+- C3/C4 resolutions:
+  - Unknown actions reject; unknown fields strip before forwarding.
+  - Preset/custom recipe payloads are an explicit union; bounded `display`
+    strings remain untrusted presentation data.
+  - Upstream non-2xx maps to 502. A5 must make missing-address unsubscribe a
+    successful upstream response to preserve enumeration resistance.
+  - HTTP 429 remains the access-gated Cloudflare WAF responsibility.
+- Merge: `c14c6229070c8873cc372076d109e4c7c87352c7`
+  (`[orchestrator] merge A3 CF-03B`).
+- Post-merge:
+  - `npm run test:unit`: passed, 80 tests.
+  - `npx astro check`: passed with 0 errors (6 existing hints).
+  - `npm run build`: passed, 30 pages.
