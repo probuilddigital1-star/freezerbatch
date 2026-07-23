@@ -1,8 +1,8 @@
 # Cloudflare Pages Redirects
 # https://developers.cloudflare.com/pages/platform/redirects/
 
-# Redirect www to non-www (if needed)
-# https://www.freezerbatchcocktails.com/* https://freezerbatchcocktails.com/:splat 301
+# Host consolidation is a Cloudflare zone-level redirect; Pages _redirects cannot redirect
+# domains. See Human Checklist Phase 1, item 2.
 
 # Common typos or legacy URLs
 /recipe/* /cocktails/:splat 301
