@@ -52,6 +52,16 @@ describe('share-state serialization and parsing', () => {
     expect(parseShareState(value).ok).toBe(false);
   });
 
+  it('rejects a V1 transport whose JSON omits the required state version', () => {
+    const withoutVersion = btoa(JSON.stringify({
+      mode: 'preset',
+      recipe: 'negroni',
+      bottleMl: 750,
+      unit: 'oz',
+    }));
+    expect(parseShareState(`v1.${withoutVersion}`).ok).toBe(false);
+  });
+
   it('rejects unknown presets and invalid bottle boundaries', () => {
     expect(normalizeShareState({ ...preset, recipe: 'not-a-cocktail' }).ok).toBe(false);
     for (const bottleMl of [99, 100, 3_000, 3_001]) {
@@ -142,5 +152,41 @@ describe('legacy share-state parsing', () => {
     expect(parseLegacyShareState(new URLSearchParams('recipe=negroni&bottle=5000')).ok).toBe(false);
     expect(parseLegacyShareState(new URLSearchParams(`bottle=750&ingredients=${'x'.repeat(1_801)}`)).ok).toBe(false);
     expect(parseLegacyShareState(new URLSearchParams('bottle=750&ingredients=[]')).ok).toBe(false);
+  });
+
+  it('fails closed on invalid, mixed, or conflicting legacy units', () => {
+    const ingredientsWithUnits = (units: unknown[]) => JSON.stringify(units.map((unit, index) => ({
+      name: index === 0 ? 'Gin' : 'Vermouth',
+      amount: index === 0 ? 2 : 1,
+      abv: index === 0 ? 40 : 16,
+      isBaseSpirit: index === 0,
+      unit,
+    })));
+
+    expect(parseLegacyShareState(new URLSearchParams({
+      bottle: '750',
+      ingredients: ingredientsWithUnits(['evil', 'evil']),
+    })).ok).toBe(false);
+    expect(parseLegacyShareState(new URLSearchParams({
+      bottle: '750',
+      unit: 'evil',
+      ingredients: ingredientsWithUnits(['oz', 'oz']),
+    })).ok).toBe(false);
+    expect(parseLegacyShareState(new URLSearchParams({
+      bottle: '750',
+      ingredients: ingredientsWithUnits(['oz', 'ml']),
+    })).ok).toBe(false);
+    expect(parseLegacyShareState(new URLSearchParams({
+      bottle: '750',
+      ingredients: JSON.stringify([
+        { name: 'Gin', amount: 2, abv: 40, isBaseSpirit: true, unit: 'oz' },
+        { name: 'Vermouth', amount: 1, abv: 16, isBaseSpirit: false },
+      ]),
+    })).ok).toBe(false);
+    expect(parseLegacyShareState(new URLSearchParams({
+      bottle: '750',
+      unit: 'ml',
+      ingredients: ingredientsWithUnits(['oz', 'oz']),
+    })).ok).toBe(false);
   });
 });

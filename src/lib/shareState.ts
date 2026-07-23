@@ -224,14 +224,25 @@ function parseLegacyNumber(value: string | null): number | null {
 
 function resolveLegacyUnit(searchParams: URLSearchParams, ingredients: unknown[]): ShareUnit | null {
   const paramUnit = searchParams.get('unit');
-  if (paramUnit !== null) return isShareUnit(paramUnit) ? paramUnit : null;
+  if (paramUnit !== null && !isShareUnit(paramUnit)) return null;
 
-  const units = ingredients
-    .filter(isRecord)
-    .map((ingredient) => ingredient.unit)
-    .filter((unit): unit is ShareUnit => isShareUnit(unit));
+  const embeddedUnits = ingredients.map((ingredient) => {
+    if (!isRecord(ingredient) || !Object.prototype.hasOwnProperty.call(ingredient, 'unit')) {
+      return undefined;
+    }
+    return ingredient.unit;
+  });
+  const hasEmbeddedUnit = embeddedUnits.some((unit) => unit !== undefined);
 
-  return units.length === ingredients.length && new Set(units).size === 1 ? units[0] : 'oz';
+  // Older links did not always include a unit. Default only when none of their
+  // ingredients provides one; partial, invalid, or mixed embedded units could
+  // otherwise silently change the recipe's meaning.
+  if (!hasEmbeddedUnit) return paramUnit ?? 'oz';
+  if (embeddedUnits.some((unit) => !isShareUnit(unit))) return null;
+
+  const units = embeddedUnits as ShareUnit[];
+  if (new Set(units).size !== 1) return null;
+  return paramUnit === null || paramUnit === units[0] ? units[0] : null;
 }
 
 /**
