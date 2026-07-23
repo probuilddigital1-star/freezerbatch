@@ -17,7 +17,7 @@
 
 | Order | Wave | Agent | Branch | Model / effort | Gate attempts | Status | Merge SHA |
 |---:|---:|---|---|---|---:|---|---|
-| 1 | 1 | A4 | `cf/a4-url-cleanup` | `gpt-5.6-luna` / medium | 0 | Pending | - |
+| 1 | 1 | A4 | `cf/a4-url-cleanup` | `gpt-5.6-terra` / medium | 0 | Launching | - |
 | 2 | 1 | A1 | `cf/a1-share-state` | `gpt-5.6-terra` / high | 0 | Pending | - |
 | 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 0 | Pending | - |
 | 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` / high | 0 | Pending | - |
@@ -38,3 +38,6 @@ checks are recorded here before the next agent starts.
 - Per the requested fallback, worker execution moved to manual fresh Codex
   sessions, one agent at a time. The orchestrator will gate each returned
   branch before handing off the next agent.
+- The human subsequently authorized A4 to use `gpt-5.6-terra` at medium effort
+  instead of its unavailable assigned `gpt-5.6-luna` model. Automated
+  sequential execution resumed with this documented model-only deviation.
