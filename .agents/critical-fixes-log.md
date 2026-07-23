@@ -18,7 +18,7 @@
 | Order | Wave | Agent | Branch | Model / effort | Gate attempts | Status | Merge SHA |
 |---:|---:|---|---|---|---:|---|---|
 | 1 | 1 | A4 | `cf/a4-url-cleanup` | `gpt-5.6-terra` / medium | 2 | Merged | `5ba7969` |
-| 2 | 1 | A1 | `cf/a1-share-state` | `gpt-5.6-terra` / high | 0 | Pending | - |
+| 2 | 1 | A1 | `cf/a1-share-state` | `gpt-5.6-terra` / high | 2 | Merged | `cb72357` |
 | 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 0 | Pending | - |
 | 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` / high | 0 | Pending | - |
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 0 | Pending | - |
@@ -82,3 +82,33 @@ checks are recorded here before the next agent starts.
   - The host guard scans Git-tracked files under `src/`, `functions/`,
     `public/`, `n8n/`, and `astro.config.mjs`; excluded directory names are
     `node_modules`, `dist`, `.astro`, `playwright-report`, and `test-results`.
+
+### A1 - Share-state library
+
+- Branch base: `97248756f66449b646546646e7366e71bd9d538e`
+- Agent commits:
+  - `b0d15eb` - `[A1/CF-02A] add versioned share-state parser`
+  - `7be4460` - `[A1/CF-02A] fail closed on legacy unit conflicts`
+- Gate attempt 1: **failed** contract/test review.
+  - Command gates passed: 13 Vitest tests, Astro 0 errors, ownership clean,
+    and no `innerHTML`, `document`, or `window` references.
+  - `resolveLegacyUnit()` silently defaulted invalid or mixed embedded legacy
+    units to `oz`, which could change recipe meaning instead of failing closed.
+  - The required missing-version JSON payload was not directly tested.
+- Gate attempt 2: **passed**.
+  - Diff ownership: only `src/lib/shareState.ts` and
+    `src/lib/shareState.test.ts`; no calculator export was needed because
+    `MILK_STREET_BATCHES` was already exported.
+  - `npx vitest run src/lib/shareState.test.ts`: 15 tests passed.
+  - `npx astro check`: passed with 0 errors.
+  - Forbidden DOM/global grep: clean.
+  - Review confirmed C1/C2 normalization, UTF-8 Base64URL transport,
+    fail-closed parsing, URL-length failure, non-mutation, and legacy
+    invalid/mixed/partial/conflicting-unit rejection.
+  - Contract deviations: none.
+- Merge: `cb723577d38038ac27c8e04f3888c6c3503b2013`
+  (`[orchestrator] merge A1 CF-02A`).
+- Post-merge:
+  - `npm run test:unit`: passed, 15 tests.
+  - `npx astro check`: passed with 0 errors (6 existing hints).
+  - `npm run build`: passed.
