@@ -9,8 +9,11 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "vitest",
-    "test:e2e": "playwright test"
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:critical": "vitest run src/lib/shareState.test.ts functions",
+    "check:hosts": "node scripts/check-first-party-hosts.mjs"
   },
   "dependencies": {
     "astro": "^4.16.0",

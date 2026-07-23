@@ -14,7 +14,7 @@ export interface Props {
 const {
   title,
   description,
-  canonical = Astro.url.href,
+  canonical = new URL(Astro.url.pathname, Astro.site),
   ogImage = '/og-default.svg',
   schema
 } = Astro.props;
