@@ -14,7 +14,7 @@ const MAX_INGREDIENT_AMOUNT = 100;
 
 // Duplicated from MILK_STREET_BATCHES in src/lib/calculator.ts because Pages
 // Functions are deployed separately from the static site's src/ module graph.
-export const PRESET_SLUGS = new Set([
+export const PRESET_SLUGS: ReadonlySet<string> = new Set([
   'aviation',
   'bijou',
   'boulevardier',
@@ -33,7 +33,7 @@ export const PRESET_SLUGS = new Set([
   'sazerac',
   'vesper',
   'vieux-carre',
-] as const);
+]);
 
 export type EmailUnit = 'oz' | 'ml';
 
@@ -259,7 +259,7 @@ function normalizeRecipe(value: unknown): RecipeEmailPayload | null {
   if (bottleMl === null || unit === null || display === null) return null;
 
   if (value.mode === 'preset') {
-    if (typeof value.slug !== 'string' || !PRESET_SLUGS.has(value.slug as never)) return null;
+    if (typeof value.slug !== 'string' || !PRESET_SLUGS.has(value.slug)) return null;
     return {
       mode: 'preset',
       slug: value.slug,
@@ -385,4 +385,3 @@ export function normalizeEmailPayload(value: unknown): NormalizeEmailResult {
 
   return fail('invalid_action');
 }
-

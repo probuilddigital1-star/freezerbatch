@@ -4,7 +4,6 @@ interface TurnstileSiteverifyResponse {
   success?: unknown;
   'error-codes'?: unknown;
 }
-
 export type TurnstileResult =
   | { ok: true }
   | { ok: false; reason: 'invalid' | 'timeout' | 'unavailable' };
@@ -53,4 +52,3 @@ export async function verifyTurnstile({
     clearTimeout(timeout);
   }
 }
-

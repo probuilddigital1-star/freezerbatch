@@ -160,3 +160,6 @@ export async function handleEmailRequest(
 export const onRequest = (context: EmailFunctionContext): Promise<Response> =>
   handleEmailRequest(context.request, context.env);
 
+// Cloudflare selects this method-specific export for POST while onRequest remains
+// the fallback that produces a contract-compliant 405 for every other method.
+export const onRequestPost = onRequest;
