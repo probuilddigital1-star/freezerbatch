@@ -163,36 +163,35 @@ function normalizePage(value: unknown): string | null {
   if (typeof value !== 'string' || value.length === 0 || value.length > MAX_PAGE_LENGTH) {
     return null;
   }
-  if (
-    !value.startsWith('/') ||
-    value.startsWith('//') ||
-    value.includes('//') ||
-    value.includes('\\') ||
-    /[\u0000-\u001f\u007f]/u.test(value)
-  ) {
-    return null;
-  }
 
   let decoded = value;
-  try {
-    // Decode more than once so double-encoded traversal is not accepted as a source path.
-    for (let index = 0; index < 3; index += 1) {
-      const next = decodeURIComponent(decoded);
-      if (next === decoded) break;
-      decoded = next;
+  // A changed decodeURIComponent result is strictly shorter because each decoded
+  // percent sequence consumes at least three input characters. The input-length
+  // bound therefore guarantees termination while allowing every encoding layer
+  // to be inspected instead of trusting a fixed decode count.
+  for (let index = 0; index <= value.length; index += 1) {
+    if (
+      !decoded.startsWith('/') ||
+      decoded.startsWith('//') ||
+      decoded.includes('//') ||
+      decoded.includes('\\') ||
+      /[\u0000-\u001f\u007f]/u.test(decoded) ||
+      decoded.split(/[/?#]/u).some((segment) => segment === '.' || segment === '..')
+    ) {
+      return null;
     }
-  } catch {
-    return null;
+
+    try {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) return value;
+      if (next.length >= decoded.length) return null;
+      decoded = next;
+    } catch {
+      return null;
+    }
   }
 
-  if (
-    decoded.includes('\\') ||
-    decoded.includes('//') ||
-    decoded.split(/[/?#]/u).some((segment) => segment === '.' || segment === '..')
-  ) {
-    return null;
-  }
-  return value;
+  return null;
 }
 
 function normalizeUnit(value: unknown): EmailUnit | null {

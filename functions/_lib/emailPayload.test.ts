@@ -52,6 +52,14 @@ function sendRecipePayload(recipe: unknown, overrides: Record<string, unknown> =
   };
 }
 
+function encodeSegment(value: string, layers: number): string {
+  let encoded = value;
+  for (let index = 0; index < layers; index += 1) {
+    encoded = encodeURIComponent(encoded);
+  }
+  return encoded;
+}
+
 describe('normalizeEmailPayload action handling', () => {
   it('discriminates and normalizes all three actions', () => {
     const sendRecipe = normalizeEmailPayload(
@@ -164,6 +172,10 @@ describe('normalizeEmailPayload common fields', () => {
     ['plain traversal', '/safe/../private'],
     ['encoded traversal', '/safe/%2e%2e/private'],
     ['double-encoded traversal', '/safe/%252e%252e/private'],
+    ['three-layer encoded traversal', `/safe/${encodeSegment('%2e%2e', 2)}/private`],
+    ['four-layer encoded traversal', `/safe/${encodeSegment('%2e%2e', 3)}/private`],
+    ['five-layer encoded traversal', `/safe/${encodeSegment('%2e%2e', 4)}/private`],
+    ['malformed nested encoding', '/safe/%25ZZ/private'],
     ['backslash traversal', '/safe\\..\\private'],
     ['too long', `/${'a'.repeat(200)}`],
   ])('rejects invalid page paths: %s', (_label, page) => {
@@ -173,6 +185,13 @@ describe('normalizeEmailPayload common fields', () => {
   it('accepts a bounded same-site page path', () => {
     expect(
       normalizeEmailPayload(subscribePayload({ page: '/cocktails/negroni/' })).ok,
+    ).toBe(true);
+  });
+
+  it('accepts a deeply encoded safe path segment after decoding reaches stability', () => {
+    const safeSegment = encodeSegment('caf%C3%A9', 12);
+    expect(
+      normalizeEmailPayload(subscribePayload({ page: `/safe/${safeSegment}/article` })).ok,
     ).toBe(true);
   });
 });
