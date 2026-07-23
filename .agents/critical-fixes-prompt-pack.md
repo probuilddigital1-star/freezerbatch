@@ -10,15 +10,38 @@ collected in the **Human Checklist** at the end and is NOT assigned to any agent
 
 ## How to run this pack
 
-1. Save this file at `.agents/critical-fixes-prompt-pack.md` and commit it (agents read it for shared contracts).
-2. Start one Codex session as the **orchestrator** with the Orchestrator Prompt below.
-3. The orchestrator launches worker agents in **waves**. Each worker runs in its own Codex
-   task/session on its own branch (or git worktree). Workers within a wave run in parallel;
-   waves are sequential merge gates.
+1. Save this file at `.agents/critical-fixes-prompt-pack.md` and commit it. Everything an
+   agent needs — global rules, shared contracts, its own prompt — is in this one file, so
+   launching an agent never requires assembling or pasting sections.
+2. **To launch any agent, start a fresh Codex session on that agent's branch and give it one
+   line:**
+
+   ```text
+   Read .agents/critical-fixes-prompt-pack.md in full. You are agent <ID> on branch
+   <branch>. Follow the Global rules and Shared contracts, then execute your agent prompt
+   exactly. Stay inside your owned files.
+   ```
+
+3. Run agents sequentially in merge order (A4, A1, A3, A5, A2, A6, A7, A8) — simplest and
+   conflict-free — or run Wave 1 (A1–A5) in parallel using separate Codex tasks/worktrees.
+   Waves are sequential merge gates either way.
 4. **File ownership is exclusive per wave.** `src/components/Calculator.astro` is the conflict
    hotspot — exactly one agent may modify it per wave. The wave plan below enforces this.
-5. The orchestrator merges each wave to the integration branch only after that wave's
-   acceptance gate passes, then launches the next wave.
+5. Whoever plays orchestrator (you, or a Codex session running the Orchestrator Prompt)
+   merges each branch into `critical-fixes` only after its acceptance gate passes.
+
+### Launch lines (copy-paste, one per session)
+
+```text
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A4 on branch cf/a4-url-cleanup. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A1 on branch cf/a1-share-state. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A3 on branch cf/a3-api-boundary. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A5 on branch cf/a5-n8n-v2. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A2 on branch cf/a2-dom-safety. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A6 on branch cf/a6-hydration. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A7 on branch cf/a7-forms. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+Read .agents/critical-fixes-prompt-pack.md in full. You are agent A8 on branch cf/a8-verify. Follow the Global rules and Shared contracts, then execute your agent prompt exactly. Stay inside your owned files.
+```
 
 ### Wave plan and dependency graph
 
@@ -35,6 +58,26 @@ collected in the **Human Checklist** at the end and is NOT assigned to any agent
 
 Dependencies: A6 requires A1 + A2 merged. A7 requires A3's contract (fixed in this pack) and
 must not start until A6 is merged (same-file serialization). A8 requires all prior waves.
+
+### Model assignment (GPT-5.6 in Codex)
+
+Assigned by cost of failure, not apparent task size. The orchestrator launches each agent
+with its assigned model (`codex -m <model>`) and reasoning effort.
+
+| Agent | Model | Effort | Why |
+|---|---|---|---|
+| Orchestrator | gpt-5.6-sol | medium | judgment calls on gates, merges, contract disputes |
+| A4 URL cleanup | gpt-5.6-luna | medium | mechanical replacements + small scripts, fully gated by grep/build |
+| A1 share-state lib | gpt-5.6-terra | high | well-specified pure library, tightly gated by its own unit tests |
+| A3 API boundary | gpt-5.6-sol | high | security trust boundary; validation gaps are the exact risk being remediated |
+| A5 n8n v2 | gpt-5.6-terra | high | structured JSON rework against a fixed truth table; statically gated, human-staged later |
+| A2 DOM safety | gpt-5.6-sol | high | XSS removal inside a 68KB monolith; a missed sink defeats the whole finding |
+| A6 hydration + share UX | gpt-5.6-sol | high | intricate init-order work in the same monolith; high regression risk to core UX |
+| A7 form migration | gpt-5.6-terra | high | implements against a frozen contract with full Playwright gating |
+| A8 verification | gpt-5.6-sol | xhigh | adversarial verifier; its job is finding what everyone else missed |
+
+Escalation rule: if an agent fails its acceptance gate twice, relaunch it one tier up
+(luna→terra→sol) with the failure output included, before escalating to the human.
 
 ---
 
@@ -175,8 +218,11 @@ Process:
 1. Create integration branch `critical-fixes` from the current default branch.
 2. Launch Wave 1 agents A1, A2, A3, A4, A5 in parallel, each in its own task/session on its
    own branch (`cf/a1-share-state`, `cf/a2-dom-safety`, `cf/a3-api-boundary`,
-   `cf/a4-url-cleanup`, `cf/a5-n8n-v2`). Give each agent its prompt from the pack VERBATIM,
-   plus the Global rules and Shared contracts sections.
+   `cf/a4-url-cleanup`, `cf/a5-n8n-v2`). Launch each with its one-line launch line from the
+   pack — the agent reads the pack itself; never re-type or summarize its prompt. Launch each
+   agent on its assigned model and reasoning effort from the Model assignment table; on a
+   second gate failure apply the escalation rule (one tier up, with failure output) before
+   involving the human.
 3. For each returned branch, run its acceptance gate (listed in the agent prompt) yourself:
    run the commands, read the diff, verify the agent stayed inside its owned files. Reject and
    relaunch with feedback if a gate fails or ownership was violated. Do not "fix it up
@@ -210,10 +256,9 @@ Rules for you:
 
 ## Agent prompts
 
-Each prompt is self-contained: paste it, plus the **Global rules** and **Shared contracts**
-sections of this pack, into a fresh Codex task. Every agent starts from the branch the
-orchestrator names, works only in its owned files, and ends by reporting: what changed, test
-results, and any contract concerns.
+Agents reach these prompts by reading this pack file (see Launch lines above) — no manual
+assembly needed. Every agent starts from the branch named in its launch line, works only in
+its owned files, and ends by reporting: what changed, test results, and any contract concerns.
 
 ### A1 — Share-state library (CF-02A) · Wave 1
 
