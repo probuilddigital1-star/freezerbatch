@@ -30,3 +30,11 @@
 
 Gate commands, ownership reviews, agent reports, merge SHAs, and post-merge
 checks are recorded here before the next agent starts.
+
+### Launch environment handoff
+
+- The session task launcher rejected A4's required `gpt-5.6-luna` model; it
+  exposes only `gpt-5.6-sol` and `gpt-5.6-terra`.
+- Per the requested fallback, worker execution moved to manual fresh Codex
+  sessions, one agent at a time. The orchestrator will gate each returned
+  branch before handing off the next agent.
