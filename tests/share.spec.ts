@@ -139,6 +139,35 @@ test.describe('versioned calculator shares', () => {
     expect(after).toEqual(before);
   });
 
+  test('preserves an explicit base spirit that follows a higher-ABV modifier', async ({ page }) => {
+    await captureWebShare(page);
+    const batch = batchValue({
+      v: 1,
+      mode: 'custom',
+      bottleMl: 750,
+      unit: 'oz',
+      dilutionPercent: 20,
+      ingredients: [
+        { name: 'Overproof modifier', amount: 0.25, abv: 50, isBaseSpirit: false },
+        { name: 'Base whiskey', amount: 2, abv: 40, isBaseSpirit: true },
+        { name: 'Vermouth', amount: 1, abv: 16, isBaseSpirit: false },
+      ],
+    });
+
+    await page.goto(`/?batch=${encodeURIComponent(batch)}#calculator`);
+    await expect(page.locator('#ingredients-output')).toContainText('Overproof modifier');
+    await expect(page.locator('#ingredients-output')).toContainText('Vermouth');
+    await expect(page.locator('#ingredients-output')).not.toContainText('Base whiskey');
+
+    await page.locator('#share-btn').click();
+    const url = new URL((await sharedData(page)).url!);
+    const sharedBatch = url.searchParams.get('batch');
+    expect(sharedBatch).toMatch(/^v1\./);
+    const state = JSON.parse(Buffer.from(sharedBatch!.slice(3), 'base64url').toString('utf8'));
+    expect(state.ingredients.map((ingredient: { isBaseSpirit: boolean }) => ingredient.isBaseSpirit))
+      .toEqual([false, true, false]);
+  });
+
   test('renders a malicious shared ingredient name as inert text', async ({ page }) => {
     const payload = '<img src=x onerror="window.__pwned=1">';
     const batch = batchValue({
