@@ -23,7 +23,7 @@
 | 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` → `gpt-5.6-sol` / high | 3 | Merged | `6d7b6c3` |
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 1 | Merged | `93daa21` |
 | 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 1 | Merged | `bc9a69d` |
-| 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 0 | Pending | - |
+| 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 2 | Merged | `678af59` |
 | 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 0 | Pending | - |
 
 ## Detailed results
@@ -352,4 +352,86 @@ checks are recorded here before the next agent starts.
 - Post-merge:
   - `npm run test:unit`: passed, 80 tests.
   - direct `astro check`: passed with 0 errors (6 existing hints).
+  - `npm run build`: passed, 30 pages.
+
+### A7 - Public form migration and abuse controls
+
+- Branch base: `eac34874b4dcecb8f6c239acda7c2a231ce81e57`.
+- Agent commits:
+  - `ca74721` - `[A7/CF-03C] migrate public email forms`
+  - `53bfda3` - `[A7/CF-03C] fix Turnstile reset accessibility`
+- Continuity note:
+  - The worker twice reached the sandbox's read-only Git index after completing
+    its edits and command gates. The orchestrator interrupted only the stalled
+    task turn and recorded the agent's exact scoped workspace changes; no
+    feature code was written or altered by the orchestrator.
+- Gate attempt 1: **failed** accessibility/success-state review.
+  - Formal agent checks passed: 17 browser tests and the production build.
+  - All three success paths reused the failure-reset helper, which wrote
+    "Please retry the verification challenge." Real Turnstile reset does not
+    immediately solve a new challenge, so the success confirmation would be
+    accompanied by a misleading retry/error note. The original test mock hid
+    this by synchronously invoking the success callback during reset.
+  - The three success/error status regions were live regions but lacked the
+    explicit focus management required by the prompt.
+- Gate attempt 2: **passed**.
+  - Independent isolated Chromium run:
+    `tests/email-forms.spec.ts tests/share.spec.ts
+    tests/injection.spec.ts`: 17 tests passed in 39.1 seconds.
+  - `npm run build`: passed with 0 errors and 30 generated pages.
+  - Diff/check ownership: clean and confined to
+    `src/components/Calculator.astro`,
+    `src/components/EmailSignup.astro`, `src/pages/unsubscribe.astro`, and the
+    explicitly required `tests/email-forms.spec.ts`.
+  - The corrected Turnstile mock leaves reset unsolved. Tests verify success
+    has no false retry note, submit remains disabled until a fresh token,
+    success/error status receives focus, and retry uses the same request ID.
+  - Source sweep found no `n8n.cloud` or legacy webhook URL under `src/`; all
+    three browser fetch sites target only `/api/email`.
+  - Frozen Functions, contracts, calculator math, and recipe data are
+    unchanged.
+- Request bodies:
+  - Recipe:
+    `{ action: "send_recipe", requestId, email, recipe,
+    marketingConsent, consentVersion?, page, turnstileToken, website }`.
+    Preset recipe payloads contain mode, slug, bottle size, unit, and bounded
+    display data; custom payloads contain the C2 ingredients and dilution.
+  - Newsletter:
+    `{ action: "subscribe", requestId, email,
+    consentVersion: "2026-07-23", page, turnstileToken, website }`.
+  - Unsubscribe:
+    `{ action: "unsubscribe", requestId, email, page,
+    turnstileToken, website }`.
+- Behavior review:
+  - Missing `PUBLIC_TURNSTILE_SITE_KEY` leaves each form rendered but disabled
+    with an accessible local-development explanation; script-load failure also
+    remains fail-closed.
+  - Honeypots are off-screen rather than `display:none`, accessibility-hidden,
+    removed from tab order, and sent as `website`.
+  - One UUID is retained across retryable failures and replaced after success
+    or a genuinely edited submission.
+  - In-flight submission is disabled; browser coverage confirms double-click
+    produces one request.
+  - C4 error codes map to specific focused live-region messages. Turnstile is
+    reset after success and retryable failures without displaying a false
+    error on success.
+- C3/C4 mismatches: none found.
+- Implementation limitation:
+  - Consent version is the static `2026-07-23` value and must be revised with a
+    future consent/privacy-policy revision.
+- Access-gated dependency:
+  - Production/preview Turnstile widgets and Pages variables remain Human
+    Checklist work. The WAF 5-requests/IP/10-seconds rule is also dashboard
+    work and was not assigned to A7.
+- Prompt ownership ruling:
+  - As with A2, the prompt requires a new Playwright spec while its narrow
+    OWNED FILES line lists only implementation files. The orchestrator approved
+    `tests/email-forms.spec.ts` as the sole test-file exception; A8 follows in
+    a later wave.
+- Contract deviations: none.
+- Merge: `678af59c7fdc0f7ee16d1c703c89e7b2b8fccaa8`
+  (`[orchestrator] merge A7 CF-03C`).
+- Post-merge:
+  - `npm run test:unit`: passed, 80 tests.
+  - `npx astro check`: passed with 0 errors (6 existing hints).
   - `npm run build`: passed, 30 pages.
