@@ -695,7 +695,8 @@ const recipeTiles = cocktailsData.cocktails
         this.addIngredientRow({
           name: ingredient.name,
           amount: String(ingredient.amount),
-          abv: String(ingredient.abv)
+          abv: String(ingredient.abv),
+          isBaseSpirit: ingredient.isBaseSpirit
         });
       });
       this.setBottleSize(state.bottleMl);
@@ -947,7 +948,12 @@ const recipeTiles = cocktailsData.cocktails
       }
     }
 
-    private addIngredientRow(values?: { name: string; amount: string; abv: string }) {
+    private addIngredientRow(values?: {
+      name: string;
+      amount: string;
+      abv: string;
+      isBaseSpirit?: boolean;
+    }) {
       const template = document.querySelector('#ingredient-row-template') as HTMLTemplateElement;
       const container = this.querySelector('#ingredients-container');
 
@@ -964,6 +970,9 @@ const recipeTiles = cocktailsData.cocktails
             (row.querySelector('[name="name"]') as HTMLInputElement).value = values.name;
             (row.querySelector('[name="amount"]') as HTMLInputElement).value = values.amount;
             (row.querySelector('[name="abv"]') as HTMLInputElement).value = values.abv;
+            if (typeof values.isBaseSpirit === 'boolean') {
+              (row as HTMLElement).dataset.baseSpirit = String(values.isBaseSpirit);
+            }
           }
         }
         container.appendChild(clone);
@@ -1309,8 +1318,12 @@ const recipeTiles = cocktailsData.cocktails
 
     private getRecipeIngredients(): RecipeIngredient[] {
       const rows = Array.from(this.querySelectorAll('.ingredient-row')).slice(0, 8);
-      const ingredients: RecipeIngredient[] = [];
-      let foundBaseSpirit = false;
+      const candidates: Array<{
+        name: string;
+        amount: number;
+        abv: number;
+        explicitBaseSpirit: boolean | null;
+      }> = [];
 
       rows.forEach((row) => {
         const nameInput = row.querySelector('[name="name"]') as HTMLInputElement;
@@ -1337,27 +1350,41 @@ const recipeTiles = cocktailsData.cocktails
           abv >= 0 &&
           abv <= 100
         ) {
-          // First ingredient with ABV >= 20% is base spirit
-          const isBase = !foundBaseSpirit && abv >= 20;
-          if (isBase) foundBaseSpirit = true;
-
-          ingredients.push({
+          const baseSpiritValue = (row as HTMLElement).dataset.baseSpirit;
+          candidates.push({
             name,
             amount,
-            unit: this.unit,
             abv,
-            isBaseSpirit: isBase
+            explicitBaseSpirit: baseSpiritValue === 'true'
+              ? true
+              : baseSpiritValue === 'false'
+                ? false
+                : null
           });
         }
       });
 
-      // If no base spirit found, mark highest ABV
-      if (!foundBaseSpirit && ingredients.length > 0) {
-        const maxIng = ingredients.reduce((m, i) => i.abv > m.abv ? i : m, ingredients[0]);
-        maxIng.isBaseSpirit = true;
+      // A validated shared recipe carries an explicit base-spirit selection.
+      // Honor it even when an earlier modifier has a higher ABV. Recipes entered
+      // manually have no explicit row metadata and retain the existing heuristic.
+      let baseSpiritIndex = candidates.findIndex((ingredient) => ingredient.explicitBaseSpirit === true);
+      if (baseSpiritIndex < 0) {
+        baseSpiritIndex = candidates.findIndex((ingredient) => ingredient.abv >= 20);
+      }
+      if (baseSpiritIndex < 0 && candidates.length > 0) {
+        baseSpiritIndex = candidates.reduce(
+          (maxIndex, ingredient, index) => ingredient.abv > candidates[maxIndex].abv ? index : maxIndex,
+          0
+        );
       }
 
-      return ingredients;
+      return candidates.map((ingredient, index) => ({
+        name: ingredient.name,
+        amount: ingredient.amount,
+        unit: this.unit,
+        abv: ingredient.abv,
+        isBaseSpirit: index === baseSpiritIndex
+      }));
     }
 
     private recalculate() {
