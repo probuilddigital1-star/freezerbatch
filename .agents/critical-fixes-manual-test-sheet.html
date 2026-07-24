@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Critical Fixes Manual Validation PIN Sheet</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5eee4;
+      --muted: #aea296;
+      --faint: #7e746b;
+      --paper: #171411;
+      --panel: #211d19;
+      --panel-2: #2a241f;
+      --line: #40372f;
+      --gold: #d4ad63;
+      --gold-soft: #a98546;
+      --green: #66c28a;
+      --green-bg: #163524;
+      --red: #ef8178;
+      --red-bg: #3a1d1c;
+      --blue: #88b9de;
+      --shadow: 0 16px 48px rgba(0, 0, 0, .28);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% -10%, rgba(212, 173, 99, .12), transparent 35rem),
+        var(--paper);
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    a { color: var(--gold); }
+    code {
+      padding: .12rem .32rem;
+      color: #f3dba9;
+      background: #0f0d0b;
+      border-radius: .25rem;
+    }
+
+    .shell {
+      width: min(1280px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 6rem;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 2rem;
+      align-items: end;
+      padding: 2.25rem;
+      background: linear-gradient(145deg, rgba(42, 36, 31, .97), rgba(27, 23, 20, .97));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 .7rem;
+      color: var(--gold);
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 18ch;
+      margin-bottom: .8rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.35rem, 6vw, 4.6rem);
+      font-weight: 400;
+      line-height: .96;
+      letter-spacing: -.045em;
+    }
+
+    .lede {
+      max-width: 68ch;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .masthead-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem;
+      justify-content: flex-end;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.75rem;
+      padding: .65rem .95rem;
+      color: var(--ink);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .15s ease, transform .15s ease, background .15s ease;
+    }
+
+    .button:hover { border-color: var(--gold-soft); transform: translateY(-1px); }
+    .button.primary { color: #171411; background: var(--gold); border-color: var(--gold); font-weight: 800; }
+    .button.danger { color: var(--red); }
+
+    .status-strip {
+      position: sticky;
+      z-index: 10;
+      top: 0;
+      display: grid;
+      grid-template-columns: minmax(15rem, 1fr) auto;
+      gap: 1rem;
+      align-items: center;
+      padding: .85rem 1rem;
+      background: rgba(23, 20, 17, .94);
+      border: 1px solid var(--line);
+      border-top: 0;
+      backdrop-filter: blur(14px);
+    }
+
+    .progress-track {
+      height: .55rem;
+      overflow: hidden;
+      background: #0e0c0a;
+      border: 1px solid #2e2823;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-soft), var(--gold));
+      transition: width .2s ease;
+    }
+
+    .counts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .85rem;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .count strong { color: var(--ink); }
+    .count.pass strong { color: var(--green); }
+    .count.issue strong { color: var(--red); }
+
+    .card {
+      margin-top: 1.25rem;
+      padding: 1.4rem;
+      background: rgba(33, 29, 25, .92);
+      border: 1px solid var(--line);
+    }
+
+    .card h2 {
+      margin-bottom: .3rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+    }
+
+    .section-note { margin-bottom: 1.1rem; color: var(--muted); }
+    .callout {
+      padding: 1rem 1.1rem;
+      color: #e7d8be;
+      background: #2d261b;
+      border-left: 3px solid var(--gold);
+    }
+
+    .session-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .85rem;
+    }
+
+    label.field { display: grid; gap: .35rem; color: var(--muted); font-size: .78rem; font-weight: 700; }
+    input[type="text"], input[type="datetime-local"], select, textarea {
+      width: 100%;
+      color: var(--ink);
+      background: #12100e;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      outline: none;
+    }
+
+    input[type="text"], input[type="datetime-local"], select { min-height: 2.65rem; padding: .55rem .7rem; }
+    textarea { min-height: 4.2rem; padding: .65rem .7rem; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212, 173, 99, .15); }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-top: 1rem;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 1.25rem 0;
+    }
+
+    .filter {
+      padding: .5rem .75rem;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      cursor: pointer;
+    }
+
+    .filter.active { color: #171411; background: var(--gold); border-color: var(--gold); font-weight: 800; }
+
+    details.test-section {
+      margin-top: 1rem;
+      background: rgba(33, 29, 25, .86);
+      border: 1px solid var(--line);
+    }
+
+    details.test-section > summary {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.05rem 1.2rem;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    details.test-section > summary::-webkit-details-marker { display: none; }
+    details.test-section > summary::before { content: "＋"; color: var(--gold); font-size: 1.1rem; }
+    details.test-section[open] > summary::before { content: "−"; }
+    .section-title { font-family: Georgia, "Times New Roman", serif; font-size: 1.35rem; }
+    .section-counter { margin-left: auto; color: var(--muted); font-size: .82rem; }
+    .section-description { margin: 0 1.2rem 1.1rem; color: var(--muted); }
+    .test-list { display: grid; gap: .7rem; padding: 0 1rem 1rem; }
+
+    .test-row {
+      display: grid;
+      grid-template-columns: 5.2rem minmax(15rem, 1fr) 12rem minmax(12rem, .75fr);
+      gap: .8rem;
+      align-items: start;
+      padding: 1rem;
+      background: #1a1714;
+      border: 1px solid #373029;
+    }
+
+    .test-row[data-status="pass"] { border-left: 4px solid var(--green); }
+    .test-row[data-status="issue"] { border-left: 4px solid var(--red); }
+    .test-row.hidden { display: none; }
+    .test-id { display: inline-flex; width: fit-content; padding: .24rem .45rem; color: var(--gold); background: #2d261b; font-weight: 900; letter-spacing: .04em; }
+    .test-name { margin-bottom: .35rem; font-weight: 800; }
+    .expected { margin: 0; color: var(--muted); font-size: .9rem; }
+    .environment { display: inline-block; margin-top: .55rem; color: var(--blue); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+
+    .result-control { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+    .choice {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.5rem;
+      color: var(--muted);
+      background: #11100e;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice.pass:has(input:checked) { color: #d7ffe6; background: var(--green-bg); border-color: var(--green); }
+    .choice.issue:has(input:checked) { color: #ffd9d6; background: var(--red-bg); border-color: var(--red); }
+    .severity { display: none; grid-column: 1 / -1; }
+    .test-row[data-status="issue"] .severity { display: block; }
+    .notes-label { display: grid; gap: .35rem; color: var(--muted); font-size: .74rem; font-weight: 800; }
+
+    .prepared {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+      margin-top: .8rem;
+    }
+
+    .prepared a { font-size: .83rem; }
+
+    .blocker-list { display: grid; gap: .65rem; }
+    .blocker {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .75rem;
+      align-items: start;
+      padding: .85rem 1rem;
+      background: #1a1714;
+      border: 1px solid #373029;
+      cursor: pointer;
+    }
+
+    .blocker input { width: 1.15rem; height: 1.15rem; margin-top: .15rem; accent-color: var(--gold); }
+    .blocker:has(input:checked) { color: var(--muted); border-left: 4px solid var(--green); }
+
+    .issue-empty { color: var(--muted); }
+    .issue-rollup { display: grid; gap: .65rem; }
+    .issue-card { padding: .9rem 1rem; background: var(--red-bg); border: 1px solid #6d3430; }
+    .issue-card strong { color: var(--red); }
+    .issue-card p { margin: .35rem 0 0; color: #e8c1bd; white-space: pre-wrap; }
+
+    .signoff-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .8rem;
+    }
+
+    .footer-note { margin-top: 1rem; color: var(--faint); font-size: .8rem; text-align: center; }
+    .saved { color: var(--green); }
+
+    @media (max-width: 980px) {
+      .masthead { grid-template-columns: 1fr; }
+      .masthead-actions { justify-content: flex-start; }
+      .session-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .test-row { grid-template-columns: 4.8rem 1fr; }
+      .result-control, .notes-label { grid-column: 2; }
+    }
+
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 1rem, 1280px); padding-top: .5rem; }
+      .masthead { padding: 1.3rem; }
+      .status-strip { grid-template-columns: 1fr; }
+      .session-grid, .signoff-grid { grid-template-columns: 1fr; }
+      .test-row { grid-template-columns: 1fr; }
+      .result-control, .notes-label { grid-column: 1; }
+      .test-id { margin-bottom: -.25rem; }
+    }
+
+    @media print {
+      :root { color-scheme: light; --ink: #171411; --muted: #554e47; --paper: #fff; --panel: #fff; --panel-2: #fff; --line: #aaa; }
+      body { background: #fff; }
+      .shell { width: 100%; padding: 0; }
+      .masthead, .card, details.test-section, .test-row { box-shadow: none; background: #fff; break-inside: avoid; }
+      .masthead-actions, .status-strip, .filters, .footer-note, .quick-links { display: none !important; }
+      details.test-section:not([open]) > *:not(summary) { display: block; }
+      .test-row.hidden { display: grid; }
+      input, select, textarea { color: #171411 !important; background: #fff !important; }
+      .choice { color: #171411; background: #fff; }
+      a { color: #171411; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">Internal validation · Critical fixes</p>
+        <h1>Manual QA PIN Sheet</h1>
+        <p class="lede">Pass, Issue, and Notes tracking for calculator, share-state, forms, n8n staging, domain cutover, and final production sign-off. Progress saves automatically in this browser.</p>
+      </div>
+      <div class="masthead-actions">
+        <a class="button primary" id="open-app" href="http://127.0.0.1:4321/" target="_blank" rel="noreferrer">Open app ↗</a>
+        <button class="button" type="button" id="copy-summary">Copy summary</button>
+        <button class="button" type="button" id="export-json">Export JSON</button>
+        <button class="button" type="button" id="print-sheet">Print / PDF</button>
+        <button class="button danger" type="button" id="reset-sheet">Reset</button>
+      </div>
+    </header>
+
+    <div class="status-strip" aria-live="polite">
+      <div class="progress-track" aria-label="Test completion"><div class="progress-bar" id="progress-bar"></div></div>
+      <div class="counts">
+        <span class="count"><strong id="count-complete">0</strong>/<span id="count-total">0</span> complete</span>
+        <span class="count pass"><strong id="count-pass">0</strong> pass</span>
+        <span class="count issue"><strong id="count-issue">0</strong> issues</span>
+        <span class="count" id="save-state">Saved locally</span>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="session-title">
+      <h2 id="session-title">Test session</h2>
+      <p class="section-note">Use a separate exported JSON file for each browser, viewport, or deployment.</p>
+      <div class="session-grid">
+        <label class="field">Tester<input type="text" data-meta="tester" autocomplete="name"></label>
+        <label class="field">Date / time<input type="datetime-local" data-meta="datetime"></label>
+        <label class="field">Branch / commit<input type="text" data-meta="commit" value="critical-fixes / enter current SHA"></label>
+        <label class="field">Environment
+          <select data-meta="environment">
+            <option value="Local">Local</option>
+            <option value="Preview">Preview</option>
+            <option value="Production">Production</option>
+          </select>
+        </label>
+        <label class="field">Browser / version<input type="text" data-meta="browser"></label>
+        <label class="field">Viewport / device<input type="text" data-meta="viewport"></label>
+        <label class="field" style="grid-column: 1 / -1;">Environment base URL<input type="text" id="base-url" data-meta="baseUrl" value="http://127.0.0.1:4321"></label>
+      </div>
+      <div class="quick-links">
+        <a class="button" id="home-link" href="http://127.0.0.1:4321/" target="_blank" rel="noreferrer">Homepage ↗</a>
+        <a class="button" id="negroni-link" href="http://127.0.0.1:4321/cocktails/negroni/" target="_blank" rel="noreferrer">Negroni ↗</a>
+        <a class="button" id="malformed-link" href="http://127.0.0.1:4321/?batch=v1.not-valid!!!#calculator" target="_blank" rel="noreferrer">Malformed share ↗</a>
+        <a class="button" id="legacy-link" href="http://127.0.0.1:4321/?recipe=negroni&amp;bottle=750" target="_blank" rel="noreferrer">Legacy share ↗</a>
+      </div>
+      <p class="callout" style="margin-top: 1rem;"><strong>Local expectation:</strong> Astro dev does not provide deployed Cloudflare Pages Functions, production Turnstile keys, live n8n, DNS redirects, or Resend. Without <code>PUBLIC_TURNSTILE_SITE_KEY</code>, all email forms must stay visibly disabled with an accessible explanation. Run email-delivery and cutover rows on configured Preview or staging.</p>
+    </section>
+
+    <nav class="filters" aria-label="Test filters">
+      <button class="filter active" type="button" data-filter="all">All tests</button>
+      <button class="filter" type="button" data-filter="untested">Not tested</button>
+      <button class="filter" type="button" data-filter="issue">Issues</button>
+      <button class="filter" type="button" data-filter="pass">Passed</button>
+    </nav>
+
+    <div id="test-sections"></div>
+
+    <section class="card" aria-labelledby="blocker-title">
+      <h2 id="blocker-title">Production cutover blockers</h2>
+      <p class="section-note">Every box must be checked before switching production traffic. The 48-hour observation owner must be named before cutover and completes after deployment.</p>
+      <div class="blocker-list" id="blocker-list"></div>
+    </section>
+
+    <section class="card" aria-labelledby="issues-title">
+      <h2 id="issues-title">Issue rollup</h2>
+      <p class="section-note">Rows marked Issue appear here automatically. Add useful reproduction and evidence in the row’s Notes field.</p>
+      <div id="issue-rollup" class="issue-rollup"></div>
+    </section>
+
+    <section class="card" aria-labelledby="signoff-title">
+      <h2 id="signoff-title">Sign-off</h2>
+      <div class="signoff-grid" id="signoff-grid"></div>
+    </section>
+
+    <p class="footer-note">Internal validation artifact. Stored in <code>.agents/</code> and excluded from the public site. Browser storage key: <code>fbc-critical-fixes-pin-v2</code>.</p>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'fbc-critical-fixes-pin-v2';
+    const baseSpiritState = {
+      v: 1, mode: 'custom', bottleMl: 750, unit: 'oz', dilutionPercent: 20,
+      ingredients: [
+        { name: 'Overproof modifier', amount: 0.25, abv: 50, isBaseSpirit: false },
+        { name: 'Base whiskey', amount: 2, abv: 40, isBaseSpirit: true },
+        { name: 'Vermouth', amount: 1, abv: 16, isBaseSpirit: false }
+      ]
+    };
+    const inertTextState = {
+      v: 1, mode: 'custom', bottleMl: 750, unit: 'oz', dilutionPercent: 20,
+      ingredients: [
+        { name: '<img src=x onerror=alert(1)>', amount: 2, abv: 40, isBaseSpirit: true },
+        { name: 'Vermouth', amount: 1, abv: 16, isBaseSpirit: false }
+      ]
+    };
+
+    const sections = [
+      {
+        title: 'P0 local smoke and calculator',
+        description: 'Primary local behavior, keyboard access, constraints, and responsive layout.',
+        tests: [
+          ['L-01', 'Homepage smoke', 'Open /. Page loads without a visible error and Recipe mode is selected.', 'Local'],
+          ['L-02', 'Preset page smoke', 'Open /cocktails/negroni/. Negroni page and calculator load with Negroni selected.', 'Local'],
+          ['L-03', 'Keyboard navigation', 'Using only the keyboard, focus stays visible and calculator mode, recipe, bottle, and unit controls operate with meaningful labels.', 'Local'],
+          ['L-04', 'Preset controls', 'On /, select Negroni, 1L, then ml. Selected states update and results remain populated.', 'Local'],
+          ['L-05', 'Custom sample', 'Switch to Custom and choose “Try a sample.” Three rows appear and calculated results are non-zero.', 'Local'],
+          ['L-06', 'Eight-row limit', 'The eighth ingredient row is allowed and adding a ninth is prevented.', 'Local'],
+          ['L-07', 'C2 field limits', 'A 61-character name, amount over 100, or ABV over 100 cannot become a valid calculation.', 'Local'],
+          ['L-08', 'Dilution boundaries', 'Toggle 0%, 20%, and 35%. Selected state and results update without reloading.', 'Local'],
+          ['L-09', 'Unit switching', 'Toggle oz and ml in Custom mode. Headings and results update and remain usable.', 'Local'],
+          ['L-10', 'Responsive layout', 'At 375px, 768px, and 1440px there is no horizontal page overflow, clipped primary control, or overlapping content.', 'Local']
+        ]
+      },
+      {
+        title: 'Share and hydration',
+        description: 'Versioned and legacy links, fail-closed parsing, inert text, and the resolved CFV-1 base-spirit regression.',
+        tests: [
+          ['S-01', 'Canonical preset share', 'From /, share Negroni with a non-default bottle and unit. URL uses /cocktails/negroni/?batch=v1… and is no longer than 1,800 characters.', 'Local'],
+          ['S-02', 'Preset hydration', 'Open the S-01 URL in a new tab. “Shared recipe loaded” appears and recipe, bottle, and unit are restored.', 'Local'],
+          ['S-03', 'Changed preset share', 'On a recipe page, select another preset and share. URL targets the newly selected recipe, not the page’s original recipe.', 'Local'],
+          ['S-04', 'Custom round trip', 'Share a Custom recipe and reopen it. URL targets /?batch=v1…#calculator; rows, bottle, unit, dilution, and visible results match.', 'Local'],
+          ['S-05', 'Malformed share', 'Open ?batch=v1.not-valid!!!#calculator. Defaults remain usable, the accessible defaults notice appears, and no partial state is applied.', 'Local'],
+          ['S-06', 'Legacy preset link', 'Open ?recipe=negroni&bottle=750. Negroni hydrates at 750ml and “Shared recipe loaded” appears.', 'Local'],
+          ['S-07', 'CFV-1 base-spirit regression', 'Open the prepared link. Output includes Overproof modifier and Vermouth but excludes Base whiskey, proving Base whiskey remains the source bottle. Resharing preserves results.', 'Local'],
+          ['S-08', 'Hostile text stays inert', 'Open the prepared link. The literal <img …> name is visible as text; no image, alert, execution, or broken layout occurs.', 'Local']
+        ]
+      },
+      {
+        title: 'Email forms and accessibility',
+        description: 'Local fail-closed behavior plus deployed same-origin API, Turnstile, retry, consent, and accessible status behavior.',
+        tests: [
+          ['E-01', 'Missing-key behavior', 'Recipe email, newsletter, and unsubscribe forms render locally but remain disabled with an accessible verification-configuration explanation.', 'Local'],
+          ['E-02', 'Recipe without consent', 'Complete Turnstile and send a recipe without marketing consent. One send_recipe request succeeds; recipe is delivered and CRM marketing status is unchanged.', 'Preview'],
+          ['E-03', 'Recipe with consent', 'Recipe is delivered once, consent becomes pending, and confirmation is sent once.', 'Preview'],
+          ['E-04', 'Newsletter signup', 'One subscribe request succeeds, consent becomes pending, confirmation is sent once, and no recipe email is sent.', 'Preview'],
+          ['E-05', 'Enumeration-safe unsubscribe', 'Existing and unknown addresses receive the same success UI; status becomes/remains unsubscribed and no welcome or recipe email is sent.', 'Preview'],
+          ['E-06', 'Double-submit control', 'Double-clicking each submit control produces only one network request for that logical submission.', 'Preview'],
+          ['E-07', 'Retry identity', 'After a retryable upstream failure, the accessible error receives focus and retry reuses the same request ID.', 'Preview'],
+          ['E-08', 'Successful reset and new identity', 'Success receives focus, Turnstile resets without a false retry error, and a genuinely new submission uses a new request ID.', 'Preview'],
+          ['E-09', 'API error mapping', 'Staging 400, 403, 429, and 502 responses show specific accessible messages for invalid request, verification, rate limit, and upstream outage.', 'Preview'],
+          ['E-10', 'Honeypot', 'Fill website using DevTools and submit. UI does not reveal the bot rule and n8n receives no side effect.', 'Preview']
+        ]
+      },
+      {
+        title: 'n8n and Resend staging matrix',
+        description: 'Use controlled recipients and a disposable test sheet. Record request IDs and downstream evidence in Notes.',
+        tests: [
+          ['N-01', 'Recipe, consent false', 'Exactly one transactional recipe; CRM unchanged; no confirmation; no unsubscribe mutation.', 'Staging'],
+          ['N-02', 'Recipe, consent true', 'Exactly one transactional recipe; CRM pending/subscribed; one confirmation; no unsubscribe mutation.', 'Staging'],
+          ['N-03', 'Newsletter signup', 'No transactional recipe; CRM pending/subscribed; one confirmation; no unsubscribe mutation.', 'Staging'],
+          ['N-04', 'Unsubscribe', 'No recipe or welcome/confirmation; CRM becomes unsubscribed; missing row still succeeds.', 'Staging'],
+          ['N-05', 'Invalid action', 'No message and no CRM or unsubscribe side effect.', 'Staging'],
+          ['N-06', 'Duplicate request ID', 'Repeating the same request ID produces only the intended single message and no duplicate mutation.', 'Staging'],
+          ['N-07', 'Hostile HTML escaping', 'Every supported hostile text value is harmlessly escaped in HTML and plain text while the intended branch still completes.', 'Staging'],
+          ['N-08', 'Webhook authentication', 'Missing or wrong secret returns deterministic 401 before the Switch with no downstream side effect.', 'Staging']
+        ]
+      },
+      {
+        title: 'Live domain and cutover',
+        description: 'Capture response status, Location, final URL, network evidence, and screenshots.',
+        tests: [
+          ['D-01', 'www root redirect', 'https://www.freezerbatchcocktails.com/ returns one 301 to the apex root.', 'Production'],
+          ['D-02', 'Path and query preservation', 'www /cocktails/daiquiri/?utm_source=manual returns one 301 preserving path and query on the apex.', 'Production'],
+          ['D-03', 'Redirect matrix', 'Guide path, missing path, and query-only path each redirect once to the equivalent apex URL.', 'Production'],
+          ['D-04', 'Scheme and loop safety', 'HTTP www reaches HTTPS apex without loops; apex never redirects to www.', 'Production'],
+          ['D-05', 'Canonical state removal', 'Representative canonical URLs use the apex and contain no query or fragment.', 'Production'],
+          ['D-06', 'Obsolete project detached', 'After validation, www remains proxied with valid TLS and is served only by the zone redirect.', 'Production'],
+          ['D-07', 'Rollback readiness', 'A named owner can disable the redirect and reattach the old domain only for a verified outage.', 'Production'],
+          ['D-08', 'WAF rate rule', 'POST /api/email challenges or blocks after 5 requests per IP per 10 seconds without unacceptable false positives.', 'Production'],
+          ['D-09', 'Privacy Policy', 'Policy names Turnstile, same-origin email API, actual consent behavior, and processors.', 'Production']
+        ]
+      }
+    ];
+
+    const blockers = [
+      'Cloudflare www DNS/project ownership, redirect, live matrix, detach, and rollback readiness are verified.',
+      'Production and preview Turnstile widgets and bindings are configured.',
+      'Pages N8N_WEBHOOK_URL, N8N_WEBHOOK_SECRET, and the matching n8n secret check are configured.',
+      'n8n v2 is imported and N-01 through N-08 pass.',
+      'The external double-opt-in mechanism promotes pending to subscribed.',
+      'Resend domain, SPF, DKIM, DMARC, sender/reply-to, and marketing unsubscribe headers are verified.',
+      'The WAF rate rule passes D-08.',
+      'Function and n8n v2 are ready for coordinated deployment and the old webhook shutdown.',
+      'The Privacy Policy passes D-09.',
+      'A named owner is assigned for the required 48-hour observation window.'
+    ];
+
+    const signoffRoles = ['Manual QA', 'Engineering', 'Email / CRM owner', 'Cloudflare owner', 'Cutover owner'];
+    let state = loadState();
+    let currentFilter = 'all';
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        return { meta: parsed.meta || {}, tests: parsed.tests || {}, blockers: parsed.blockers || {}, signoff: parsed.signoff || {} };
+      } catch {
+        return { meta: {}, tests: {}, blockers: {}, signoff: {} };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const save = document.getElementById('save-state');
+      save.textContent = 'Saved locally';
+      save.classList.add('saved');
+      window.setTimeout(() => save.classList.remove('saved'), 700);
+    }
+
+    function encodeState(value) {
+      const bytes = new TextEncoder().encode(JSON.stringify(value));
+      let binary = '';
+      bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+      return 'v1.' + btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function normalizedBase() {
+      return (document.getElementById('base-url').value || 'http://127.0.0.1:4321').trim().replace(/\/+$/, '');
+    }
+
+    function updateLinks() {
+      const base = normalizedBase();
+      document.getElementById('open-app').href = base + '/';
+      document.getElementById('home-link').href = base + '/';
+      document.getElementById('negroni-link').href = base + '/cocktails/negroni/';
+      document.getElementById('malformed-link').href = base + '/?batch=v1.not-valid!!!#calculator';
+      document.getElementById('legacy-link').href = base + '/?recipe=negroni&bottle=750';
+      const baseRegression = document.getElementById('prepared-base');
+      const inertRegression = document.getElementById('prepared-inert');
+      if (baseRegression) baseRegression.href = base + '/?batch=' + encodeURIComponent(encodeState(baseSpiritState)) + '#calculator';
+      if (inertRegression) inertRegression.href = base + '/?batch=' + encodeURIComponent(encodeState(inertTextState)) + '#calculator';
+    }
+
+    function createTestRow(test) {
+      const [id, name, expected, environment] = test;
+      const saved = state.tests[id] || {};
+      const row = document.createElement('article');
+      row.className = 'test-row';
+      row.dataset.testId = id;
+      row.dataset.status = saved.status || '';
+
+      const idCell = document.createElement('div');
+      const badge = document.createElement('span');
+      badge.className = 'test-id';
+      badge.textContent = id;
+      idCell.appendChild(badge);
+
+      const content = document.createElement('div');
+      const title = document.createElement('div');
+      title.className = 'test-name';
+      title.textContent = name;
+      const expectedText = document.createElement('p');
+      expectedText.className = 'expected';
+      expectedText.textContent = expected;
+      const env = document.createElement('span');
+      env.className = 'environment';
+      env.textContent = environment;
+      content.append(title, expectedText, env);
+
+      if (id === 'S-07' || id === 'S-08') {
+        const prepared = document.createElement('div');
+        prepared.className = 'prepared';
+        const link = document.createElement('a');
+        link.className = 'button';
+        link.target = '_blank';
+        link.rel = 'noreferrer';
+        link.id = id === 'S-07' ? 'prepared-base' : 'prepared-inert';
+        link.textContent = id === 'S-07' ? 'Open CFV-1 prepared link ↗' : 'Open inert-text prepared link ↗';
+        prepared.appendChild(link);
+        content.appendChild(prepared);
+      }
+
+      const controls = document.createElement('div');
+      controls.className = 'result-control';
+      ['pass', 'issue'].forEach(result => {
+        const label = document.createElement('label');
+        label.className = 'choice ' + result;
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'result-' + id;
+        input.value = result;
+        input.checked = saved.status === result;
+        input.addEventListener('change', () => {
+          const entry = state.tests[id] || {};
+          entry.status = result;
+          state.tests[id] = entry;
+          row.dataset.status = result;
+          saveState();
+          updateDashboard();
+          applyFilter();
+        });
+        label.append(input, document.createTextNode(result === 'pass' ? 'Pass' : 'Issue'));
+        controls.appendChild(label);
+      });
+
+      const severity = document.createElement('select');
+      severity.className = 'severity';
+      severity.setAttribute('aria-label', id + ' issue severity');
+      ['P0 — cutover stop', 'P1 — primary flow broken', 'P2 — degraded / workaround', 'P3 — cosmetic'].forEach(value => {
+        const option = document.createElement('option');
+        option.value = value.slice(0, 2);
+        option.textContent = value;
+        severity.appendChild(option);
+      });
+      severity.value = saved.severity || 'P1';
+      severity.addEventListener('change', () => {
+        const entry = state.tests[id] || {};
+        entry.severity = severity.value;
+        state.tests[id] = entry;
+        saveState();
+        updateIssues();
+      });
+      controls.appendChild(severity);
+
+      const notesLabel = document.createElement('label');
+      notesLabel.className = 'notes-label';
+      notesLabel.appendChild(document.createTextNode('Notes / evidence'));
+      const notes = document.createElement('textarea');
+      notes.placeholder = 'Observed result, reproduction, screenshot or request ID…';
+      notes.value = saved.notes || '';
+      notes.addEventListener('input', () => {
+        const entry = state.tests[id] || {};
+        entry.notes = notes.value;
+        state.tests[id] = entry;
+        saveState();
+        updateIssues();
+      });
+      notesLabel.appendChild(notes);
+      row.append(idCell, content, controls, notesLabel);
+      return row;
+    }
+
+    function renderTests() {
+      const root = document.getElementById('test-sections');
+      root.replaceChildren();
+      sections.forEach((section, index) => {
+        const details = document.createElement('details');
+        details.className = 'test-section';
+        details.open = index < 2;
+        const summary = document.createElement('summary');
+        const title = document.createElement('span');
+        title.className = 'section-title';
+        title.textContent = section.title;
+        const counter = document.createElement('span');
+        counter.className = 'section-counter';
+        counter.dataset.sectionIndex = String(index);
+        summary.append(title, counter);
+        const description = document.createElement('p');
+        description.className = 'section-description';
+        description.textContent = section.description;
+        const list = document.createElement('div');
+        list.className = 'test-list';
+        section.tests.forEach(test => list.appendChild(createTestRow(test)));
+        details.append(summary, description, list);
+        root.appendChild(details);
+      });
+      updateLinks();
+    }
+
+    function renderBlockers() {
+      const root = document.getElementById('blocker-list');
+      root.replaceChildren();
+      blockers.forEach((text, index) => {
+        const label = document.createElement('label');
+        label.className = 'blocker';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = Boolean(state.blockers[index]);
+        input.addEventListener('change', () => {
+          state.blockers[index] = input.checked;
+          saveState();
+        });
+        const span = document.createElement('span');
+        span.textContent = text;
+        label.append(input, span);
+        root.appendChild(label);
+      });
+    }
+
+    function renderSignoff() {
+      const root = document.getElementById('signoff-grid');
+      root.replaceChildren();
+      signoffRoles.forEach(role => {
+        const saved = state.signoff[role] || {};
+        const card = document.createElement('div');
+        card.className = 'callout';
+        const heading = document.createElement('strong');
+        heading.textContent = role;
+        const name = document.createElement('input');
+        name.type = 'text';
+        name.placeholder = 'Name';
+        name.value = saved.name || '';
+        const decision = document.createElement('select');
+        ['', 'Pass', 'Block', 'Go', 'No-go'].forEach(value => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = value || 'Decision…';
+          decision.appendChild(option);
+        });
+        decision.value = saved.decision || '';
+        [name, decision].forEach(control => {
+          control.style.marginTop = '.6rem';
+          control.addEventListener('input', () => {
+            state.signoff[role] = { name: name.value, decision: decision.value };
+            saveState();
+          });
+        });
+        card.append(heading, name, decision);
+        root.appendChild(card);
+      });
+    }
+
+    function allTests() {
+      return sections.flatMap(section => section.tests);
+    }
+
+    function updateDashboard() {
+      const tests = allTests();
+      const pass = tests.filter(([id]) => state.tests[id]?.status === 'pass').length;
+      const issue = tests.filter(([id]) => state.tests[id]?.status === 'issue').length;
+      const complete = pass + issue;
+      document.getElementById('count-total').textContent = String(tests.length);
+      document.getElementById('count-complete').textContent = String(complete);
+      document.getElementById('count-pass').textContent = String(pass);
+      document.getElementById('count-issue').textContent = String(issue);
+      document.getElementById('progress-bar').style.width = (tests.length ? complete / tests.length * 100 : 0) + '%';
+      sections.forEach((section, index) => {
+        const done = section.tests.filter(([id]) => Boolean(state.tests[id]?.status)).length;
+        const counter = document.querySelector('[data-section-index="' + index + '"]');
+        if (counter) counter.textContent = done + ' / ' + section.tests.length;
+      });
+      updateIssues();
+    }
+
+    function updateIssues() {
+      const root = document.getElementById('issue-rollup');
+      root.replaceChildren();
+      const issues = allTests().filter(([id]) => state.tests[id]?.status === 'issue');
+      if (!issues.length) {
+        const empty = document.createElement('p');
+        empty.className = 'issue-empty';
+        empty.textContent = 'No issues recorded.';
+        root.appendChild(empty);
+        return;
+      }
+      issues.forEach(([id, name]) => {
+        const saved = state.tests[id] || {};
+        const card = document.createElement('div');
+        card.className = 'issue-card';
+        const heading = document.createElement('strong');
+        heading.textContent = (saved.severity || 'P1') + ' · ' + id + ' · ' + name;
+        const notes = document.createElement('p');
+        notes.textContent = saved.notes || 'No reproduction or evidence recorded yet.';
+        card.append(heading, notes);
+        root.appendChild(card);
+      });
+    }
+
+    function applyFilter() {
+      document.querySelectorAll('.test-row').forEach(row => {
+        const status = row.dataset.status || '';
+        const show = currentFilter === 'all' || currentFilter === status || (currentFilter === 'untested' && !status);
+        row.classList.toggle('hidden', !show);
+      });
+    }
+
+    function bindMeta() {
+      document.querySelectorAll('[data-meta]').forEach(control => {
+        const key = control.dataset.meta;
+        if (state.meta[key] !== undefined) {
+          control.value = state.meta[key];
+        } else {
+          state.meta[key] = control.value;
+        }
+        control.addEventListener('input', () => {
+          state.meta[key] = control.value;
+          saveState();
+          if (key === 'baseUrl') updateLinks();
+        });
+      });
+      if (!state.meta.datetime) {
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        const field = document.querySelector('[data-meta="datetime"]');
+        field.value = local;
+        state.meta.datetime = local;
+        saveState();
+      }
+    }
+
+    function summaryText() {
+      const tests = allTests();
+      const pass = tests.filter(([id]) => state.tests[id]?.status === 'pass');
+      const issues = tests.filter(([id]) => state.tests[id]?.status === 'issue');
+      const pending = tests.filter(([id]) => !state.tests[id]?.status);
+      const lines = [
+        'Critical Fixes Manual Validation',
+        'Tester: ' + (state.meta.tester || '—'),
+        'Environment: ' + (state.meta.environment || '—'),
+        'Branch / commit: ' + (state.meta.commit || '—'),
+        'Result: ' + pass.length + ' pass, ' + issues.length + ' issues, ' + pending.length + ' untested',
+        ''
+      ];
+      if (issues.length) {
+        lines.push('Issues:');
+        issues.forEach(([id, name]) => {
+          const saved = state.tests[id] || {};
+          lines.push('- ' + (saved.severity || 'P1') + ' ' + id + ' ' + name + ': ' + (saved.notes || 'No notes'));
+        });
+      } else {
+        lines.push('Issues: none recorded');
+      }
+      const blockersDone = blockers.filter((_, index) => state.blockers[index]).length;
+      lines.push('', 'Cutover blockers complete: ' + blockersDone + '/' + blockers.length);
+      return lines.join('\n');
+    }
+
+    document.querySelectorAll('.filter').forEach(button => {
+      button.addEventListener('click', () => {
+        currentFilter = button.dataset.filter;
+        document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item === button));
+        applyFilter();
+      });
+    });
+
+    document.getElementById('copy-summary').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(summaryText());
+      const button = document.getElementById('copy-summary');
+      const original = button.textContent;
+      button.textContent = 'Copied';
+      window.setTimeout(() => { button.textContent = original; }, 1000);
+    });
+
+    document.getElementById('export-json').addEventListener('click', () => {
+      const payload = { exportedAt: new Date().toISOString(), sheet: 'Critical Fixes Manual Validation PIN Sheet', ...state };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'critical-fixes-pin-' + new Date().toISOString().slice(0, 10) + '.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('print-sheet').addEventListener('click', () => window.print());
+    document.getElementById('reset-sheet').addEventListener('click', () => {
+      if (!window.confirm('Reset every result, note, blocker, and sign-off field in this browser?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    });
+
+    renderTests();
+    renderBlockers();
+    renderSignoff();
+    bindMeta();
+    updateDashboard();
+    applyFilter();
+  </script>
+</body>
+</html>
