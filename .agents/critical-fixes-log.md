@@ -24,7 +24,7 @@
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 1 | Merged | `93daa21` |
 | 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 2 | Merged; CFV-1 remediated | `8c22355` |
 | 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 2 | Merged | `678af59` |
-| 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 1 | Product defect returned to A6 | - |
+| 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 2 | Merged; code verification PASS | `a415265` |
 
 ## Detailed results
 
@@ -508,3 +508,77 @@ checks are recorded here before the next agent starts.
   - CFV-1 is resolved in product code and an A6-owned regression.
   - A8 must now refresh from `critical-fixes` and independently prove its
     original failing test is green before the verifier branch may merge.
+
+### A8 - Final integration verification after CFV-1
+
+- Verifier refresh merge:
+  - `34afd4f` - `[A8/VERIFY] refresh after CFV-1 remediation`
+- Final agent commit:
+  - `5614d39` - `[A8/VERIFY] finalize remediation verification`
+- Gate attempt 2: **passed**.
+  - Diff ownership is clean and confined to the explicitly required
+    `.agents/critical-fixes-verification.md` report and A8-owned
+    `tests/critical-verification.spec.ts`.
+  - `npm run test:unit`: passed, 80 tests.
+  - `npm run test:critical`: passed, 80 tests.
+  - `npx astro check`: passed across 50 files with 0 errors and 6 existing
+    hints.
+  - `npm run build`: passed, 30 pages.
+  - `npm run check:hosts`: passed.
+  - `node n8n/FreezerBatchCocktails-v2.static-test.mjs`: passed.
+  - Independent isolated Chromium run:
+    `tests/injection.spec.ts tests/share.spec.ts
+    tests/email-forms.spec.ts`: 18 tests passed in 41.3 seconds.
+  - Independent isolated Chromium run:
+    `tests/critical-verification.spec.ts`: 5 tests passed in 9.3 seconds.
+  - The unchanged verifier regression that originally exposed CFV-1 now
+    passes, preserving explicit C1 base flags `[false, true, false]`.
+  - Static review confirms:
+    - The sole calculator `innerHTML` assignment is behind an allow-listed
+      repository-authored preset lookup; custom names use safe DOM APIs.
+    - Browser source contains no n8n/webhook host.
+    - The host guard and generated canonical query/fragment scan are clean.
+    - `public/_routes.json` routes exactly `/api/*`.
+    - Vitest includes only unit-test globs and cannot collect Playwright specs.
+    - Functions and n8n contain named environment references and known service
+      endpoints, not embedded credential values or hosted webhook URLs.
+  - A8 reran the explicitly deferred legacy suites for observation only:
+    30 passed and the same 17 stale tests failed (11 calculator assumptions,
+    6 responsive selector/copy assumptions). No legacy-suite repair was
+    attempted.
+  - Final verifier verdict: every code-verifiable gate passes; no remaining
+    product bug was found.
+- Merge: `a415265034db3dc980fabf4c594e6ead2309ecdd`
+  (`[orchestrator] merge A8 verification`).
+- Post-merge:
+  - `npx astro check`: passed with 0 errors (6 existing hints).
+  - `npm run test:unit`: passed, 80 tests.
+  - `npm run build`: passed, 30 pages.
+
+## Final orchestration status
+
+- Sequential merge order completed: A4, A1, A3, A5, A2, A6, A7, A8.
+- Contracts C1-C6 remained frozen and unchanged.
+- The orchestrator wrote no feature code. Direct edits were limited to this
+  log; Git staging/commits performed for workers were coordination-only when
+  their sandbox could not write the index.
+- Model deviations:
+  - A4 used `gpt-5.6-terra`/medium because the launcher did not expose its
+    assigned Luna model; this was explicitly authorized and logged.
+  - A5 escalated from Terra/high to Sol/high after two failed gates, per the
+    pack.
+  - A8 completed on its assigned Sol/xhigh model. The prolonged final response
+    was treated as an escalation request, but the Sol task had already
+    completed and committed before interruption.
+- Test-environment deviation:
+  - Browser gates used the built site on isolated port 4333 because the
+    repository-default port 4321 server was stale. The same Chromium specs and
+    assertions ran without modification.
+- Production cutover remains blocked by every access-gated Human Checklist
+  dependency: live Cloudflare DNS/redirect ownership and matrix; Turnstile
+  widgets and bindings; Pages n8n bindings and matching secret; n8n v2 import
+  and staging matrix including duplicate-ID behavior; Resend domain,
+  SPF/DKIM/DMARC, sender and marketing headers; WAF rate rule; coordinated
+  Function/workflow cutover and old-webhook shutdown; Privacy Policy update;
+  the external subscriber/CRM double-opt-in promotion mechanism; and the
+  required 48-hour observation window.
