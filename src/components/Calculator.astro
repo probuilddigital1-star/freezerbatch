@@ -346,7 +346,7 @@ const recipeTiles = cocktailsData.cocktails
           </label>
           <div class="turnstile-container mt-3" aria-label="Verification challenge"></div>
           <p class="turnstile-note mt-2 text-xs text-cognac-500" aria-live="polite"></p>
-          <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
+          <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite" tabindex="-1"></p>
         </form>
       </div>
     </div>
@@ -1176,7 +1176,7 @@ const recipeTiles = cocktailsData.cocktails
           </label>
           <div class="turnstile-container mt-3" aria-label="Verification challenge"></div>
           <p class="turnstile-note mt-2 text-xs text-cognac-500" aria-live="polite"></p>
-          <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
+          <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite" tabindex="-1"></p>
           </form>
         </div>
       `;
@@ -1757,16 +1757,20 @@ const recipeTiles = cocktailsData.cocktails
         });
     }
 
-    private clearEmailTurnstileToken(form: HTMLFormElement) {
+    private setEmailTurnstilePending(form: HTMLFormElement, noteText = '') {
       delete form.dataset.turnstileToken;
       const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
       const note = form.querySelector<HTMLElement>('.turnstile-note');
       if (submitBtn) submitBtn.disabled = true;
-      if (note) note.textContent = 'Please retry the verification challenge.';
+      if (note) note.textContent = noteText;
+    }
+
+    private clearEmailTurnstileToken(form: HTMLFormElement) {
+      this.setEmailTurnstilePending(form, 'Please retry the verification challenge.');
     }
 
     private resetEmailTurnstile(form: HTMLFormElement) {
-      this.clearEmailTurnstileToken(form);
+      this.setEmailTurnstilePending(form);
       const widgetId = this.emailTurnstileWidgets.get(form);
       if (widgetId !== undefined && (window as any).turnstile) {
         (window as any).turnstile.reset(widgetId);
@@ -1856,6 +1860,7 @@ const recipeTiles = cocktailsData.cocktails
         if (status) {
           status.textContent = `✓ Sent to ${email} — check your inbox.`;
           status.className = 'email-status mt-2 text-xs text-success font-medium';
+          status.focus();
         }
         if (emailInput) emailInput.value = '';
         if (subscribeInput) subscribeInput.checked = false;
@@ -1866,6 +1871,7 @@ const recipeTiles = cocktailsData.cocktails
         if (status) {
           status.textContent = this.emailErrorMessage(err instanceof Error ? err.message : undefined);
           status.className = 'email-status mt-2 text-xs text-danger';
+          status.focus();
         }
       } finally {
         if (submitBtn) submitBtn.disabled = !form.dataset.turnstileToken;

@@ -25,7 +25,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
           <div class="turnstile-container mt-4" aria-label="Verification challenge"></div>
           <p class="turnstile-note mt-2 text-xs text-gray-600" aria-live="polite"></p>
-          <p id="form-status" class="hidden mt-4 text-sm text-center" role="status" aria-live="polite"></p>
+          <p id="form-status" class="hidden mt-4 text-sm text-center" role="status" aria-live="polite" tabindex="-1"></p>
         </form>
       </unsubscribe-form>
       <div class="mt-8 text-center"><p class="text-gray-500 text-sm mb-4">Changed your mind?</p><a href="/" class="text-primary-600 hover:text-primary-700 font-medium">Return to FreezerBatch</a></div>
@@ -87,15 +87,19 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       }).catch(() => { if (note) note.textContent = 'Verification could not load. Please refresh and try again.'; });
     }
 
-    private clearTurnstileToken() {
+    private setTurnstilePending(noteText = '') {
       delete this.dataset.turnstileToken;
       if (this.submitBtn) this.submitBtn.disabled = true;
       const note = this.querySelector<HTMLElement>('.turnstile-note');
-      if (note) note.textContent = 'Please retry the verification challenge.';
+      if (note) note.textContent = noteText;
+    }
+
+    private clearTurnstileToken() {
+      this.setTurnstilePending('Please retry the verification challenge.');
     }
 
     private resetTurnstile() {
-      this.clearTurnstileToken();
+      this.setTurnstilePending();
       if (this.widgetId !== null && (window as any).turnstile) (window as any).turnstile.reset(this.widgetId);
     }
 
@@ -111,6 +115,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       if (!this.status) return;
       this.status.textContent = message;
       this.status.className = `mt-4 text-sm text-center ${success ? 'text-green-700' : 'text-red-700'}`;
+      this.status.focus();
     }
 
     private async handleSubmit() {

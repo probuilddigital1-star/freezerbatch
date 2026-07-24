@@ -14,7 +14,10 @@ async function enableMockTurnstile(page: Page) {
         options.callback('test-turnstile-token');
         return id;
       },
-      reset: (id: number) => callbacks.get(id)?.callback('test-turnstile-token'),
+      reset: (_id: number) => undefined,
+    };
+    (window as Window & { __solveTurnstile?: () => void }).__solveTurnstile = () => {
+      callbacks.get(widgetId)?.callback('fresh-turnstile-token');
     };
 
     const setTestKey = () => {
@@ -25,6 +28,10 @@ async function enableMockTurnstile(page: Page) {
     new MutationObserver(setTestKey).observe(document, { childList: true, subtree: true });
     setTestKey();
   });
+}
+
+async function solveMockTurnstile(page: Page) {
+  await page.evaluate(() => (window as Window & { __solveTurnstile?: () => void }).__solveTurnstile?.());
 }
 
 async function mockEmailApi(page: Page, responses: Array<{ status: number; code?: string }>) {
@@ -49,6 +56,12 @@ test.describe('same-origin email forms', () => {
     await expect.poll(() => requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({ action: 'send_recipe', email: 'Person@Example.com', marketingConsent: false, page: '/', turnstileToken: 'test-turnstile-token', website: '' });
     expect(requests[0].recipe).toMatchObject({ mode: 'preset', slug: 'negroni', bottleMl: 750, unit: 'oz' });
+    const recipeForm = page.locator('.preset-email-form');
+    await expect(recipeForm.getByRole('status')).toBeFocused();
+    await expect(recipeForm.locator('.turnstile-note')).not.toContainText('retry the verification challenge');
+    await expect(recipeForm.locator('button[type="submit"]')).toBeDisabled();
+    await solveMockTurnstile(page);
+    await expect(recipeForm.locator('button[type="submit"]')).toBeEnabled();
 
     await page.reload();
     await page.locator('.recipe-tile[data-recipe="negroni"]').click();
@@ -68,6 +81,11 @@ test.describe('same-origin email forms', () => {
     await signup.locator('button[type="submit"]').click();
     await expect.poll(() => requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({ action: 'subscribe', consentVersion: '2026-07-23', page: '/', turnstileToken: 'test-turnstile-token' });
+    await expect(signup.getByRole('status')).toBeFocused();
+    await expect(signup.locator('.turnstile-note')).not.toContainText('retry the verification challenge');
+    await expect(signup.locator('button[type="submit"]')).toBeDisabled();
+    await solveMockTurnstile(page);
+    await expect(signup.locator('button[type="submit"]')).toBeEnabled();
 
     await page.goto('/unsubscribe/');
     const unsubscribe = page.locator('unsubscribe-form');
@@ -75,6 +93,11 @@ test.describe('same-origin email forms', () => {
     await unsubscribe.locator('button[type="submit"]').click();
     await expect.poll(() => requests).toHaveLength(2);
     expect(requests[1]).toMatchObject({ action: 'unsubscribe', page: '/unsubscribe/', turnstileToken: 'test-turnstile-token' });
+    await expect(unsubscribe.getByRole('status')).toBeFocused();
+    await expect(unsubscribe.locator('.turnstile-note')).not.toContainText('retry the verification challenge');
+    await expect(unsubscribe.locator('button[type="submit"]')).toBeDisabled();
+    await solveMockTurnstile(page);
+    await expect(unsubscribe.locator('button[type="submit"]')).toBeEnabled();
   });
 
   test('maps API errors accessibly and prevents duplicate requests', async ({ page }) => {
@@ -91,6 +114,7 @@ test.describe('same-origin email forms', () => {
       await form.locator('input[type="email"]').fill('person@example.com');
       await form.locator('button[type="submit"]').click();
       await expect(form.getByRole('status')).toHaveText(message);
+      await expect(form.getByRole('status')).toBeFocused();
       expect(requests).toHaveLength(1);
     }
 
@@ -116,11 +140,13 @@ test.describe('same-origin email forms', () => {
     await form.locator('input[type="email"]').fill('person@example.com');
     await submit.click();
     await expect(form.getByRole('status')).toHaveText("We'll be back shortly.");
+    await solveMockTurnstile(page);
     await submit.click();
     await expect.poll(() => requests).toHaveLength(2);
     expect(requests[1].requestId).toBe(requests[0].requestId);
 
     await form.locator('input[type="email"]').fill('new@example.com');
+    await solveMockTurnstile(page);
     await submit.click();
     await expect.poll(() => requests).toHaveLength(3);
     expect(requests[2].requestId).not.toBe(requests[1].requestId);

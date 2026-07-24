@@ -32,7 +32,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     </form>
     <div class="turnstile-container mt-3" aria-label="Verification challenge"></div>
     <p class="turnstile-note mt-2 text-xs text-study-muted" aria-live="polite"></p>
-    <p id="form-status" class="hidden mt-6 text-[13px] font-medium uppercase tracking-[0.15em]" role="status" aria-live="polite"></p>
+    <p id="form-status" class="hidden mt-6 text-[13px] font-medium uppercase tracking-[0.15em]" role="status" aria-live="polite" tabindex="-1"></p>
     <p class="mt-8 text-[11px] uppercase tracking-[0.2em] text-study-muted/70">No spam, ever. <a href="/privacy" class="hover:text-accent-500 underline-offset-4 underline">Privacy</a></p>
   </div>
 </email-signup-form>
@@ -93,15 +93,19 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       }).catch(() => { if (note) note.textContent = 'Verification could not load. Please refresh and try again.'; });
     }
 
-    private clearTurnstileToken() {
+    private setTurnstilePending(noteText = '') {
       delete this.dataset.turnstileToken;
       if (this.submitBtn) this.submitBtn.disabled = true;
       const note = this.querySelector<HTMLElement>('.turnstile-note');
-      if (note) note.textContent = 'Please retry the verification challenge.';
+      if (note) note.textContent = noteText;
+    }
+
+    private clearTurnstileToken() {
+      this.setTurnstilePending('Please retry the verification challenge.');
     }
 
     private resetTurnstile() {
-      this.clearTurnstileToken();
+      this.setTurnstilePending();
       if (this.widgetId !== null && (window as any).turnstile) (window as any).turnstile.reset(this.widgetId);
     }
 
@@ -117,6 +121,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       if (!this.status) return;
       this.status.textContent = message;
       this.status.className = `mt-6 text-[13px] font-medium uppercase tracking-[0.15em] ${success ? 'text-success' : 'text-danger'}`;
+      this.status.focus();
     }
 
     private async handleSubmit() {
