@@ -1,179 +1,152 @@
 ---
-/**
- * Email Signup CTA — The Study (dark editorial)
- * Centered layout, dark input, brass subscribe button.
- */
-
 export interface Props {
   headline?: string;
   subheadline?: string;
   buttonText?: string;
-  /** kept for API compatibility; The Study uses a single dark variant */
   variant?: 'default' | 'dark' | 'gradient';
 }
 
 const {
-  headline = "Join the batch",
-  subheadline = "New recipes, freezer hacks, and the occasional spirit recommendation.",
-  buttonText = "Subscribe",
+  headline = 'Join the batch',
+  subheadline = 'New recipes, freezer hacks, and the occasional spirit recommendation.',
+  buttonText = 'Subscribe',
 } = Astro.props;
-
-const webhookUrl = "https://zax76.app.n8n.cloud/webhook/freezerbatch-email";
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 ---
 
-<email-signup-form class="block" data-webhook={webhookUrl}>
+<email-signup-form class="block" data-turnstile-site-key={turnstileSiteKey}>
   <div class="max-w-xl mx-auto text-center px-6 sm:px-10 py-12 sm:py-16">
-
     <p class="section-eyebrow">Newsletter</p>
-
-    <h3 class="font-display text-[36px] sm:text-[44px] text-cream-100 italic font-normal leading-tight mb-4">
-      {headline}
-    </h3>
-
-    <p class="text-[15px] text-study-muted font-light mb-10">
-      {subheadline}
-    </p>
+    <h3 class="font-display text-[36px] sm:text-[44px] text-cream-100 italic font-normal leading-tight mb-4">{headline}</h3>
+    <p class="text-[15px] text-study-muted font-light mb-10">{subheadline}</p>
 
     <form id="signup-form" class="flex flex-col sm:flex-row gap-3">
-      <input
-        type="email"
-        id="email-input"
-        name="email"
-        placeholder="Your email"
-        required
-        class="flex-1 px-5 py-4 bg-study-card border border-study-border text-cream-100 placeholder:text-study-muted text-[14px] focus:border-accent-500 focus:outline-none transition-colors"
-      />
-      <button
-        type="submit"
-        id="submit-btn"
-        class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed sm:min-w-[160px]"
-      >
+      <label class="sr-only" for="email-input">Email address</label>
+      <input type="email" id="email-input" name="email" placeholder="Your email" autocomplete="email" required
+        class="flex-1 px-5 py-4 bg-study-card border border-study-border text-cream-100 placeholder:text-study-muted text-[14px] focus:border-accent-500 focus:outline-none transition-colors" />
+      <button type="submit" id="submit-btn" class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed sm:min-w-[160px]">
         <span id="btn-text">{buttonText}</span>
-        <svg id="btn-spinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
+        <svg id="btn-spinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
       </button>
+      <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
     </form>
-
-    <!-- Success -->
-    <div id="success-message" class="hidden mt-6">
-      <div class="inline-flex items-center gap-2 text-success text-[13px] font-medium uppercase tracking-[0.15em]">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        <span>You're in. Check your inbox.</span>
-      </div>
-    </div>
-
-    <!-- Error -->
-    <div id="error-message" class="hidden mt-6">
-      <div class="inline-flex items-center gap-2 text-danger text-[13px] font-medium uppercase tracking-[0.15em]">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span id="error-text">Something went wrong. Please try again.</span>
-      </div>
-    </div>
-
-    <p class="mt-8 text-[11px] uppercase tracking-[0.2em] text-study-muted/70">
-      No spam, ever. <a href="/privacy" class="hover:text-accent-500 underline-offset-4 underline">Privacy</a>
-    </p>
+    <div class="turnstile-container mt-3" aria-label="Verification challenge"></div>
+    <p class="turnstile-note mt-2 text-xs text-study-muted" aria-live="polite"></p>
+    <p id="form-status" class="hidden mt-6 text-[13px] font-medium uppercase tracking-[0.15em]" role="status" aria-live="polite"></p>
+    <p class="mt-8 text-[11px] uppercase tracking-[0.2em] text-study-muted/70">No spam, ever. <a href="/privacy" class="hover:text-accent-500 underline-offset-4 underline">Privacy</a></p>
   </div>
 </email-signup-form>
 
 <script>
   class EmailSignupForm extends HTMLElement {
-    private form: HTMLFormElement | null;
-    private emailInput: HTMLInputElement | null;
-    private submitBtn: HTMLButtonElement | null;
-    private btnText: HTMLElement | null;
-    private btnSpinner: HTMLElement | null;
-    private successMessage: HTMLElement | null;
-    private errorMessage: HTMLElement | null;
-    private errorText: HTMLElement | null;
-    private webhookUrl: string;
-
-    constructor() {
-      super();
-      this.form = null;
-      this.emailInput = null;
-      this.submitBtn = null;
-      this.btnText = null;
-      this.btnSpinner = null;
-      this.successMessage = null;
-      this.errorMessage = null;
-      this.errorText = null;
-      this.webhookUrl = '';
-    }
+    private form: HTMLFormElement | null = null;
+    private emailInput: HTMLInputElement | null = null;
+    private submitBtn: HTMLButtonElement | null = null;
+    private status: HTMLElement | null = null;
+    private requestId: string | null = null;
+    private widgetId: string | number | null = null;
 
     connectedCallback() {
       this.form = this.querySelector('#signup-form');
       this.emailInput = this.querySelector('#email-input');
       this.submitBtn = this.querySelector('#submit-btn');
-      this.btnText = this.querySelector('#btn-text');
-      this.btnSpinner = this.querySelector('#btn-spinner');
-      this.successMessage = this.querySelector('#success-message');
-      this.errorMessage = this.querySelector('#error-message');
-      this.errorText = this.querySelector('#error-text');
-      this.webhookUrl = this.dataset.webhook || '';
-
-      this.form?.addEventListener('submit', (e) => this.handleSubmit(e));
+      this.status = this.querySelector('#form-status');
+      this.form?.addEventListener('submit', (event) => { event.preventDefault(); void this.handleSubmit(); });
+      this.form?.addEventListener('input', () => { this.requestId = null; });
+      this.initializeTurnstile();
     }
 
-    private async handleSubmit(e: Event) {
-      e.preventDefault();
-      if (!this.emailInput || !this.submitBtn) return;
-      const email = this.emailInput.value.trim();
-      if (!email) return;
+    private async loadTurnstile(): Promise<any> {
+      if ((window as any).turnstile) return (window as any).turnstile;
+      if ((window as any).__fbcTurnstilePromise) return (window as any).__fbcTurnstilePromise;
+      (window as any).__fbcTurnstilePromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => (window as any).turnstile ? resolve((window as any).turnstile) : reject(new Error('Turnstile did not load'));
+        script.onerror = () => reject(new Error('Turnstile failed to load'));
+        document.head.appendChild(script);
+      });
+      return (window as any).__fbcTurnstilePromise;
+    }
 
-      this.setLoading(true);
-      this.hideMessages();
-
-      try {
-        const response = await fetch(this.webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            source: 'freezerbatchcocktails.com',
-            timestamp: new Date().toISOString(),
-            page: window.location.pathname,
-          }),
+    private initializeTurnstile() {
+      const note = this.querySelector<HTMLElement>('.turnstile-note');
+      const container = this.querySelector<HTMLElement>('.turnstile-container');
+      const siteKey = this.dataset.turnstileSiteKey || '';
+      if (!siteKey) {
+        if (this.submitBtn) this.submitBtn.disabled = true;
+        if (note) note.textContent = 'Newsletter signup is unavailable in local development because verification is not configured.';
+        return;
+      }
+      if (!this.submitBtn || !container) return;
+      this.submitBtn.disabled = true;
+      if (note) note.textContent = 'Complete the verification challenge to subscribe.';
+      void this.loadTurnstile().then((turnstile) => {
+        this.widgetId = turnstile.render(container, {
+          sitekey: siteKey,
+          callback: (token: string) => { this.dataset.turnstileToken = token; if (this.submitBtn) this.submitBtn.disabled = false; if (note) note.textContent = ''; },
+          'expired-callback': () => this.clearTurnstileToken(),
+          'error-callback': () => this.clearTurnstileToken(),
         });
-        if (!response.ok) throw new Error('Signup failed');
-        this.showSuccess();
-        this.emailInput.value = '';
+      }).catch(() => { if (note) note.textContent = 'Verification could not load. Please refresh and try again.'; });
+    }
+
+    private clearTurnstileToken() {
+      delete this.dataset.turnstileToken;
+      if (this.submitBtn) this.submitBtn.disabled = true;
+      const note = this.querySelector<HTMLElement>('.turnstile-note');
+      if (note) note.textContent = 'Please retry the verification challenge.';
+    }
+
+    private resetTurnstile() {
+      this.clearTurnstileToken();
+      if (this.widgetId !== null && (window as any).turnstile) (window as any).turnstile.reset(this.widgetId);
+    }
+
+    private errorMessage(code: string | undefined) {
+      if (code === 'invalid_request') return 'Please check the form and try again.';
+      if (code === 'verification_failed') return 'Please retry the challenge.';
+      if (code === 'rate_limited') return 'Please try again in a minute.';
+      if (code === 'upstream_unavailable') return "We'll be back shortly.";
+      return 'Something went wrong. Please try again.';
+    }
+
+    private showStatus(message: string, success: boolean) {
+      if (!this.status) return;
+      this.status.textContent = message;
+      this.status.className = `mt-6 text-[13px] font-medium uppercase tracking-[0.15em] ${success ? 'text-success' : 'text-danger'}`;
+    }
+
+    private async handleSubmit() {
+      const email = this.emailInput?.value.trim();
+      const turnstileToken = this.dataset.turnstileToken;
+      if (!email || !turnstileToken || !this.submitBtn || this.submitBtn.disabled) return;
+      this.requestId ||= crypto.randomUUID();
+      this.submitBtn.disabled = true;
+      try {
+        const response = await fetch('/api/email', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'subscribe', requestId: this.requestId, email, consentVersion: '2026-07-23', page: window.location.pathname, turnstileToken, website: this.form?.querySelector<HTMLInputElement>('input[name="website"]')?.value || '' }),
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          if ([403, 429, 502].includes(response.status)) this.resetTurnstile();
+          if (response.status === 400) this.requestId = null;
+          throw new Error(typeof body.code === 'string' ? body.code : 'email_request_failed');
+        }
+        this.emailInput!.value = '';
+        this.requestId = null;
+        this.resetTurnstile();
+        this.showStatus("You're in. Check your inbox.", true);
       } catch (error) {
-        console.error('Email signup error:', error);
-        this.showError('Something went wrong. Please try again.');
+        if (error instanceof TypeError) this.resetTurnstile();
+        this.showStatus(this.errorMessage(error instanceof Error ? error.message : undefined), false);
       } finally {
-        this.setLoading(false);
+        if (this.submitBtn) this.submitBtn.disabled = !this.dataset.turnstileToken;
       }
     }
-
-    private setLoading(loading: boolean) {
-      if (!this.submitBtn || !this.btnText || !this.btnSpinner) return;
-      this.submitBtn.disabled = loading;
-      this.btnText.textContent = loading ? 'Sending…' : 'Subscribe';
-      this.btnSpinner.classList.toggle('hidden', !loading);
-    }
-
-    private hideMessages() {
-      this.successMessage?.classList.add('hidden');
-      this.errorMessage?.classList.add('hidden');
-    }
-
-    private showSuccess() {
-      this.form?.classList.add('hidden');
-      this.successMessage?.classList.remove('hidden');
-    }
-
-    private showError(message: string) {
-      if (this.errorText) this.errorText.textContent = message;
-      this.errorMessage?.classList.remove('hidden');
-    }
   }
-
   customElements.define('email-signup-form', EmailSignupForm);
 </script>

@@ -17,6 +17,7 @@ export interface Props {
 }
 
 const { cocktailSlug, simple = false } = Astro.props;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 // Only show recipes that have a Milk Street batch defined (the calculator
 // can compute them). Order matches cocktails.json — bulletproof first.
@@ -34,6 +35,7 @@ const recipeTiles = cocktailsData.cocktails
   class="calculator-wrapper block"
   data-cocktail={cocktailSlug}
   data-simple={simple}
+  data-turnstile-site-key={turnstileSiteKey}
 >
   <div class="card">
     <p
@@ -338,6 +340,12 @@ const recipeTiles = cocktailsData.cocktails
             <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
             <span>Also send me new recipes &amp; tips (optional)</span>
           </label>
+          <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            Leave this field empty
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+          <div class="turnstile-container mt-3" aria-label="Verification challenge"></div>
+          <p class="turnstile-note mt-2 text-xs text-cognac-500" aria-live="polite"></p>
           <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -614,6 +622,8 @@ const recipeTiles = cocktailsData.cocktails
     private currentPresetId: string | null = null;
     private dilutionPercent: number = 20;
     private isHydrating = false;
+    private emailRequestIds = new WeakMap<HTMLFormElement, string>();
+    private emailTurnstileWidgets = new WeakMap<HTMLFormElement, string | number>();
 
     connectedCallback() {
       this.setupEventListeners();
@@ -825,10 +835,8 @@ const recipeTiles = cocktailsData.cocktails
 
       // Inline email form (custom mode). The preset-mode form is wired up
       // when its HTML is rendered by loadPreset().
-      this.querySelector('#email-recipe-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.handleEmailSubmit(e.currentTarget as HTMLFormElement);
-      });
+      const emailForm = this.querySelector('#email-recipe-form') as HTMLFormElement | null;
+      if (emailForm) this.setupEmailForm(emailForm);
     }
 
     private setMode(mode: 'custom' | 'preset') {
@@ -1158,11 +1166,17 @@ const recipeTiles = cocktailsData.cocktails
                 <span class="email-send-label">Email me this</span>
               </button>
             </div>
-            <label class="flex items-center gap-2 mt-2.5 text-xs text-cognac-500 cursor-pointer select-none">
-              <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
-              <span>Also send me new recipes &amp; tips (optional)</span>
-            </label>
-            <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
+          <label class="flex items-center gap-2 mt-2.5 text-xs text-cognac-500 cursor-pointer select-none">
+            <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
+            <span>Also send me new recipes &amp; tips (optional)</span>
+          </label>
+          <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            Leave this field empty
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+          <div class="turnstile-container mt-3" aria-label="Verification challenge"></div>
+          <p class="turnstile-note mt-2 text-xs text-cognac-500" aria-live="polite"></p>
+          <p class="email-status hidden mt-2 text-xs" role="status" aria-live="polite"></p>
           </form>
         </div>
       `;
@@ -1183,10 +1197,8 @@ const recipeTiles = cocktailsData.cocktails
         window.print();
       });
       // Inline email form
-      presetInstructions.querySelector('.preset-email-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.handleEmailSubmit(e.currentTarget as HTMLFormElement);
-      });
+      const presetEmailForm = presetInstructions.querySelector('.preset-email-form') as HTMLFormElement | null;
+      if (presetEmailForm) this.setupEmailForm(presetEmailForm);
 
       // Show the instructions panel
       presetInstructions.classList.remove('hidden');
@@ -1686,8 +1698,108 @@ const recipeTiles = cocktailsData.cocktails
       }
     }
 
+    private setupEmailForm(form: HTMLFormElement) {
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        void this.handleEmailSubmit(form);
+      });
+      form.addEventListener('input', () => this.emailRequestIds.delete(form));
+      this.initializeEmailTurnstile(form);
+    }
+
+    private async loadTurnstile(): Promise<any> {
+      if ((window as any).turnstile) return (window as any).turnstile;
+      if ((window as any).__fbcTurnstilePromise) return (window as any).__fbcTurnstilePromise;
+
+      (window as any).__fbcTurnstilePromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => (window as any).turnstile ? resolve((window as any).turnstile) : reject(new Error('Turnstile did not load'));
+        script.onerror = () => reject(new Error('Turnstile failed to load'));
+        document.head.appendChild(script);
+      });
+      return (window as any).__fbcTurnstilePromise;
+    }
+
+    private initializeEmailTurnstile(form: HTMLFormElement) {
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const note = form.querySelector<HTMLElement>('.turnstile-note');
+      const container = form.querySelector<HTMLElement>('.turnstile-container');
+      const siteKey = this.dataset.turnstileSiteKey || '';
+
+      if (!siteKey) {
+        if (submitBtn) submitBtn.disabled = true;
+        if (note) note.textContent = 'Email delivery is unavailable in local development because verification is not configured.';
+        return;
+      }
+      if (!container || !submitBtn) return;
+
+      submitBtn.disabled = true;
+      if (note) note.textContent = 'Complete the verification challenge to send your recipe.';
+      void this.loadTurnstile()
+        .then((turnstile) => {
+          const widgetId = turnstile.render(container, {
+            sitekey: siteKey,
+            callback: (token: string) => {
+              form.dataset.turnstileToken = token;
+              submitBtn.disabled = false;
+              if (note) note.textContent = '';
+            },
+            'expired-callback': () => this.clearEmailTurnstileToken(form),
+            'error-callback': () => this.clearEmailTurnstileToken(form),
+          });
+          this.emailTurnstileWidgets.set(form, widgetId);
+        })
+        .catch(() => {
+          if (note) note.textContent = 'Verification could not load. Please refresh and try again.';
+        });
+    }
+
+    private clearEmailTurnstileToken(form: HTMLFormElement) {
+      delete form.dataset.turnstileToken;
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const note = form.querySelector<HTMLElement>('.turnstile-note');
+      if (submitBtn) submitBtn.disabled = true;
+      if (note) note.textContent = 'Please retry the verification challenge.';
+    }
+
+    private resetEmailTurnstile(form: HTMLFormElement) {
+      this.clearEmailTurnstileToken(form);
+      const widgetId = this.emailTurnstileWidgets.get(form);
+      if (widgetId !== undefined && (window as any).turnstile) {
+        (window as any).turnstile.reset(widgetId);
+      }
+    }
+
+    private recipeEmailPayload() {
+      const display = this.buildRecipeData();
+      if (this.mode === 'preset' && this.currentPresetId) {
+        return { mode: 'preset' as const, slug: this.currentPresetId, bottleMl: this.bottleSizeMl, unit: this.unit, display };
+      }
+      return {
+        mode: 'custom' as const,
+        bottleMl: this.bottleSizeMl,
+        unit: this.unit,
+        dilutionPercent: this.dilutionPercent,
+        ingredients: this.getRecipeIngredients().map(({ name, amount, abv, isBaseSpirit }) => ({ name, amount, abv, isBaseSpirit })),
+        display,
+      };
+    }
+
+    private emailErrorMessage(code: string | undefined): string {
+      switch (code) {
+        case 'invalid_request': return 'Please check the form and try again.';
+        case 'verification_failed': return 'Please retry the challenge.';
+        case 'rate_limited': return 'Please try again in a minute.';
+        case 'upstream_unavailable': return "We'll be back shortly.";
+        default: return 'Couldn\'t send. Try again or copy the recipe instead.';
+      }
+    }
+
     /**
-     * Inline email-recipe submission. Posts to the n8n webhook and shows
+     * Inline email-recipe submission through the same-origin Pages Function.
      * the result inline (no modal). Works for both the static custom-mode
      * form and the dynamically-rendered preset form.
      */
@@ -1701,7 +1813,10 @@ const recipeTiles = cocktailsData.cocktails
       const status = form.querySelector<HTMLElement>('.email-status');
 
       const email = emailInput?.value.trim();
-      if (!email) return;
+      const turnstileToken = form.dataset.turnstileToken;
+      if (!email || !turnstileToken || submitBtn?.disabled) return;
+      const requestId = this.emailRequestIds.get(form) || crypto.randomUUID();
+      this.emailRequestIds.set(form, requestId);
 
       // Loading state
       if (submitBtn) submitBtn.disabled = true;
@@ -1714,20 +1829,28 @@ const recipeTiles = cocktailsData.cocktails
       }
 
       try {
-        const webhookUrl = 'https://zax76.app.n8n.cloud/webhook/freezerbatch-email';
-        const res = await fetch(webhookUrl, {
+        const res = await fetch('/api/email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            action: 'send_recipe',
+            requestId,
             email,
-            subscribe: !!subscribeInput?.checked,
-            recipe: this.buildRecipeData(),
-            source: 'freezerbatchcocktails.com',
-            timestamp: new Date().toISOString(),
+            recipe: this.recipeEmailPayload(),
+            marketingConsent: !!subscribeInput?.checked,
+            ...(subscribeInput?.checked ? { consentVersion: '2026-07-23' } : {}),
             page: window.location.pathname,
+            turnstileToken,
+            website: form.querySelector<HTMLInputElement>('input[name="website"]')?.value || '',
           }),
         });
-        if (!res.ok) throw new Error('Webhook failed');
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          const code = typeof body.code === 'string' ? body.code : undefined;
+          if ([403, 429, 502].includes(res.status)) this.resetEmailTurnstile(form);
+          if (res.status === 400) this.emailRequestIds.delete(form);
+          throw new Error(code || 'email_request_failed');
+        }
 
         // Success — collapse the form to a clean confirmation line
         if (status) {
@@ -1736,14 +1859,16 @@ const recipeTiles = cocktailsData.cocktails
         }
         if (emailInput) emailInput.value = '';
         if (subscribeInput) subscribeInput.checked = false;
+        this.emailRequestIds.delete(form);
+        this.resetEmailTurnstile(form);
       } catch (err) {
-        console.error('Email send error:', err);
+        if (err instanceof TypeError) this.resetEmailTurnstile(form);
         if (status) {
-          status.textContent = 'Couldn\'t send. Try again or copy the recipe instead.';
+          status.textContent = this.emailErrorMessage(err instanceof Error ? err.message : undefined);
           status.className = 'email-status mt-2 text-xs text-danger';
         }
       } finally {
-        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn) submitBtn.disabled = !form.dataset.turnstileToken;
         sendIcon?.classList.remove('hidden');
         spinner?.classList.add('hidden');
         if (label) label.textContent = 'Email me this';
