@@ -22,7 +22,7 @@
 | 3 | 1 | A3 | `cf/a3-api-boundary` | `gpt-5.6-sol` / high | 2 | Merged | `c14c622` |
 | 4 | 1 | A5 | `cf/a5-n8n-v2` | `gpt-5.6-terra` → `gpt-5.6-sol` / high | 3 | Merged | `6d7b6c3` |
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 1 | Merged | `93daa21` |
-| 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 0 | Pending | - |
+| 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 1 | Merged | `bc9a69d` |
 | 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 0 | Pending | - |
 | 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 0 | Pending | - |
 
@@ -292,4 +292,64 @@ checks are recorded here before the next agent starts.
 - Post-merge:
   - `npm run test:unit`: passed, 80 tests.
   - `npx astro check`: passed with 0 errors (6 existing hints).
+  - `npm run build`: passed, 30 pages.
+
+### A6 - Calculator hydration and share UX
+
+- Branch base: `a64c4eacc9d3a392763ba67c02ea157e38ffc7de`.
+- Agent commit:
+  - `0d94a6a` - `[A6/CF-02B-C] hydrate and share calculator state`
+- Gate attempt 1: **passed**.
+  - Independent isolated Chromium run:
+    `tests/share.spec.ts tests/injection.spec.ts`: 12 tests passed in 30.0
+    seconds.
+  - `npm run test:unit`: passed, 80 tests.
+  - `npm run build`: passed with 0 errors and 30 generated pages.
+  - Diff/check ownership: clean and confined to
+    `src/components/Calculator.astro` and `tests/share.spec.ts`.
+  - A2's DOM-safety work is preserved: custom/shared ingredient names still
+    render through `.textContent` and `.title`, and the injection regression
+    suite remains green.
+- Hydration order:
+  - Event listeners register first.
+  - A present `batch` parameter is parsed with `parseShareState`; legacy
+    parameters are considered only when `batch` is absent.
+  - Preset hydration sets mode, bottle, and unit; synchronizes the select and
+    visible tile; then performs one `loadPreset`.
+  - Custom hydration sets mode, clears defaults, creates validated rows through
+    input `.value` properties, then sets bottle, unit, and dilution before one
+    final recalculation.
+  - `isHydrating` suppresses intermediate calculations from setters.
+  - Invalid URL state initializes normal defaults and exposes the accessible
+    "Couldn't load the shared recipe — showing defaults" status.
+  - A page without share parameters retains the pre-branch default behavior;
+    the browser spec checks homepage defaults and row count.
+- Share behavior:
+  - `buildShareUrl` replaces the legacy hand-built query strings.
+  - Presets target their selected recipe's canonical page, including when a
+    different preset is chosen from a recipe page.
+  - Custom shares target `/?batch=...#calculator`; visible results match after
+    reopening.
+  - Web Share receives a preset-specific title, a short responsible-hosting
+    description, and the canonical URL; clipboard fallback remains.
+  - An over-1,800-character result invokes the recipe-copy fallback and never
+    calls Web Share.
+- Legacy behavior:
+  - Both representative preset and custom legacy URLs hydrate through A1's
+    validated compatibility parser.
+  - A1 API feedback: the agent reported no awkward integration point or
+    contract concern.
+- Environment note:
+  - The shared port-4321 Playwright environment remains stale, so agent and
+    orchestrator gates used the same built output on isolated port 4333.
+  - The first post-merge `npx astro check` emitted no output and hit its
+    120-second process timeout. The child processes exited; a direct Astro CLI
+    rerun passed with 0 errors, and the subsequent full build's Astro check
+    also passed.
+- Contract deviations: none.
+- Merge: `bc9a69daa2517952f9f4ef67dedab0a688a3bb83`
+  (`[orchestrator] merge A6 CF-02B-C`).
+- Post-merge:
+  - `npm run test:unit`: passed, 80 tests.
+  - direct `astro check`: passed with 0 errors (6 existing hints).
   - `npm run build`: passed, 30 pages.
