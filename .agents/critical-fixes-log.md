@@ -24,7 +24,7 @@
 | 5 | 1 | A2 | `cf/a2-dom-safety` | `gpt-5.6-sol` / high | 1 | Merged | `93daa21` |
 | 6 | 2 | A6 | `cf/a6-hydration` | `gpt-5.6-sol` / high | 1 | Merged | `bc9a69d` |
 | 7 | 3 | A7 | `cf/a7-forms` | `gpt-5.6-terra` / high | 2 | Merged | `678af59` |
-| 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 0 | Pending | - |
+| 8 | 4 | A8 | `cf/a8-verify` | `gpt-5.6-sol` / xhigh | 1 | Product defect returned to A6 | - |
 
 ## Detailed results
 
@@ -435,3 +435,41 @@ checks are recorded here before the next agent starts.
   - `npm run test:unit`: passed, 80 tests.
   - `npx astro check`: passed with 0 errors (6 existing hints).
   - `npm run build`: passed, 30 pages.
+
+### A8 - Integration verification
+
+- Branch base: `75ccbc96a88505a10ce3b2d85e213f9ed0dbe9d6`.
+- Agent commit:
+  - `6232da7` - `[A8/VERIFY] add adversarial verification report`
+- Gate attempt 1: **failed** because the adversarial verifier found a product
+  defect; A8 correctly added a failing regression instead of editing product
+  code.
+  - Diff ownership is clean and confined to
+    `.agents/critical-fixes-verification.md` and
+    `tests/critical-verification.spec.ts`.
+  - Baseline checks passed: `npm run test:unit` (80 tests),
+    `npm run test:critical` (80 tests), `npx astro check` (0 errors, 6
+    existing hints), `npm run build` (30 pages), and
+    `npm run check:hosts`.
+  - The required injection/share/email browser suites passed, 17 tests total.
+  - The n8n v2 static test passed.
+  - The adversarial verifier suite passed 4 tests and intentionally failed 1
+    product regression: a valid custom share with the second ingredient
+    explicitly marked `isBaseSpirit: true` hydrates with the first
+    high-ABV ingredient selected instead.
+  - Expected base flags: `[false, true, false]`; hydrated flags:
+    `[true, false, false]`.
+  - Review localized the integration defect to A6-owned hydration/share code:
+    custom hydration passes only name, amount, and ABV into row creation, then
+    later sharing recalculates base status as the first ingredient with ABV
+    at least 20. This violates frozen contract C1 by discarding the validated
+    explicit `isBaseSpirit` selection.
+  - The legacy full-suite run also recorded 17 unrelated stale failures (11
+    calculator custom-mode assumptions and 6 responsive selector/copy
+    assumptions); repairing those suites remains explicitly deferred.
+- Disposition:
+  - Do not merge A8 while its product regression is red.
+  - Return CFV-1 to A6, the owner of calculator hydration/share behavior, with
+    the failing evidence. After A6's remediation passes and merges, refresh A8
+    from `critical-fixes`, rerun every required verifier command, update the
+    report, and gate A8 again.
