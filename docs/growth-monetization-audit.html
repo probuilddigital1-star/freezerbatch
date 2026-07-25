@@ -1,0 +1,2638 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#12372f">
+  <meta
+    name="description"
+    content="A strategic product, growth, SEO, and monetization audit for Freezer Batch Cocktails."
+  >
+  <title>Growth &amp; Monetization Audit — Freezer Batch Cocktails</title>
+  <style>
+    :root {
+      --forest-950: #0b2923;
+      --forest-900: #12372f;
+      --forest-800: #1a4b3f;
+      --forest-700: #286454;
+      --forest-100: #dceae3;
+      --forest-50: #edf5f0;
+      --paper: #f6f1e8;
+      --paper-deep: #eee5d7;
+      --white: #fffdf8;
+      --ink: #17231f;
+      --ink-soft: #4f5e58;
+      --ink-faint: #78847f;
+      --coral: #cb644c;
+      --coral-soft: #f5ded6;
+      --gold: #c9902f;
+      --gold-soft: #f5e8c8;
+      --mint: #72b69d;
+      --mint-soft: #d9eee6;
+      --line: rgba(18, 55, 47, 0.14);
+      --line-strong: rgba(18, 55, 47, 0.24);
+      --shadow-sm: 0 8px 24px rgba(17, 44, 37, 0.07);
+      --shadow-lg: 0 24px 70px rgba(17, 44, 37, 0.13);
+      --radius-sm: 10px;
+      --radius-md: 18px;
+      --radius-lg: 28px;
+      --max-width: 1240px;
+      --serif: Iowan Old Style, Baskerville, "Times New Roman", Georgia, serif;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 92px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 5% 2%, rgba(203, 100, 76, 0.10), transparent 26rem),
+        radial-gradient(circle at 95% 18%, rgba(114, 182, 157, 0.11), transparent 32rem),
+        var(--paper);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.65;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-color: rgba(203, 100, 76, 0.55);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: var(--coral);
+      text-decoration-color: currentColor;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    code {
+      font-family: var(--mono);
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 1000;
+      top: 12px;
+      left: 12px;
+      padding: 10px 14px;
+      transform: translateY(-160%);
+      border-radius: 8px;
+      color: white;
+      background: var(--forest-900);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .scroll-progress {
+      position: fixed;
+      z-index: 999;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--coral), #e2ad4e);
+      box-shadow: 0 1px 8px rgba(203, 100, 76, 0.35);
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 100;
+      top: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+      color: white;
+      background: rgba(11, 41, 35, 0.96);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand__mark {
+      display: grid;
+      place-items: center;
+      width: 35px;
+      height: 35px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 50%;
+      color: var(--forest-950);
+      background: var(--paper);
+      font-family: var(--serif);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .brand__name {
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: 0.01em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .brand__divider {
+      width: 1px;
+      height: 19px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .brand__document {
+      color: rgba(255, 255, 255, 0.67);
+      font-size: 13px;
+    }
+
+    .topbar__actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .updated {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .print-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      color: white;
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    .print-button:hover {
+      border-color: rgba(255, 255, 255, 0.42);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .print-button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      color: white;
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0.025), transparent 48%),
+        var(--forest-900);
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 480px;
+      height: 480px;
+      top: -250px;
+      right: -120px;
+    }
+
+    .hero::after {
+      width: 290px;
+      height: 290px;
+      right: 160px;
+      bottom: -220px;
+    }
+
+    .hero__inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(310px, 0.55fr);
+      gap: clamp(40px, 7vw, 92px);
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+      padding: clamp(68px, 9vw, 118px) 0 clamp(64px, 8vw, 105px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 22px;
+      color: #f0be61;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 25px;
+      height: 1px;
+      background: currentColor;
+      content: "";
+    }
+
+    .hero h1 {
+      max-width: 780px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(48px, 7.2vw, 88px);
+      font-weight: 500;
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .hero h1 em {
+      color: #efad94;
+      font-weight: 500;
+    }
+
+    .hero__summary {
+      max-width: 720px;
+      margin: 30px 0 0;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: clamp(17px, 2vw, 20px);
+      line-height: 1.65;
+    }
+
+    .hero__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 34px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.76);
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .pill__dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 0 3px rgba(114, 182, 157, 0.13);
+    }
+
+    .scorecard {
+      align-self: end;
+      padding: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .scorecard__label {
+      margin: 0 0 8px;
+      color: rgba(255, 255, 255, 0.56);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .scorecard__score {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 21px;
+    }
+
+    .scorecard__score strong {
+      font-family: var(--serif);
+      font-size: 54px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .scorecard__score span {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+    }
+
+    .scorecard__note {
+      margin: 0 0 22px;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mini-score {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 5px 12px;
+      margin-top: 13px;
+    }
+
+    .mini-score__name,
+    .mini-score__value {
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .mini-score__name {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .mini-score__value {
+      color: white;
+    }
+
+    .mini-score__track {
+      grid-column: 1 / -1;
+      height: 4px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .mini-score__fill {
+      width: var(--score);
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--coral), #e5b04e);
+    }
+
+    .verdict-strip {
+      border-bottom: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .verdict-strip__inner {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 34px;
+      align-items: start;
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    .verdict-strip__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--coral);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .verdict-strip__label::before {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--coral);
+      content: "";
+    }
+
+    .verdict-strip blockquote {
+      margin: 0;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.9vw, 31px);
+      line-height: 1.3;
+      letter-spacing: -0.025em;
+    }
+
+    .page-layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: clamp(42px, 6vw, 84px);
+      align-items: start;
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+      padding: 70px 0 110px;
+    }
+
+    .contents {
+      position: sticky;
+      top: 100px;
+    }
+
+    .contents__title {
+      margin: 0 0 17px;
+      color: var(--ink-faint);
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .contents ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .contents li {
+      border-left: 1px solid var(--line-strong);
+    }
+
+    .contents a {
+      display: grid;
+      grid-template-columns: 25px 1fr;
+      gap: 8px;
+      padding: 8px 0 8px 14px;
+      color: var(--ink-faint);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.35;
+      text-decoration: none;
+      transition: color 150ms ease, border-color 150ms ease;
+    }
+
+    .contents a span:first-child {
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .contents a:hover,
+    .contents a[aria-current="true"] {
+      color: var(--forest-900);
+    }
+
+    .contents li:has(a[aria-current="true"]) {
+      border-left: 2px solid var(--coral);
+    }
+
+    .contents__aside {
+      margin-top: 28px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      color: var(--ink-soft);
+      background: rgba(255, 253, 248, 0.68);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .report-section {
+      margin: 0 0 100px;
+      scroll-margin-top: 96px;
+    }
+
+    .section-kicker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 13px;
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-kicker::after {
+      width: 44px;
+      height: 1px;
+      background: currentColor;
+      content: "";
+      opacity: 0.45;
+    }
+
+    .section-title {
+      max-width: 780px;
+      margin: 0;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+    }
+
+    .section-intro {
+      max-width: 760px;
+      margin: 20px 0 36px;
+      color: var(--ink-soft);
+      font-size: 17px;
+    }
+
+    .thesis-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.65fr);
+      gap: 18px;
+    }
+
+    .thesis {
+      position: relative;
+      overflow: hidden;
+      min-height: 260px;
+      padding: clamp(30px, 4vw, 45px);
+      border-radius: var(--radius-lg);
+      color: white;
+      background: var(--forest-900);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .thesis::after {
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      right: -80px;
+      bottom: -100px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .thesis__label {
+      margin: 0 0 28px;
+      color: #e5b45d;
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .thesis p {
+      position: relative;
+      z-index: 1;
+      max-width: 630px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 43px);
+      line-height: 1.16;
+      letter-spacing: -0.035em;
+    }
+
+    .thesis strong {
+      color: #efad94;
+      font-weight: 500;
+    }
+
+    .focus-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 253, 248, 0.82);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .focus-card__label {
+      color: var(--ink-faint);
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .focus-card__value {
+      margin: 22px 0;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: 30px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .focus-card__note {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+
+    .strengths {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .strength {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 253, 248, 0.62);
+    }
+
+    .strength__icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 16px;
+      border-radius: 50%;
+      color: var(--forest-900);
+      background: var(--mint-soft);
+      font-weight: 850;
+    }
+
+    .strength h3 {
+      margin: 0 0 7px;
+      color: var(--forest-900);
+      font-size: 14px;
+    }
+
+    .strength p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .findings {
+      display: grid;
+      gap: 18px;
+      counter-reset: finding;
+    }
+
+    .finding {
+      position: relative;
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      box-shadow: var(--shadow-sm);
+      counter-increment: finding;
+    }
+
+    .finding::before {
+      display: grid;
+      place-items: start center;
+      padding-top: 29px;
+      border-right: 1px solid var(--line);
+      color: var(--coral);
+      background: rgba(203, 100, 76, 0.045);
+      font-family: var(--serif);
+      font-size: 32px;
+      content: "0" counter(finding);
+    }
+
+    .finding__body {
+      padding: 28px clamp(24px, 4vw, 38px) 30px;
+    }
+
+    .finding__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 13px;
+    }
+
+    .finding h3 {
+      margin: 0;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: clamp(24px, 3vw, 32px);
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    .severity {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .severity--critical {
+      color: #862d23;
+      background: var(--coral-soft);
+    }
+
+    .severity--high {
+      color: #75500c;
+      background: var(--gold-soft);
+    }
+
+    .severity--medium {
+      color: var(--forest-800);
+      background: var(--mint-soft);
+    }
+
+    .finding p {
+      margin: 0 0 15px;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    .finding ul {
+      display: grid;
+      gap: 8px;
+      margin: 16px 0 0;
+      padding: 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+      list-style: none;
+    }
+
+    .finding li {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .finding li::before {
+      position: absolute;
+      top: 0.72em;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--coral);
+      content: "";
+    }
+
+    .evidence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 18px;
+    }
+
+    .evidence code,
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 29px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--forest-800);
+      background: var(--forest-50);
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .source-link {
+      text-decoration: none;
+    }
+
+    .source-link:hover {
+      border-color: rgba(203, 100, 76, 0.42);
+      color: var(--coral);
+      background: var(--coral-soft);
+    }
+
+    .flywheel {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      color: white;
+      background: var(--forest-900);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .flywheel::before {
+      position: absolute;
+      top: 59px;
+      right: 11%;
+      left: 11%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.18);
+      content: "";
+    }
+
+    .flywheel__step {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .flywheel__number {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 17px;
+      border: 7px solid var(--forest-900);
+      border-radius: 50%;
+      color: var(--forest-950);
+      background: var(--paper);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
+    }
+
+    .flywheel__step:nth-child(2) .flywheel__number,
+    .flywheel__step:nth-child(4) .flywheel__number {
+      background: #efad94;
+    }
+
+    .flywheel__step:nth-child(3) .flywheel__number {
+      background: #e7b85d;
+    }
+
+    .flywheel h3 {
+      margin: 0 0 7px;
+      color: white;
+      font-size: 13px;
+    }
+
+    .flywheel p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.56);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .viral-loop-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .idea-card {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 253, 248, 0.72);
+    }
+
+    .idea-card__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .idea-card__icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      color: var(--forest-900);
+      background: var(--mint-soft);
+    }
+
+    .idea-card__tag {
+      color: var(--coral);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .idea-card h3 {
+      margin: 0 0 8px;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .idea-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+
+    .positioning {
+      margin-top: 34px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--white);
+    }
+
+    .positioning__header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      color: var(--forest-900);
+      background: var(--forest-50);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .comparison-table,
+    .roadmap-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 16px 21px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 12px;
+    }
+
+    .comparison-table th {
+      width: 25%;
+      color: var(--ink-faint);
+      background: rgba(246, 241, 232, 0.48);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .comparison-table td {
+      color: var(--ink-soft);
+    }
+
+    .comparison-table td:last-child {
+      color: var(--forest-900);
+      font-weight: 700;
+    }
+
+    .comparison-table tr:last-child th,
+    .comparison-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .market-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .money-stack {
+      display: grid;
+      gap: 16px;
+      counter-reset: money;
+    }
+
+    .money-card {
+      display: grid;
+      grid-template-columns: 60px minmax(0, 1fr) 185px;
+      gap: 22px;
+      align-items: start;
+      padding: 27px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      box-shadow: var(--shadow-sm);
+      counter-increment: money;
+    }
+
+    .money-card__rank {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      color: white;
+      background: var(--forest-900);
+      font-family: var(--serif);
+      font-size: 23px;
+    }
+
+    .money-card__rank::before {
+      content: counter(money);
+    }
+
+    .money-card h3 {
+      margin: 0 0 6px;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: 27px;
+      font-weight: 500;
+      line-height: 1.18;
+    }
+
+    .money-card__subtitle {
+      margin: 0 0 13px;
+      color: var(--coral);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .money-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+
+    .money-card__features {
+      margin: 14px 0 0;
+      padding: 0;
+      color: var(--ink-soft);
+      font-size: 12px;
+      list-style: none;
+    }
+
+    .money-card__features li {
+      position: relative;
+      margin-top: 6px;
+      padding-left: 17px;
+    }
+
+    .money-card__features li::before {
+      position: absolute;
+      left: 0;
+      color: var(--coral);
+      content: "→";
+    }
+
+    .money-card__signal {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      color: var(--ink-soft);
+      background: var(--forest-50);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .money-card__signal strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--forest-900);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .monetization-note {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 21px;
+    }
+
+    .note-card {
+      padding: 20px;
+      border-left: 3px solid var(--gold);
+      color: var(--ink-soft);
+      background: var(--gold-soft);
+      font-size: 12px;
+    }
+
+    .note-card strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #69470b;
+    }
+
+    .roadmap-wrap {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .roadmap-table th,
+    .roadmap-table td {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .roadmap-table thead th {
+      color: rgba(255, 255, 255, 0.66);
+      background: var(--forest-900);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .roadmap-table tbody th {
+      width: 132px;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .roadmap-table td {
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+
+    .roadmap-table td strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--forest-900);
+      font-size: 13px;
+    }
+
+    .roadmap-table tr:last-child th,
+    .roadmap-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .priority-ladder {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 19px;
+    }
+
+    .priority {
+      position: relative;
+      min-height: 150px;
+      padding: 22px;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      color: white;
+      background: var(--forest-900);
+    }
+
+    .priority:nth-child(2) {
+      background: var(--forest-800);
+    }
+
+    .priority:nth-child(3) {
+      color: var(--ink);
+      background: var(--gold-soft);
+    }
+
+    .priority:nth-child(4) {
+      color: var(--ink);
+      background: var(--mint-soft);
+    }
+
+    .priority__phase {
+      display: block;
+      margin-bottom: 30px;
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .priority:nth-child(3) .priority__phase,
+    .priority:nth-child(4) .priority__phase {
+      color: var(--forest-700);
+    }
+
+    .priority strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.15;
+    }
+
+    .priority small {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.57);
+      font-size: 10px;
+    }
+
+    .priority:nth-child(3) small,
+    .priority:nth-child(4) small {
+      color: var(--ink-soft);
+    }
+
+    .north-star {
+      display: grid;
+      grid-template-columns: 155px minmax(0, 1fr);
+      gap: 28px;
+      align-items: center;
+      padding: 30px;
+      border-radius: var(--radius-md);
+      color: white;
+      background: var(--forest-900);
+    }
+
+    .north-star__label {
+      color: #e9bc6b;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .north-star__metric {
+      font-family: var(--serif);
+      font-size: clamp(24px, 4vw, 38px);
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .metric {
+      min-height: 140px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 253, 248, 0.75);
+    }
+
+    .metric__number {
+      display: block;
+      margin-bottom: 18px;
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--forest-900);
+      font-size: 13px;
+    }
+
+    .metric p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .event-instrumentation {
+      margin-top: 18px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--white);
+    }
+
+    .event-instrumentation h3 {
+      margin: 0 0 15px;
+      color: var(--forest-900);
+      font-size: 13px;
+    }
+
+    .event-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .event-list code {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--forest-800);
+      background: var(--forest-50);
+      font-size: 10px;
+    }
+
+    .appendix-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .appendix-card {
+      padding: 25px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--white);
+    }
+
+    .appendix-card h3 {
+      margin: 0 0 12px;
+      color: var(--forest-900);
+      font-family: var(--serif);
+      font-size: 25px;
+      font-weight: 500;
+    }
+
+    .appendix-card p,
+    .appendix-card li {
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+
+    .appendix-card ul {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .appendix-card code {
+      color: var(--forest-800);
+      font-size: 10px;
+    }
+
+    .decision {
+      padding: clamp(34px, 6vw, 58px);
+      border-radius: var(--radius-lg);
+      color: white;
+      background:
+        radial-gradient(circle at 95% 10%, rgba(239, 173, 148, 0.14), transparent 15rem),
+        var(--forest-950);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .decision__label {
+      color: #e7b85d;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .decision h2 {
+      max-width: 760px;
+      margin: 20px 0;
+      font-family: var(--serif);
+      font-size: clamp(34px, 5vw, 55px);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+    }
+
+    .decision p {
+      max-width: 720px;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 15px;
+    }
+
+    .decision__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .decision__action {
+      display: inline-flex;
+      align-items: center;
+      min-height: 41px;
+      padding: 9px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: white;
+      background: rgba(255, 255, 255, 0.07);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      background: var(--paper-deep);
+    }
+
+    .footer__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+      padding: 32px 0;
+      color: var(--ink-faint);
+      font-size: 11px;
+    }
+
+    .footer__inner strong {
+      color: var(--forest-900);
+    }
+
+    .footer__note {
+      max-width: 580px;
+      text-align: right;
+    }
+
+    @media (max-width: 980px) {
+      .hero__inner {
+        grid-template-columns: 1fr;
+      }
+
+      .scorecard {
+        max-width: 600px;
+      }
+
+      .page-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .contents {
+        position: relative;
+        top: auto;
+        overflow-x: auto;
+        margin-bottom: -18px;
+        padding-bottom: 5px;
+      }
+
+      .contents__title,
+      .contents__aside {
+        display: none;
+      }
+
+      .contents ol {
+        display: flex;
+        min-width: max-content;
+      }
+
+      .contents li {
+        border-left: 0;
+      }
+
+      .contents li:has(a[aria-current="true"]) {
+        border-left: 0;
+      }
+
+      .contents a {
+        grid-template-columns: auto 1fr;
+        padding: 9px 13px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 253, 248, 0.72);
+      }
+
+      .contents li + li {
+        margin-left: 7px;
+      }
+
+      .contents a[aria-current="true"] {
+        color: white;
+        background: var(--forest-900);
+      }
+
+      .priority-ladder {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .brand__divider,
+      .brand__document,
+      .updated {
+        display: none;
+      }
+
+      .hero__inner {
+        padding-top: 60px;
+      }
+
+      .verdict-strip__inner,
+      .thesis-grid,
+      .north-star {
+        grid-template-columns: 1fr;
+      }
+
+      .strengths,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .flywheel {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .flywheel::before {
+        top: 55px;
+        bottom: 55px;
+        left: 50%;
+        width: 1px;
+        height: auto;
+      }
+
+      .flywheel__step {
+        display: grid;
+        grid-template-columns: 55px 1fr;
+        column-gap: 17px;
+        text-align: left;
+      }
+
+      .flywheel__number {
+        grid-row: 1 / 3;
+        margin: 0;
+      }
+
+      .viral-loop-grid,
+      .appendix-grid,
+      .monetization-note {
+        grid-template-columns: 1fr;
+      }
+
+      .money-card {
+        grid-template-columns: 50px minmax(0, 1fr);
+      }
+
+      .money-card__signal {
+        grid-column: 2;
+      }
+
+      .roadmap-wrap,
+      .positioning {
+        overflow-x: auto;
+      }
+
+      .roadmap-table,
+      .comparison-table {
+        min-width: 650px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar__inner,
+      .hero__inner,
+      .verdict-strip__inner,
+      .page-layout,
+      .footer__inner {
+        width: min(calc(100% - 28px), var(--max-width));
+      }
+
+      .print-button span {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 46px;
+      }
+
+      .finding {
+        grid-template-columns: 1fr;
+      }
+
+      .finding::before {
+        display: block;
+        padding: 16px 22px 0;
+        border-right: 0;
+        background: transparent;
+        font-size: 20px;
+      }
+
+      .finding__body {
+        padding-top: 10px;
+      }
+
+      .finding__header {
+        display: block;
+      }
+
+      .severity {
+        display: inline-flex;
+        margin-top: 11px;
+      }
+
+      .priority-ladder {
+        grid-template-columns: 1fr;
+      }
+
+      .priority {
+        min-height: 130px;
+      }
+
+      .money-card {
+        grid-template-columns: 1fr;
+      }
+
+      .money-card__signal {
+        grid-column: auto;
+      }
+
+      .footer__inner {
+        display: block;
+      }
+
+      .footer__note {
+        margin-top: 10px;
+        text-align: left;
+      }
+    }
+
+    @media print {
+      @page {
+        margin: 0.55in;
+        size: letter;
+      }
+
+      html {
+        scroll-padding-top: 0;
+      }
+
+      body {
+        color: #111;
+        background: white;
+        font-size: 10.5pt;
+      }
+
+      .scroll-progress,
+      .topbar,
+      .contents,
+      .print-button {
+        display: none !important;
+      }
+
+      .hero {
+        color: white !important;
+        background: var(--forest-900) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .hero__inner {
+        grid-template-columns: 1.3fr 0.7fr;
+        width: 100%;
+        padding: 0.6in 0;
+      }
+
+      .hero h1 {
+        font-size: 42pt;
+      }
+
+      .scorecard {
+        box-shadow: none;
+      }
+
+      .verdict-strip__inner,
+      .page-layout,
+      .footer__inner {
+        width: 100%;
+      }
+
+      .page-layout {
+        display: block;
+        padding: 0.45in 0;
+      }
+
+      .report-section {
+        margin-bottom: 0.6in;
+      }
+
+      .finding,
+      .idea-card,
+      .money-card,
+      .metric,
+      .appendix-card {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+
+      .report-section,
+      .roadmap-wrap,
+      .flywheel,
+      .decision {
+        break-inside: avoid;
+      }
+
+      .flywheel,
+      .decision,
+      .thesis,
+      .north-star {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .section-title {
+        font-size: 30pt;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .footer__note {
+        text-align: right;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      * {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to report</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <div class="brand__mark" aria-hidden="true">FBC</div>
+        <div class="brand__name">Freezer Batch Cocktails</div>
+        <div class="brand__divider" aria-hidden="true"></div>
+        <div class="brand__document">Growth audit</div>
+      </div>
+      <div class="topbar__actions">
+        <span class="updated">Audited July 23, 2026</span>
+        <button class="print-button" type="button" data-print>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 14h10v7H7z"></path>
+            <path d="M17.5 11h.01"></path>
+          </svg>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" aria-labelledby="report-title">
+    <div class="hero__inner">
+      <div>
+        <p class="eyebrow">Strategic product audit</p>
+        <h1 id="report-title">Growth &amp; <em>monetization</em> blueprint</h1>
+        <p class="hero__summary">
+          A repository, product, search, sharing, retention, and revenue review—with a practical
+          90-day path from useful calculator to category-defining hosting product.
+        </p>
+        <div class="hero__meta" aria-label="Audit scope">
+          <span class="pill"><span class="pill__dot"></span>18 recipes reviewed</span>
+          <span class="pill"><span class="pill__dot"></span>47 automated tests inventoried</span>
+          <span class="pill"><span class="pill__dot"></span>SEO + social + email audited</span>
+        </div>
+      </div>
+
+      <aside class="scorecard" aria-label="Qualitative growth readiness score">
+        <p class="scorecard__label">Growth readiness</p>
+        <div class="scorecard__score">
+          <strong>52</strong>
+          <span>/ 100</span>
+        </div>
+        <p class="scorecard__note">
+          Qualitative audit score. The core utility is strong; acquisition and revenue systems
+          need repair before additional traffic will compound.
+        </p>
+        <div class="mini-score">
+          <span class="mini-score__name">Core utility</span><span class="mini-score__value">85%</span>
+          <div class="mini-score__track"><div class="mini-score__fill" style="--score: 85%"></div></div>
+        </div>
+        <div class="mini-score">
+          <span class="mini-score__name">Differentiation</span><span class="mini-score__value">74%</span>
+          <div class="mini-score__track"><div class="mini-score__fill" style="--score: 74%"></div></div>
+        </div>
+        <div class="mini-score">
+          <span class="mini-score__name">Growth loop</span><span class="mini-score__value">34%</span>
+          <div class="mini-score__track"><div class="mini-score__fill" style="--score: 34%"></div></div>
+        </div>
+        <div class="mini-score">
+          <span class="mini-score__name">Revenue readiness</span><span class="mini-score__value">43%</span>
+          <div class="mini-score__track"><div class="mini-score__fill" style="--score: 43%"></div></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="verdict-strip">
+    <div class="verdict-strip__inner">
+      <div class="verdict-strip__label">The verdict</div>
+      <blockquote>
+        The product has a credible niche and a useful engine. But domain, sharing, trust, and
+        measurement leaks must be fixed before traffic or advertising can become efficient.
+      </blockquote>
+    </div>
+  </div>
+
+  <div class="page-layout">
+    <nav class="contents" aria-label="Report contents">
+      <p class="contents__title">In this report</p>
+      <ol>
+        <li><a href="#executive-verdict"><span>01</span><span>Executive verdict</span></a></li>
+        <li><a href="#critical-findings"><span>02</span><span>Critical findings</span></a></li>
+        <li><a href="#viral-system"><span>03</span><span>Viral growth system</span></a></li>
+        <li><a href="#monetization"><span>04</span><span>Monetization stack</span></a></li>
+        <li><a href="#roadmap"><span>05</span><span>90-day roadmap</span></a></li>
+        <li><a href="#measurement"><span>06</span><span>Measurement</span></a></li>
+        <li><a href="#appendix"><span>07</span><span>Technical appendix</span></a></li>
+      </ol>
+      <div class="contents__aside">
+        This report is a strategic audit, not a traffic or revenue forecast. Scores and sequence
+        reflect observed product readiness and implementation leverage.
+      </div>
+    </nav>
+
+    <main id="main-content">
+      <section class="report-section" id="executive-verdict">
+        <p class="section-kicker">01 / Executive verdict</p>
+        <h2 class="section-title">Own the freezer-safe hosting workflow</h2>
+        <p class="section-intro">
+          Competing as a generic batch calculator creates a feature race. The defensible category
+          is a complete hosting system: calculate, verify, shop, label, store, serve, and share.
+        </p>
+
+        <div class="thesis-grid">
+          <div class="thesis">
+            <p class="thesis__label">Recommended positioning</p>
+            <p>
+              The <strong>freezer-safe hosting system</strong> for cocktails that are ready before
+              the guests arrive.
+            </p>
+          </div>
+          <div class="focus-card">
+            <span class="focus-card__label">Business model principle</span>
+            <div class="focus-card__value">Keep the calculator free. Monetize the event around it.</div>
+            <p class="focus-card__note">
+              Free utility drives discovery and sharing. Host planning, exports, labels, bundles,
+              and high-intent product recommendations create revenue.
+            </p>
+          </div>
+        </div>
+
+        <div class="strengths" aria-label="Current product strengths">
+          <article class="strength">
+            <div class="strength__icon" aria-hidden="true">✓</div>
+            <h3>Real utility</h3>
+            <p>The calculator solves ABV, dilution, bottle size, and freezer-readiness questions.</p>
+          </article>
+          <article class="strength">
+            <div class="strength__icon" aria-hidden="true">✓</div>
+            <h3>Clear niche</h3>
+            <p>“Make it early, pour it later” is a sharper promise than generic batch scaling.</p>
+          </article>
+          <article class="strength">
+            <div class="strength__icon" aria-hidden="true">✓</div>
+            <h3>Expandable foundation</h3>
+            <p>Astro, structured recipe data, and static delivery can support efficient content growth.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="report-section" id="critical-findings">
+        <p class="section-kicker">02 / Critical findings</p>
+        <h2 class="section-title">The leaks suppressing growth</h2>
+        <p class="section-intro">
+          These are ordered by compounding impact. The first three affect every future acquisition
+          and monetization experiment.
+        </p>
+
+        <div class="findings">
+          <article class="finding">
+            <div class="finding__body">
+              <div class="finding__header">
+                <h3>The apex and www domains serve different products</h3>
+                <span class="severity severity--critical">Critical</span>
+              </div>
+              <p>
+                The apex domain serves the current dark, 18-recipe site. The www host serves an
+                older light experience with different navigation, calculations, and content.
+                Meanwhile, automated emails still generate www links.
+              </p>
+              <ul>
+                <li>Search equity and backlinks are split across two site generations.</li>
+                <li>Subscribers are sent into an obsolete experience.</li>
+                <li>Analytics, conversion attribution, and recipe claims become unreliable.</li>
+              </ul>
+              <div class="evidence">
+                <code>public/_redirects:5</code>
+                <code>n8n/FreezerBatchCocktails.json:25</code>
+                <a class="source-link" href="https://freezerbatchcocktails.com/cocktails/daiquiri/" target="_blank" rel="noopener">Apex page ↗</a>
+                <a class="source-link" href="https://www.freezerbatchcocktails.com/cocktails/daiquiri/" target="_blank" rel="noopener">WWW page ↗</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="finding">
+            <div class="finding__body">
+              <div class="finding__header">
+                <h3>Shared links do not restore the shared recipe</h3>
+                <span class="severity severity--critical">Critical</span>
+              </div>
+              <p>
+                Sharing writes recipe state into URL parameters, but calculator initialization
+                never reads those parameters. A recipient can open a link without seeing the
+                sender’s actual calculation—the core viral promise fails at the handoff.
+              </p>
+              <ul>
+                <li>Introduce a validated, versioned share-state format.</li>
+                <li>Send presets to canonical recipe URLs and custom plans to compact share URLs.</li>
+                <li>Generate a branded preview card and track creation versus recipient activation.</li>
+              </ul>
+              <div class="evidence">
+                <code>src/components/Calculator.astro:602</code>
+                <code>src/components/Calculator.astro:1440</code>
+              </div>
+            </div>
+          </article>
+
+          <article class="finding">
+            <div class="finding__body">
+              <div class="finding__header">
+                <h3>Email and custom inputs need security hardening</h3>
+                <span class="severity severity--critical">Critical</span>
+              </div>
+              <p>
+                User-controlled ingredient values flow into browser HTML and HTML email templates.
+                The public email webhook also lacks visible rate limits, bot controls, and strict
+                schema enforcement.
+              </p>
+              <ul>
+                <li>Replace HTML string construction with safe DOM APIs and escape all email values.</li>
+                <li>Separate transactional recipe delivery from newsletter consent and CRM state.</li>
+                <li>Add Turnstile, rate limits, request validation, size caps, and a branded sender.</li>
+                <li>Repair workflow branching so unsubscribe actions cannot also trigger welcome mail.</li>
+              </ul>
+              <div class="evidence">
+                <code>src/components/Calculator.astro:1272</code>
+                <code>n8n/FreezerBatchCocktails.json:77</code>
+              </div>
+            </div>
+          </article>
+
+          <article class="finding">
+            <div class="finding__body">
+              <div class="finding__header">
+                <h3>Recipe pages lack the media and metadata that drive discovery</h3>
+                <span class="severity severity--high">High</span>
+              </div>
+              <p>
+                Recipe structured data has no image, every page uses the same generic SVG social
+                asset, and guides lack Article metadata, authorship, dates, and original imagery.
+                That limits rich-result eligibility, social click-through, and trust.
+              </p>
+              <ul>
+                <li>Create original 1:1, 4:3, 16:9, and vertical 2:3 imagery for every core recipe.</li>
+                <li>Add Recipe images, ItemList markup, Article schema, named authors, and test dates.</li>
+                <li>Use truthful modification dates in one canonical sitemap.</li>
+              </ul>
+              <div class="evidence">
+                <code>src/pages/cocktails/[slug].astro:68</code>
+                <code>src/layouts/Layout.astro:24</code>
+                <code>src/pages/sitemap-index.xml.ts:22</code>
+                <a class="source-link" href="https://developers.google.com/search/docs/appearance/structured-data/recipe" target="_blank" rel="noopener">Google Recipe docs ↗</a>
+                <a class="source-link" href="https://developers.pinterest.com/docs/web-features/recipe-rich-pins/" target="_blank" rel="noopener">Pinterest Recipe Pins ↗</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="finding">
+            <div class="finding__body">
+              <div class="finding__header">
+                <h3>Storage claims contradict the underlying recipes</h3>
+                <span class="severity severity--high">High</span>
+              </div>
+              <p>
+                Citrus and coffee recipes are labeled “bulletproof,” which can render “Lasts
+                months” alongside guidance such as “Best within a week” or “2–3 weeks.” Remaining
+                liquid and preserving peak flavor are different promises.
+              </p>
+              <ul>
+                <li>Replace the Boolean with explicit freezer safety and best-quality duration fields.</li>
+                <li>Capture separation risk, reshake requirements, storage reason, and tested ABV.</li>
+                <li>Consolidate JSON, calculator constants, glass mappings, and recipe names into one schema.</li>
+              </ul>
+              <div class="evidence">
+                <code>src/data/cocktails.json</code>
+                <code>src/lib/calculator.ts</code>
+                <code>src/components/Calculator.astro:1166</code>
+              </div>
+            </div>
+          </article>
+
+          <article class="finding">
+            <div class="finding__body">
+              <div class="finding__header">
+                <h3>The test report no longer reflects the current site</h3>
+                <span class="severity severity--medium">Medium</span>
+              </div>
+              <p>
+                Forty-seven Playwright tests exist, but the main test command invokes Vitest and
+                the browser suite still expects the old hero, navigation, card selectors, and
+                calculator defaults. At least 17 failures accumulated before the audit run timed out.
+              </p>
+              <ul>
+                <li>Separate unit and browser test commands.</li>
+                <li>Add share restoration, consent-state, schema, and revenue-event coverage.</li>
+                <li>Gate deployment on type checking, production build, smoke tests, and link checks.</li>
+              </ul>
+              <div class="evidence">
+                <code>package.json:8</code>
+                <code>QA_TEST_REPORT.md:9</code>
+                <code>tests/ — 47 Playwright cases</code>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="report-section" id="viral-system">
+        <p class="section-kicker">03 / Viral growth system</p>
+        <h2 class="section-title">Turn every prepared bottle into distribution</h2>
+        <p class="section-intro">
+          This product has a rare physical-to-digital opportunity: the cocktail leaves the browser
+          and enters a freezer, party, menu, or gift. Every artifact can carry the next acquisition.
+        </p>
+
+        <div class="flywheel" aria-label="Recommended viral growth flywheel">
+          <div class="flywheel__step">
+            <div class="flywheel__number">01</div>
+            <h3>Discover</h3>
+            <p>Search, Pinterest, occasion content, embeds</p>
+          </div>
+          <div class="flywheel__step">
+            <div class="flywheel__number">02</div>
+            <h3>Calculate</h3>
+            <p>Personalized recipe, servings, safety check</p>
+          </div>
+          <div class="flywheel__step">
+            <div class="flywheel__number">03</div>
+            <h3>Prepare</h3>
+            <p>Shopping list, bottle label, host schedule</p>
+          </div>
+          <div class="flywheel__step">
+            <div class="flywheel__number">04</div>
+            <h3>Share</h3>
+            <p>Social card, QR menu, recipe email</p>
+          </div>
+          <div class="flywheel__step">
+            <div class="flywheel__number">05</div>
+            <h3>Reactivate</h3>
+            <p>Recipient opens plan and hosts next event</p>
+          </div>
+        </div>
+
+        <div class="viral-loop-grid">
+          <article class="idea-card">
+            <div class="idea-card__meta">
+              <div class="idea-card__icon" aria-hidden="true">QR</div>
+              <span class="idea-card__tag">Physical loop</span>
+            </div>
+            <h3>Smart bottle labels</h3>
+            <p>
+              Printable labels include recipe name, serve instructions, date made, and a QR code
+              opening the exact public recipe or party menu.
+            </p>
+          </article>
+          <article class="idea-card">
+            <div class="idea-card__meta">
+              <div class="idea-card__icon" aria-hidden="true">↗</div>
+              <span class="idea-card__tag">Social loop</span>
+            </div>
+            <h3>Result-first share cards</h3>
+            <p>
+              Generate a handsome card around the user’s accomplishment: cocktail, servings,
+              freezer-ready status, and “make yours” call to action.
+            </p>
+          </article>
+          <article class="idea-card">
+            <div class="idea-card__meta">
+              <div class="idea-card__icon" aria-hidden="true">&lt;/&gt;</div>
+              <span class="idea-card__tag">Distribution loop</span>
+            </div>
+            <h3>Publisher embed</h3>
+            <p>
+              Offer bloggers and bartenders a lightweight calculator or recipe card with a
+              tasteful “Powered by Freezer Batch Cocktails” backlink.
+            </p>
+          </article>
+          <article class="idea-card">
+            <div class="idea-card__meta">
+              <div class="idea-card__icon" aria-hidden="true">♥</div>
+              <span class="idea-card__tag">Retention loop</span>
+            </div>
+            <h3>My freezer</h3>
+            <p>
+              Save recipes and party plans locally, record preparation dates, and prompt users to
+              refresh or remix a successful menu for their next event.
+            </p>
+          </article>
+        </div>
+
+        <div class="positioning">
+          <div class="positioning__header">How the product should escape the generic-calculator category</div>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th scope="col">Dimension</th>
+                <th scope="col">Generic batch calculators</th>
+                <th scope="col">Freezer Batch Cocktails opportunity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Primary job</th>
+                <td>Scale ingredient quantities</td>
+                <td>Prepare an entire cocktail service before the event</td>
+              </tr>
+              <tr>
+                <th scope="row">Safety</th>
+                <td>ABV and dilution math</td>
+                <td>Freezer readiness, shelf quality, and serving guidance</td>
+              </tr>
+              <tr>
+                <th scope="row">Planning</th>
+                <td>Bottle volume target</td>
+                <td>Guest count, servings, shopping, budget, and timeline</td>
+              </tr>
+              <tr>
+                <th scope="row">Output</th>
+                <td>Numbers on a screen</td>
+                <td>Saved plan, labels, menu, QR code, and printable export</td>
+              </tr>
+              <tr>
+                <th scope="row">Retention</th>
+                <td>Start over next time</td>
+                <td>Saved freezer, repeat parties, and seasonal playbooks</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="market-links" aria-label="Competitor references">
+          <a class="source-link" href="https://www.batchcalc.com/" target="_blank" rel="noopener">BatchCalc ↗</a>
+          <a class="source-link" href="https://sipulus.com/batch-cocktail-calculator" target="_blank" rel="noopener">Sipulus ↗</a>
+          <a class="source-link" href="https://www.eightysix.bar/calculator" target="_blank" rel="noopener">Eighty Six ↗</a>
+          <a class="source-link" href="https://www.jarra.app/" target="_blank" rel="noopener">Jarra ↗</a>
+        </div>
+      </section>
+
+      <section class="report-section" id="monetization">
+        <p class="section-kicker">04 / Monetization stack</p>
+        <h2 class="section-title">Monetize outcomes, not the basic math</h2>
+        <p class="section-intro">
+          Revenue should follow user intent. Someone planning a party has a more valuable problem
+          than someone checking one ratio, so build around the event and its purchase decisions.
+        </p>
+
+        <div class="money-stack">
+          <article class="money-card">
+            <div class="money-card__rank" aria-hidden="true"></div>
+            <div>
+              <p class="money-card__subtitle">Primary product revenue</p>
+              <h3>Paid Host Mode</h3>
+              <p>
+                A premium planning layer for people preparing multiple drinks, purchasing supplies,
+                or hosting a meaningful event. Prefer a clear one-time purchase or event pass before
+                introducing subscription complexity.
+              </p>
+              <ul class="money-card__features">
+                <li>Scale by guests, servings, or total target volume</li>
+                <li>Multi-cocktail menu with consolidated shopping list</li>
+                <li>Cost per drink, inventory constraints, and leftover estimates</li>
+                <li>Printable labels, QR menus, schedule, and PDF export</li>
+              </ul>
+            </div>
+            <div class="money-card__signal">
+              <strong>Why it wins</strong>
+              It monetizes the high-value hosting outcome without weakening the free acquisition engine.
+            </div>
+          </article>
+
+          <article class="money-card">
+            <div class="money-card__rank" aria-hidden="true"></div>
+            <div>
+              <p class="money-card__subtitle">Commerce revenue</p>
+              <h3>Contextual barware bundles</h3>
+              <p>
+                Replace generic affiliate grids with recipe- and task-specific recommendations.
+                Verify the current affiliate tag, audit every ASIN, and attribute clicks by recipe,
+                placement, product, and source.
+              </p>
+              <ul class="money-card__features">
+                <li>“Everything needed for this batch” modules</li>
+                <li>Freezer bottle, funnel, label, jigger, and glassware guides</li>
+                <li>Budget, durable, and gift-quality bundle options</li>
+                <li>Deep links to StockTheEvent with campaign attribution</li>
+              </ul>
+            </div>
+            <div class="money-card__signal">
+              <strong>Economic signal</strong>
+              Amazon currently lists Kitchen at 4.5% and alcoholic beverages at 0%; prioritize tools,
+              not liquor.
+            </div>
+          </article>
+
+          <article class="money-card">
+            <div class="money-card__rank" aria-hidden="true"></div>
+            <div>
+              <p class="money-card__subtitle">Owned-audience revenue</p>
+              <h3>Digital playbooks &amp; lifecycle email</h3>
+              <p>
+                Turn recipe delivery into an event-completion sequence. Pair it with concise paid
+                assets that save planning time rather than simply repackaging free recipes.
+              </p>
+              <ul class="money-card__features">
+                <li>Freezer Bar Starter Pack and printable bottle-label bundle</li>
+                <li>Wedding, holiday, Thanksgiving, and summer hosting playbooks</li>
+                <li>Shopping reminder, storage reminder, and related-menu sequence</li>
+                <li>Host Mode offer only after the requested recipe is delivered</li>
+              </ul>
+            </div>
+            <div class="money-card__signal">
+              <strong>Why it compounds</strong>
+              Email becomes a return channel, a conversion surface, and a source of seasonal demand.
+            </div>
+          </article>
+
+          <article class="money-card">
+            <div class="money-card__rank" aria-hidden="true"></div>
+            <div>
+              <p class="money-card__subtitle">Scale-stage revenue</p>
+              <h3>Sponsorships &amp; display ads</h3>
+              <p>
+                Introduce ads only after traffic is material, trust is established, and page-speed
+                impact is measured. Direct sponsorship from barware, mixer, and non-alcoholic
+                brands is likely more aligned than broad alcohol brand deals.
+              </p>
+              <ul class="money-card__features">
+                <li>Protect calculator interaction and core recipe readability</li>
+                <li>Use a certified consent platform where legally applicable</li>
+                <li>Keep sponsorship claims transparent and editorially independent</li>
+              </ul>
+            </div>
+            <div class="money-card__signal">
+              <strong>Timing</strong>
+              Journey by Mediavine begins consideration above 1,000 sessions, subject to quality
+              and brand-safety review.
+            </div>
+          </article>
+        </div>
+
+        <div class="monetization-note">
+          <div class="note-card">
+            <strong>Affiliate reality</strong>
+            Tools, bottles, glassware, labels, and books carry the value. Liquor itself is not an
+            attractive Amazon commission category.
+            <a href="https://affiliate-program.amazon.com/help/node/topic/GRXPHT8U84RAYDXZ" target="_blank" rel="noopener">Amazon schedule ↗</a>
+          </div>
+          <div class="note-card">
+            <strong>Advertising constraint</strong>
+            Educational cocktail content is generally monetizable, while alcohol sales promotion
+            and misuse content face restrictions.
+            <a href="https://support.google.com/publisherpolicies/answer/10438039?hl=en" target="_blank" rel="noopener">Google policy ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="report-section" id="roadmap">
+        <p class="section-kicker">05 / 90-day roadmap</p>
+        <h2 class="section-title">Repair the engine, then accelerate it</h2>
+        <p class="section-intro">
+          The sequence matters. Search content, creator outreach, and ads should follow—not precede—
+          the fixes that let traffic convert, share, return, and generate attributable revenue.
+        </p>
+
+        <div class="priority-ladder" aria-label="Roadmap priority sequence">
+          <div class="priority">
+            <span class="priority__phase">P0 · Protect</span>
+            <strong>One domain. Safe inputs. Correct consent.</strong>
+            <small>Days 1–10</small>
+          </div>
+          <div class="priority">
+            <span class="priority__phase">P1 · Convert</span>
+            <strong>Working shares. Trustworthy data. Analytics.</strong>
+            <small>Weeks 2–4</small>
+          </div>
+          <div class="priority">
+            <span class="priority__phase">P2 · Differentiate</span>
+            <strong>Host planning, labels, imagery, and saves.</strong>
+            <small>Weeks 4–8</small>
+          </div>
+          <div class="priority">
+            <span class="priority__phase">P3 · Scale</span>
+            <strong>Paid mode, embeds, Pinterest, and content.</strong>
+            <small>Weeks 7–12</small>
+          </div>
+        </div>
+
+        <div class="roadmap-wrap">
+          <table class="roadmap-table">
+            <thead>
+              <tr>
+                <th scope="col">Timing</th>
+                <th scope="col">Workstream</th>
+                <th scope="col">Expected result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Days 1–7</th>
+                <td>
+                  <strong>Unify the public experience</strong>
+                  Redirect www to apex, update all email links and sender identity, repair unsubscribe
+                  and marketing-consent paths.
+                </td>
+                <td>Recover search authority, brand trust, and reliable conversion paths.</td>
+              </tr>
+              <tr>
+                <th scope="row">Days 1–10</th>
+                <td>
+                  <strong>Make sharing safe and functional</strong>
+                  Restore validated URL state, remove injection paths, rate-limit the webhook, and
+                  add automated share-link coverage.
+                </td>
+                <td>Unlock the core recipient-acquisition loop without increasing abuse risk.</td>
+              </tr>
+              <tr>
+                <th scope="row">Week 2</th>
+                <td>
+                  <strong>Instrument the funnel</strong>
+                  Track calculation completion, sharing, recipient activation, email, affiliates,
+                  cross-site referrals, and purchases.
+                </td>
+                <td>Establish a baseline for growth and revenue decisions.</td>
+              </tr>
+              <tr>
+                <th scope="row">Weeks 2–4</th>
+                <td>
+                  <strong>Repair the content foundation</strong>
+                  Correct storage claims, consolidate recipe data, update test coverage, add CI, and
+                  publish named testing methodology.
+                </td>
+                <td>Increase reliability, maintainability, and user confidence.</td>
+              </tr>
+              <tr>
+                <th scope="row">Weeks 3–5</th>
+                <td>
+                  <strong>Upgrade discovery assets</strong>
+                  Produce recipe photography and dynamic share cards; add complete Recipe, ItemList,
+                  and Article metadata.
+                </td>
+                <td>Improve search eligibility, social click-through, Pinterest saves, and trust.</td>
+              </tr>
+              <tr>
+                <th scope="row">Weeks 4–7</th>
+                <td>
+                  <strong>Ship the host workflow</strong>
+                  Add guest scaling, shopping list, My Freezer, multi-cocktail plans, printable labels,
+                  and QR menus.
+                </td>
+                <td>Create differentiation strong enough to support paid functionality.</td>
+              </tr>
+              <tr>
+                <th scope="row">Weeks 6–9</th>
+                <td>
+                  <strong>Launch initial revenue products</strong>
+                  Introduce Host Mode, a starter digital bundle, and contextual affiliate kits with
+                  end-to-end attribution.
+                </td>
+                <td>Validate willingness to pay and the highest-value commerce placements.</td>
+              </tr>
+              <tr>
+                <th scope="row">Weeks 8–12</th>
+                <td>
+                  <strong>Scale distribution</strong>
+                  Publish event-focused content, launch the publisher embed, build the Pinterest
+                  cadence, and add recipient/referral lifecycle email.
+                </td>
+                <td>Build compounding search, social, backlink, and word-of-mouth acquisition.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="report-section" id="measurement">
+        <p class="section-kicker">06 / Measurement</p>
+        <h2 class="section-title">Measure the completed hosting outcome</h2>
+        <p class="section-intro">
+          Pageviews do not reveal whether the product worked. Measurement should connect discovery
+          to completed plans, sharing, recipient activation, commerce, and return behavior.
+        </p>
+
+        <div class="north-star">
+          <div class="north-star__label">North-star metric</div>
+          <div class="north-star__metric">Completed or shared batch plans per weekly active visitor</div>
+        </div>
+
+        <div class="metrics">
+          <article class="metric">
+            <span class="metric__number">01</span>
+            <strong>Activation</strong>
+            <p>Visitor → calculator start → valid result completion</p>
+          </article>
+          <article class="metric">
+            <span class="metric__number">02</span>
+            <strong>Viral conversion</strong>
+            <p>Result → share and shared-link recipient → new result</p>
+          </article>
+          <article class="metric">
+            <span class="metric__number">03</span>
+            <strong>Retention</strong>
+            <p>Saved plan, 7/30-day return, and repeat event creation</p>
+          </article>
+          <article class="metric">
+            <span class="metric__number">04</span>
+            <strong>Audience value</strong>
+            <p>Email opt-in, open-to-return rate, and seasonal reactivation</p>
+          </article>
+          <article class="metric">
+            <span class="metric__number">05</span>
+            <strong>Commerce</strong>
+            <p>Affiliate EPC and revenue per 1,000 sessions by placement</p>
+          </article>
+          <article class="metric">
+            <span class="metric__number">06</span>
+            <strong>Paid product</strong>
+            <p>Host Mode view → checkout → purchase and feature usage</p>
+          </article>
+        </div>
+
+        <div class="event-instrumentation">
+          <h3>Minimum event instrumentation</h3>
+          <div class="event-list">
+            <code>calculator_started</code>
+            <code>recipe_selected</code>
+            <code>result_completed</code>
+            <code>plan_saved</code>
+            <code>share_created</code>
+            <code>shared_link_opened</code>
+            <code>email_recipe_sent</code>
+            <code>newsletter_optin</code>
+            <code>affiliate_click</code>
+            <code>stocktheevent_click</code>
+            <code>host_mode_checkout</code>
+            <code>purchase</code>
+          </div>
+        </div>
+      </section>
+
+      <section class="report-section" id="appendix">
+        <p class="section-kicker">07 / Technical appendix</p>
+        <h2 class="section-title">Evidence and implementation notes</h2>
+        <p class="section-intro">
+          The audit covered the repository, production host behavior, calculator state flow,
+          structured data, email automation, monetization surfaces, and the automated test inventory.
+        </p>
+
+        <div class="appendix-grid">
+          <article class="appendix-card">
+            <h3>Repository profile</h3>
+            <ul>
+              <li>Astro 4 with Tailwind and static Cloudflare Pages delivery</li>
+              <li>18 recipes in <code>src/data/cocktails.json</code></li>
+              <li>Large calculator web component in <code>src/components/Calculator.astro</code></li>
+              <li>Four hardcoded editorial guides and a custom dynamic sitemap</li>
+              <li>n8n, Resend, and Google Sheets email/CRM automation</li>
+            </ul>
+          </article>
+
+          <article class="appendix-card">
+            <h3>Monetization profile</h3>
+            <ul>
+              <li>Affiliate product mappings exist for all 18 recipe pages</li>
+              <li>Homepage Amazon links are generic and lack placement attribution</li>
+              <li>The default affiliate tag should be verified as project-owned</li>
+              <li>StockTheEvent referrals need UTM and conversion continuity</li>
+              <li>No event-level revenue analytics were found in the repository</li>
+            </ul>
+          </article>
+
+          <article class="appendix-card">
+            <h3>SEO &amp; trust profile</h3>
+            <ul>
+              <li>Recipe markup exists but lacks required imagery</li>
+              <li>Generic Open Graph image is reused site-wide</li>
+              <li>No named recipe tester, reviewer, test date, or correction log</li>
+              <li>Current-date sitemap modification values are not meaningful</li>
+              <li>Google recommends original work, clear authorship, and first-hand expertise</li>
+            </ul>
+            <div class="market-links">
+              <a class="source-link" href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener">People-first guidance ↗</a>
+            </div>
+          </article>
+
+          <article class="appendix-card">
+            <h3>Quality profile</h3>
+            <ul>
+              <li><code>npm test</code> points Vitest at Playwright-style suites</li>
+              <li>Browser coverage contains substantial stale UI expectations</li>
+              <li>Core calculator math still has useful passing coverage</li>
+              <li>The existing 47/47 QA report predates the current redesign</li>
+              <li>The production build could not be independently validated in the restricted audit environment</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="decision" aria-labelledby="decision-title">
+        <span class="decision__label">Recommended decision</span>
+        <h2 id="decision-title">Do not buy growth yet. Make every acquired visitor compound first.</h2>
+        <p>
+          Spend the next 30 days unifying the product, repairing the share and email loops,
+          instrumenting outcomes, and publishing credible media. Then ship Host Mode and scale
+          Pinterest, occasion content, embeds, and partnerships against a working funnel.
+        </p>
+        <div class="decision__actions" aria-label="Immediate next actions">
+          <span class="decision__action">1 · Unify domains</span>
+          <span class="decision__action">2 · Repair sharing</span>
+          <span class="decision__action">3 · Secure email</span>
+          <span class="decision__action">4 · Add measurement</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer__inner">
+      <div><strong>Freezer Batch Cocktails</strong> · Growth &amp; monetization audit</div>
+      <div class="footer__note">
+        Prepared from repository inspection and publicly available platform documentation.
+        Strategic estimates should be calibrated after a clean analytics baseline is collected.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const progress = document.querySelector(".scroll-progress");
+    const printButton = document.querySelector("[data-print]");
+    const navLinks = [...document.querySelectorAll(".contents a")];
+    const sections = navLinks
+      .map((link) => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
+
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const percentage = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      progress.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
+    };
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (!visible) return;
+
+        navLinks.forEach((link) => {
+          const active = link.getAttribute("href") === `#${visible.target.id}`;
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      },
+      { rootMargin: "-18% 0px -65% 0px", threshold: [0, 0.15, 0.4] }
+    );
+
+    sections.forEach((section) => sectionObserver.observe(section));
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    printButton.addEventListener("click", () => window.print());
+    updateProgress();
+  </script>
+</body>
+</html>
