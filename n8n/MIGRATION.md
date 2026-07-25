@@ -21,6 +21,18 @@ webhook workflow. Do not remove v1 until the staging matrix below passes.
    promote the CRM status to `subscribed`. If the selected CRM/ESP cannot provide that callback,
    use the documented single-opt-in fallback and record the same consent version, source, and
    timestamp before setting `subscribed`.
+
+   **2026-07-25 — single opt-in adopted.** The Google Sheets CRM has no confirmation callback
+   that can promote `pending` to `subscribed`, so the fallback above is now in effect. Both
+   consent paths (newsletter `subscribe`, and `send_recipe` with `marketingConsent: true`) write
+   `subscribed` immediately and still record Source, Consent Version, Consent Timestamp, and
+   Page as the consent audit trail. The former double-opt-in confirmation is now a welcome
+   email, subject "Welcome to Freezer Batch Cocktails", keeping the same deterministic
+   `<requestId>-consent` Idempotency-Key. The unsubscribe and no-consent branches are unchanged.
+   Node names still read "Pending Consent" and "Double Opt-In Confirmation" — these are wiring
+   identifiers referenced by the graph connections and were deliberately left alone. If
+   double opt-in is reinstated, revert the two Sheets `Status` values, the `consentStatus`
+   flag in both Prepare nodes, and the copy in both Build nodes.
 5. Confirm the Resend sender identity is `Freezer Batch Cocktails
    <recipes@freezerbatchcocktails.com>` with reply-to `hello@freezerbatchcocktails.com`.
 6. Activate v2 only after the Pages Function is deployed with its matching webhook URL and

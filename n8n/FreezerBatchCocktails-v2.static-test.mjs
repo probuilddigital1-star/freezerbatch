@@ -168,4 +168,55 @@ assert.match(hostile.html, /1 &lt; 2/);
 assert.doesNotMatch(hostile.html, /<img src=x|<svg onload=/);
 assert.doesNotMatch(hostile.subject, /[\r\n]/);
 
-console.log('n8n v2 graph and recipe-email static checks: pass');
+// Single opt-in (adopted 2026-07-25 per MIGRATION.md step 4 fallback): both consent paths
+// write `subscribed` immediately and still record the full consent audit trail.
+const CONSENT_AUDIT_COLUMNS = ['Email', 'Status', 'Source', 'Consent Version', 'Consent Timestamp', 'Page'];
+for (const upsertName of ['Upsert Newsletter Pending Consent', 'Upsert Recipe Pending Consent']) {
+  const upsert = workflow.nodes.find((node) => node.name === upsertName);
+  assert.ok(upsert, `${upsertName} exists`);
+  const columns = upsert.parameters.columns.value;
+  assert.equal(columns.Status, 'subscribed', `${upsertName} records single opt-in status`);
+  for (const column of CONSENT_AUDIT_COLUMNS) {
+    assert.ok(column in columns, `${upsertName} still records the ${column} consent audit field`);
+  }
+  assert.equal(columns.Source, '={{ $json.consentSource }}', `${upsertName} keeps the consent source`);
+  assert.equal(columns['Consent Version'], '={{ $json.consentVersion }}', `${upsertName} keeps the consent version`);
+  assert.equal(columns['Consent Timestamp'], '={{ $json.receivedAt }}', `${upsertName} keeps the consent timestamp`);
+  assert.deepEqual(upsert.parameters.columns.matchingColumns, ['Email'], `${upsertName} matches on Email`);
+}
+
+const unsubscribeUpsert = workflow.nodes.find((node) => node.name === 'Record Unsubscribe');
+assert.equal(
+  unsubscribeUpsert.parameters.columns.value.Status,
+  'unsubscribed',
+  'the unsubscribe branch is untouched by the single opt-in switch',
+);
+
+// The former double-opt-in confirmations are now welcome emails.
+function renderWelcome(nodeName) {
+  const node = workflow.nodes.find((entry) => entry.name === nodeName);
+  assert.ok(node, `${nodeName} exists`);
+  const run = new Function('$input', node.parameters.jsCode);
+  return run({ first: () => ({ json: { email: 'person@example.com', requestId: 'req-1' } }) })[0].json;
+}
+
+for (const welcomeName of [
+  'Build Newsletter Double Opt-In Confirmation',
+  'Build Recipe Double Opt-In Confirmation',
+]) {
+  const welcome = renderWelcome(welcomeName);
+  assert.equal(welcome.subject, 'Welcome to Freezer Batch Cocktails', `${welcomeName} sends the welcome subject`);
+  assert.match(welcome.html, /Welcome to the newsletter/, `${welcomeName} welcomes instead of asking to confirm`);
+  assert.doesNotMatch(welcome.html, /pending|confirm/i, `${welcomeName} drops all confirmation language`);
+  assert.doesNotMatch(welcome.text, /pending|confirm/i, `${welcomeName} plain text drops confirmation language`);
+  // Branding, apex-host links, unsubscribe, and the text alternative survive the rewrite.
+  assert.match(welcome.html, /#171411/, `${welcomeName} keeps the dark background`);
+  assert.match(welcome.html, /#d7b46a/, `${welcomeName} keeps the brass accent`);
+  assert.match(welcome.html, /https:\/\/freezerbatchcocktails\.com\/cocktails/, `${welcomeName} links the apex host`);
+  assert.match(welcome.html, /https:\/\/freezerbatchcocktails\.com\/unsubscribe/, `${welcomeName} keeps the unsubscribe link`);
+  assert.ok(welcome.text.length > 0, `${welcomeName} keeps a plain-text alternative`);
+  assert.match(welcome.text, /Unsubscribe: https:\/\/freezerbatchcocktails\.com\/unsubscribe/, `${welcomeName} text keeps unsubscribe`);
+  assert.doesNotMatch(welcome.subject, /[\r\n]/, `${welcomeName} subject stays header-safe`);
+}
+
+console.log('n8n v2 graph, recipe-email, and single opt-in static checks: pass');

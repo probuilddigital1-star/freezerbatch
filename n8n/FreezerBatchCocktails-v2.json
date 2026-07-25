@@ -174,7 +174,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'pending', consentSource: data.action === 'send_recipe' ? 'recipe-email-consent' : 'newsletter' } }];"
+        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'subscribed', consentSource: data.action === 'send_recipe' ? 'recipe-email-consent' : 'newsletter' } }];"
       },
       "id": "fbc-v2-prepare-consent",
       "name": "Prepare Newsletter Marketing Consent",
@@ -203,7 +203,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "Email": "={{ $json.email }}",
-            "Status": "pending",
+            "Status": "subscribed",
             "Source": "={{ $json.consentSource }}",
             "Consent Version": "={{ $json.consentVersion }}",
             "Consent Timestamp": "={{ $json.receivedAt }}",
@@ -222,7 +222,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'pending', consentSource: 'recipe-email-consent' } }];"
+        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'subscribed', consentSource: 'recipe-email-consent' } }];"
       },
       "id": "fbc-v2-prepare-recipe-consent",
       "name": "Prepare Recipe Marketing Consent",
@@ -239,7 +239,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "Email": "={{ $json.email }}",
-            "Status": "pending",
+            "Status": "subscribed",
             "Source": "={{ $json.consentSource }}",
             "Consent Version": "={{ $json.consentVersion }}",
             "Consent Timestamp": "={{ $json.receivedAt }}",
@@ -268,7 +268,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Confirm your subscription</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Thanks for opting in while requesting a recipe. Your marketing status is pending until double-opt-in confirmation is completed in the configured subscriber system.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nThanks for opting in while requesting a recipe. Your marketing status is pending until double-opt-in confirmation is completed in the configured subscriber system.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Confirm your Freezer Batch Cocktails subscription' } }];"
+        "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Welcome to the newsletter</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Your recipe is on its way. You also opted into the newsletter, so you're subscribed — we'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nYour recipe is on its way. You also opted into the newsletter, so you're subscribed — we'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Welcome to Freezer Batch Cocktails' } }];"
       },
       "id": "fbc-v2-build-recipe-confirmation",
       "name": "Build Recipe Double Opt-In Confirmation",
@@ -323,7 +323,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Confirm your subscription</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Thanks for opting in. Your marketing status is pending until the double-opt-in confirmation is completed in the configured subscriber system.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nThanks for opting in. Your marketing status is pending until the double-opt-in confirmation is completed in the configured subscriber system.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Confirm your Freezer Batch Cocktails subscription' } }];"
+        "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Welcome to the newsletter</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>You're subscribed — welcome. We'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nYou're subscribed — welcome. We'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Welcome to Freezer Batch Cocktails' } }];"
       },
       "id": "fbc-v2-build-confirmation",
       "name": "Build Newsletter Double Opt-In Confirmation",
