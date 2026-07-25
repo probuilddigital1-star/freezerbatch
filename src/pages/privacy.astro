@@ -79,9 +79,19 @@ const description = 'Privacy policy for FreezerBatchCocktails.com';
 
         <h3>Usage analytics</h3>
         <p>
-          We use privacy-respecting analytics to count visits and understand
-          which pages and recipes are popular. Analytics data is aggregated and
-          does not identify you personally.
+          We use <strong>PostHog</strong> to count visits and understand which
+          pages and recipes are popular, and where people drop out of the
+          calculator. It runs in an anonymous, cookieless configuration: no
+          analytics cookies, nothing stored on your device between page loads,
+          and no profile that identifies you. We never send your email address,
+          your custom ingredient names, or any other free text you type — only
+          things like a recipe slug, a bottle size, and whether a step
+          completed.
+        </p>
+        <p>
+          If your browser sends a <strong>Do Not Track</strong> signal,
+          analytics is switched off entirely and nothing is collected. Blocking
+          analytics does not affect the calculator, sharing, or the email forms.
         </p>
 
         <h3>Cookies and similar technologies</h3>
@@ -128,6 +138,7 @@ const description = 'Privacy policy for FreezerBatchCocktails.com';
         <ul>
           <li><strong>Cloudflare</strong> — hosting, DNS, the email API, Turnstile bot protection, rate limiting, and aggregate analytics.</li>
           <li><strong>Google Fonts</strong> — typography. May log IP addresses per Google's standard practice.</li>
+          <li><strong>PostHog</strong> — anonymous, cookieless usage analytics. No personal data or free-text input is sent.</li>
           <li><strong>n8n</strong> — email automation: routes recipe, newsletter, and unsubscribe requests, only when you submit your address.</li>
           <li><strong>Resend</strong> — delivers the actual emails on our behalf.</li>
           <li><strong>Google Sheets</strong> — stores our subscriber list and consent records.</li>

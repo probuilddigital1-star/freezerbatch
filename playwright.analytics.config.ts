@@ -1,0 +1,44 @@
+import { defineConfig, devices } from '@playwright/test';
+
+/**
+ * Analytics-enabled Playwright run.
+ *
+ * The analytics module is a no-op without a build-time PUBLIC_POSTHOG_KEY, so
+ * the enabled-path assertions need their own server with a test key injected.
+ * It runs on its own port to avoid colliding with the default suite's server.
+ *
+ * The key is a throwaway string and the host points at a closed port; the specs
+ * install a `window.posthog` stub before page scripts run, so the real
+ * posthog-js is never imported and nothing leaves the machine.
+ *
+ * Run with: npm run test:e2e:analytics
+ */
+export default defineConfig({
+  testDir: './tests',
+  testMatch: /analytics-events\.spec\.ts/,
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'list',
+  use: {
+    baseURL: 'http://localhost:4331',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: 'npm run dev -- --port 4331',
+    url: 'http://localhost:4331',
+    reuseExistingServer: false,
+    timeout: 120000,
+    env: {
+      PUBLIC_POSTHOG_KEY: 'phc_playwright_test_key',
+      PUBLIC_POSTHOG_HOST: 'http://127.0.0.1:9',
+    },
+  },
+});

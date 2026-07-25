@@ -613,6 +613,7 @@ const recipeTiles = cocktailsData.cocktails
     parseShareState,
     type ShareStateV1
   } from '../lib/shareState';
+  import { abvBand, pageType, track } from '../lib/analytics';
 
   class BatchCalculator extends HTMLElement {
     private unit: 'oz' | 'ml' = 'oz';
@@ -624,6 +625,10 @@ const recipeTiles = cocktailsData.cocktails
     private isHydrating = false;
     private emailRequestIds = new WeakMap<HTMLFormElement, string>();
     private emailTurnstileWidgets = new WeakMap<HTMLFormElement, string | number>();
+    // Analytics only. `calculator_started` fires once per page load;
+    // `result_completed` fires once per distinct mode+recipe+bottle combination.
+    private startedTracked = false;
+    private trackedResultKeys = new Set<string>();
 
     connectedCallback() {
       this.setupEventListeners();
@@ -643,6 +648,10 @@ const recipeTiles = cocktailsData.cocktails
       this.addIngredientRow();
       this.addIngredientRow();
 
+      if (hasUrlState) {
+        this.trackSharedLinkOpened(batchValue !== null ? 'batch-v1' : 'legacy', parsedState?.ok === true, parsedState?.ok ? parsedState.state.mode : null);
+      }
+
       if (parsedState?.ok) {
         this.hydrateSharedState(parsedState.state);
         this.showShareStateStatus('Shared recipe loaded');
@@ -654,6 +663,40 @@ const recipeTiles = cocktailsData.cocktails
       if (hasUrlState) {
         this.showShareStateStatus("Couldn't load the shared recipe — showing defaults", true);
       }
+    }
+
+    private trackSharedLinkOpened(format: 'batch-v1' | 'legacy', valid: boolean, mode: 'custom' | 'preset' | null) {
+      track('shared_link_opened', { mode: mode ?? 'unknown', format, valid });
+    }
+
+    /**
+     * First meaningful interaction with the calculator, once per page load.
+     * Hydrating a shared link is not an interaction, so it is excluded.
+     */
+    private trackCalculatorStarted() {
+      if (this.startedTracked || this.isHydrating) return;
+      this.startedTracked = true;
+      track('calculator_started', { mode: this.mode, page_type: pageType(window.location.pathname) });
+    }
+
+    /**
+     * A valid calculation rendered. Debounced to one event per distinct
+     * mode+recipe+bottle combination per page load, so live typing in custom
+     * mode does not produce a stream of events.
+     */
+    private trackResultCompleted(result: { finalAbv: number; freezeStatus: string }) {
+      if (this.isHydrating) return;
+      const recipe = this.mode === 'preset' ? (this.currentPresetId ?? 'unknown') : 'custom';
+      const key = `${this.mode}|${recipe}|${this.bottleSizeMl}`;
+      if (this.trackedResultKeys.has(key)) return;
+      this.trackedResultKeys.add(key);
+      track('result_completed', {
+        mode: this.mode,
+        recipe,
+        bottle_ml: this.bottleSizeMl,
+        freezer_safe: result.freezeStatus === 'safe',
+        abv_band: abvBand(result.finalAbv),
+      });
     }
 
     private initializeDefaults() {
@@ -718,12 +761,17 @@ const recipeTiles = cocktailsData.cocktails
     }
 
     private setupEventListeners() {
+      // First meaningful interaction: any focus inside the calculator counts,
+      // alongside the explicit mode/recipe handlers below.
+      this.addEventListener('focusin', () => this.trackCalculatorStarted());
+
       // Mode toggle
       this.querySelectorAll('.entry-mode-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const target = e.currentTarget as HTMLButtonElement;
           const mode = target.dataset.mode as 'custom' | 'preset';
           this.setMode(mode);
+          this.trackCalculatorStarted();
         });
       });
 
@@ -732,6 +780,8 @@ const recipeTiles = cocktailsData.cocktails
         const select = e.target as HTMLSelectElement;
         if (select.value) {
           this.loadPreset(select.value);
+          this.trackCalculatorStarted();
+          track('recipe_selected', { recipe: select.value });
         } else {
           this.clearPreset();
         }
@@ -747,6 +797,8 @@ const recipeTiles = cocktailsData.cocktails
           const select = this.querySelector('#recipe-select') as HTMLSelectElement | null;
           if (select) select.value = slug;
           this.loadPreset(slug);
+          this.trackCalculatorStarted();
+          track('recipe_selected', { recipe: slug });
         });
       });
 
@@ -1217,6 +1269,7 @@ const recipeTiles = cocktailsData.cocktails
 
       // Also update the hidden results panel elements for test compatibility
       this.syncResultsPanel(result);
+      this.trackResultCompleted(result);
     }
 
     private syncResultsPanel(result: any) {
@@ -1405,6 +1458,7 @@ const recipeTiles = cocktailsData.cocktails
       );
 
       this.updateDisplay(result);
+      this.trackResultCompleted(result);
     }
 
     private updateDisplayEmpty() {
@@ -1645,6 +1699,7 @@ const recipeTiles = cocktailsData.cocktails
         if (shareUrl.reason === 'url_too_long') {
           await this.copyRecipe();
           this.showToast('Share link was too long, so the recipe was copied instead.', 'success');
+          track('share_failed_too_large', { mode: state.mode });
         } else {
           this.showToast('Add a complete recipe before sharing.', 'error');
         }
@@ -1657,6 +1712,10 @@ const recipeTiles = cocktailsData.cocktails
         : 'My Freezer Batch Recipe';
       const text = 'Batch responsibly and keep frozen cocktails clearly labeled.';
 
+      // A preset share targets the recipe's canonical page; a custom share
+      // targets the homepage calculator.
+      const shareTarget = state.mode === 'preset' ? 'canonical-recipe' : 'homepage-custom';
+
       if (navigator.share) {
         try {
           await navigator.share({
@@ -1664,11 +1723,14 @@ const recipeTiles = cocktailsData.cocktails
             text,
             url
           });
+          track('share_created', { mode: state.mode, method: 'webshare', target: shareTarget });
         } catch {
           this.copyToClipboard(url);
+          track('share_created', { mode: state.mode, method: 'clipboard', target: shareTarget });
         }
       } else {
         this.copyToClipboard(url);
+        track('share_created', { mode: state.mode, method: 'clipboard', target: shareTarget });
       }
     }
 
@@ -1881,6 +1943,11 @@ const recipeTiles = cocktailsData.cocktails
           if ([403, 429, 502].includes(res.status)) this.resetEmailTurnstile(form);
           if (res.status === 400) this.emailRequestIds.delete(form);
           throw new Error(code || 'email_request_failed');
+        }
+
+        // Analytics: consent flag and mode only — never the address.
+        if (res.status === 202) {
+          track('email_recipe_sent', { consent: !!subscribeInput?.checked, mode: this.mode });
         }
 
         // Success — collapse the form to a clean confirmation line

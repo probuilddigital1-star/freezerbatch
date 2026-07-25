@@ -94,6 +94,36 @@ const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
 
     <Footer />
 
+    <!-- Anonymous analytics. No-op without PUBLIC_POSTHOG_KEY or under DNT. -->
+    <script>
+      import { affiliatePlacement, initAnalytics, retailerFromUrl, track } from '../lib/analytics';
+
+      void initAnalytics();
+
+      // Delegated so it covers affiliate links rendered after load (the preset
+      // instructions block) as well as server-rendered ones. Capture phase means
+      // we still record the click if something downstream stops propagation.
+      document.addEventListener(
+        'click',
+        (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const anchor = target.closest('a[href]');
+          if (!(anchor instanceof HTMLAnchorElement)) return;
+
+          const retailer = retailerFromUrl(anchor.href);
+          if (!retailer) return;
+
+          track('affiliate_click', {
+            retailer,
+            placement: affiliatePlacement(window.location.pathname),
+            page: window.location.pathname,
+          });
+        },
+        { capture: true }
+      );
+    </script>
+
     <!-- Scroll Reveal Observer -->
     <script>
       // Only run if reduced motion is not preferred

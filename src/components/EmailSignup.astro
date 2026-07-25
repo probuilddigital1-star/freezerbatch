@@ -38,6 +38,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 </email-signup-form>
 
 <script>
+  import { pageType, track } from '../lib/analytics';
+
   class EmailSignupForm extends HTMLElement {
     private form: HTMLFormElement | null = null;
     private emailInput: HTMLInputElement | null = null;
@@ -141,6 +143,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           if (response.status === 400) this.requestId = null;
           throw new Error(typeof body.code === 'string' ? body.code : 'email_request_failed');
         }
+        // Analytics: page type only — never the address.
+        if (response.status === 202) {
+          track('newsletter_optin', { page_type: pageType(window.location.pathname) });
+        }
+
         this.emailInput!.value = '';
         this.requestId = null;
         this.resetTurnstile();

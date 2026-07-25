@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  // analytics-events.spec.ts needs a build with PUBLIC_POSTHOG_KEY set; it runs
+  // under playwright.analytics.config.ts instead. analytics.spec.ts (the
+  // fail-closed half) belongs here, where no key is configured.
+  testIgnore: /analytics-events\.spec\.ts/,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
