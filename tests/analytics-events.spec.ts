@@ -67,6 +67,7 @@ test.describe('analytics events', () => {
     expect(first(events, 'calculator_started')!.props).toEqual({ mode: 'preset', page_type: 'home' });
     expect(first(events, 'recipe_selected')!.props).toEqual({ recipe: 'negroni' });
     expect(first(events, 'result_completed')!.props).toMatchObject({
+      trigger: 'user',
       mode: 'preset',
       recipe: 'negroni',
       bottle_ml: 750,
@@ -92,8 +93,10 @@ test.describe('analytics events', () => {
       .toBe(2);
 
     const events = await captured(page);
-    const bottles = events.filter((e) => e.event === 'result_completed').map((e) => e.props.bottle_ml);
-    expect(bottles).toEqual([750, 1000]);
+    const results = events.filter((e) => e.event === 'result_completed');
+    expect(results.map((e) => e.props.bottle_ml)).toEqual([750, 1000]);
+    // The homepage renders nothing on load, so every result here is interaction-driven.
+    expect(results.map((e) => e.props.trigger)).toEqual(['user', 'user']);
   });
 
   test('calculator_started fires once per page load', async ({ page }) => {
@@ -186,12 +189,43 @@ test.describe('analytics events', () => {
     await page.goto(`/?batch=${encodeURIComponent(batch)}#calculator`);
     await expect(page.getByRole('status')).toContainText('Shared recipe loaded');
 
-    const order = names(await captured(page));
+    const events = await captured(page);
+    const order = names(events);
     expect(order).toContain('shared_link_opened');
     expect(order).toContain('result_completed');
     expect(order.indexOf('shared_link_opened')).toBeLessThan(order.indexOf('result_completed'));
     // Hydration is not a user interaction.
     expect(order).not.toContain('calculator_started');
+
+    // Exactly one result, attributed to the shared link rather than to the page
+    // defaults or an interaction.
+    const results = events.filter((e) => e.event === 'result_completed');
+    expect(results).toHaveLength(1);
+    expect(results[0].props).toMatchObject({ trigger: 'shared_link' });
+  });
+
+  test('recipe page emits one auto result on load, then a user result on interaction', async ({ page }) => {
+    await stubPostHog(page);
+    await page.goto('/cocktails/vesper/');
+    await expect(page.locator('#preset-batch-instructions')).toContainText('Vesper');
+
+    let events = await captured(page);
+    const onLoad = events.filter((e) => e.event === 'result_completed');
+    expect(onLoad).toHaveLength(1);
+    expect(onLoad[0].props.trigger).toBe('auto');
+    expect(names(events)).not.toContain('calculator_started');
+
+    // Same recipe, same bottle, but now a real interaction: must still emit.
+    await page.getByRole('radio', { name: '1L' }).click();
+    await page.getByRole('radio', { name: '750ml' }).click();
+
+    await expect.poll(async () =>
+      (await captured(page)).filter((e) => e.event === 'result_completed' && e.props.trigger === 'user').length
+    ).toBeGreaterThan(0);
+
+    events = await captured(page);
+    expect(names(events)).toContain('calculator_started');
+    expect(events.filter((e) => e.event === 'result_completed' && e.props.trigger === 'auto')).toHaveLength(1);
   });
 
   test('affiliate_click reports retailer and placement', async ({ page }) => {

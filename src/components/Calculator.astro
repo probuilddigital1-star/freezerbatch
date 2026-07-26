@@ -626,9 +626,15 @@ const recipeTiles = cocktailsData.cocktails
     private emailRequestIds = new WeakMap<HTMLFormElement, string>();
     private emailTurnstileWidgets = new WeakMap<HTMLFormElement, string | number>();
     // Analytics only. `calculator_started` fires once per page load;
-    // `result_completed` fires once per distinct mode+recipe+bottle combination.
+    // `result_completed` fires once per distinct trigger+mode+recipe+bottle
+    // combination.
     private startedTracked = false;
     private trackedResultKeys = new Set<string>();
+    // `result_completed` provenance. `hasInteracted` is deliberately broader than
+    // `startedTracked`: any real input counts, so a result is never mislabelled
+    // `auto`. `nextResultTrigger` is a one-shot override for the hydration path.
+    private hasInteracted = false;
+    private nextResultTrigger: 'shared_link' | null = null;
 
     connectedCallback() {
       this.setupEventListeners();
@@ -680,17 +686,32 @@ const recipeTiles = cocktailsData.cocktails
     }
 
     /**
+     * Interaction provenance for `result_completed` only. Kept separate from
+     * `trackCalculatorStarted` so that event's shipped definition is unchanged.
+     */
+    private markInteracted() {
+      if (this.isHydrating) return;
+      this.hasInteracted = true;
+    }
+
+    /**
      * A valid calculation rendered. Debounced to one event per distinct
-     * mode+recipe+bottle combination per page load, so live typing in custom
-     * mode does not produce a stream of events.
+     * trigger+mode+recipe+bottle combination per page load, so live typing in
+     * custom mode does not produce a stream of events.
      */
     private trackResultCompleted(result: { finalAbv: number; freezeStatus: string }) {
       if (this.isHydrating) return;
+      const trigger = this.nextResultTrigger ?? (this.hasInteracted ? 'user' : 'auto');
+      this.nextResultTrigger = null;
       const recipe = this.mode === 'preset' ? (this.currentPresetId ?? 'unknown') : 'custom';
-      const key = `${this.mode}|${recipe}|${this.bottleSizeMl}`;
+      // `trigger` is part of the debounce key on purpose: a recipe page fires `auto`
+      // on load, and the visitor's first real interaction on that same combination
+      // must still produce a `user` event or the activation funnel reads as empty.
+      const key = `${trigger}|${this.mode}|${recipe}|${this.bottleSizeMl}`;
       if (this.trackedResultKeys.has(key)) return;
       this.trackedResultKeys.add(key);
       track('result_completed', {
+        trigger,
         mode: this.mode,
         recipe,
         bottle_ml: this.bottleSizeMl,
@@ -726,6 +747,7 @@ const recipeTiles = cocktailsData.cocktails
         if (select) select.value = state.recipe;
         this.markActiveTile(state.recipe);
 
+        this.nextResultTrigger = 'shared_link';
         this.isHydrating = false;
         this.loadPreset(state.recipe);
         return;
@@ -746,6 +768,7 @@ const recipeTiles = cocktailsData.cocktails
       this.setUnit(state.unit);
       this.setDilution(state.dilutionPercent);
 
+      this.nextResultTrigger = 'shared_link';
       this.isHydrating = false;
       this.recalculate();
     }
@@ -763,7 +786,15 @@ const recipeTiles = cocktailsData.cocktails
     private setupEventListeners() {
       // First meaningful interaction: any focus inside the calculator counts,
       // alongside the explicit mode/recipe handlers below.
-      this.addEventListener('focusin', () => this.trackCalculatorStarted());
+      // Capture phase so the interaction flag is set before any specific handler
+      // below runs, independent of listener registration order.
+      (['pointerdown', 'keydown', 'change'] as const).forEach((type) => {
+        this.addEventListener(type, () => this.markInteracted(), { capture: true });
+      });
+      this.addEventListener('focusin', () => {
+        this.markInteracted();
+        this.trackCalculatorStarted();
+      });
 
       // Mode toggle
       this.querySelectorAll('.entry-mode-btn').forEach(btn => {
@@ -779,8 +810,8 @@ const recipeTiles = cocktailsData.cocktails
       this.querySelector('#recipe-select')?.addEventListener('change', (e) => {
         const select = e.target as HTMLSelectElement;
         if (select.value) {
-          this.loadPreset(select.value);
           this.trackCalculatorStarted();
+          this.loadPreset(select.value);
           track('recipe_selected', { recipe: select.value });
         } else {
           this.clearPreset();
@@ -796,8 +827,8 @@ const recipeTiles = cocktailsData.cocktails
           // Sync hidden select for state/share consistency
           const select = this.querySelector('#recipe-select') as HTMLSelectElement | null;
           if (select) select.value = slug;
-          this.loadPreset(slug);
           this.trackCalculatorStarted();
+          this.loadPreset(slug);
           track('recipe_selected', { recipe: slug });
         });
       });

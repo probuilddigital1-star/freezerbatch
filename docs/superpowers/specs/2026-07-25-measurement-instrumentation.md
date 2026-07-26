@@ -35,7 +35,7 @@ Make the repaired acquisition loop observable. After this project we can answer,
 | `$pageview` | built-in, per page load | default PostHog props (URL, referrer, UTM) |
 | `calculator_started` | first meaningful interaction with the calculator per page load (mode toggle, recipe select, or input focus) | `mode`, `page_type` (home/recipe) |
 | `recipe_selected` | preset chosen | `recipe` (slug) |
-| `result_completed` | a valid calculation renders (debounced: once per distinct recipe+bottle+mode combination per page load) | `mode`, `recipe` (slug or "custom"), `bottle_ml`, `freezer_safe` (bool), `abv_band` (e.g. "20-25", not raw) |
+| `result_completed` | a valid calculation renders (debounced: once per distinct **trigger**+recipe+bottle+mode combination per page load) | `trigger` (auto/user/shared_link), `mode`, `recipe` (slug or "custom"), `bottle_ml`, `freezer_safe` (bool), `abv_band` (e.g. "20-25", not raw) |
 | `share_created` | share URL successfully produced (Web Share invoked or clipboard copy) | `mode`, `method` (webshare/clipboard), `target` (canonical-recipe/homepage-custom) |
 | `share_failed_too_large` | the >1,800-char copy-recipe fallback triggers | `mode` |
 | `shared_link_opened` | URL state hydration attempt on page load | `mode`, `format` (batch-v1/legacy), `valid` (bool) |
@@ -43,7 +43,20 @@ Make the repaired acquisition loop observable. After this project we can answer,
 | `newsletter_optin` | 202 for subscribe | `page_type` |
 | `affiliate_click` | click on an outbound Amazon/StockTheEvent link | `retailer` (amazon/stocktheevent), `placement` (recipe-page/homepage/guide), `page` (path) |
 
+`trigger` records where a rendered result came from: `auto` (page defaults, no
+interaction — a recipe page renders its preset on load), `user` (after a real
+interaction), `shared_link` (hydrated `?batch=` or legacy URL state). Only `user`
+represents activation; `auto` would otherwise make every recipe-page pageview look like
+a conversion.
+
 Reserved names for later phases (do not implement now): `plan_saved`, `host_mode_checkout`, `purchase`.
+
+## Schema revisions
+
+- **2026-07-26 — added `trigger` to `result_completed`.** Events captured before this
+  date have no `trigger` property and should be treated as legacy (a handful of sessions
+  only). The debounce key also became trigger-aware, so one page load can now emit both
+  an `auto` and a `user` result for the same recipe+bottle+mode.
 
 `unsubscribe` is deliberately **not** tracked — negligible analytical value, disproportionate privacy sensitivity.
 
@@ -74,7 +87,10 @@ Reserved names for later phases (do not implement now): `plan_saved`, `host_mode
 
 Create and pin one dashboard, "FBC Funnel", with four insights:
 
-1. **Activation funnel:** `$pageview` → `calculator_started` → `result_completed` (weekly).
+1. **Activation funnel:** `$pageview` → `calculator_started` → `result_completed`
+   (weekly). The final step **must filter `result_completed` to `trigger = user`** —
+   unfiltered, recipe pages emit an `auto` result on load and the funnel reads as ~100%
+   conversion with 0% `calculator_started`.
 2. **Share loop:** `result_completed` → `share_created`; and separately `shared_link_opened` → `result_completed` (same-session), the recipient-activation rate.
 3. **Email conversion:** `$pageview` → `newsletter_optin` + `email_recipe_sent` split by `consent`.
 4. **Affiliate:** `affiliate_click` by `retailer`/`placement`, weekly trend.
