@@ -70,3 +70,22 @@ and the 22% freezer-pour and citrus-storage copy.
 Rollback is intentionally simple: change the Pages `N8N_WEBHOOK_URL` back to v1, re-enable v1
 only if necessary, and deactivate v2. Record the reason, preserve evidence, and do not expose
 the legacy public endpoint after the incident is resolved.
+
+## Cold Open templates (not yet wired)
+
+`n8n/emails/cold-open/` holds the three send-ready templates from the Cold Open design
+handoff, copied byte-for-byte and not modified: `welcome.html`, `monthly-issue.html`, and
+`countdown-step.html`. They are production artifacts rather than prototypes — the tables,
+inline styles, bulletproof buttons, and `<meta name="color-scheme">` declarations are
+deliberate and must survive any edit. Only the `{{token}}` syntax should be swapped for the
+sending system's own merge fields, and `{{IMAGE_URL}}` / `{{PRODUCT_IMAGE_URL}}` replaced
+with hosted https URLs.
+
+`{{LABEL_SHEET_URL}}` resolves to
+`https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf`, generated from
+`scripts/label-sheet/label-sheet.html` by `node scripts/generate-label-sheet.mjs`.
+
+**Wiring these into the workflow is a separate task.** Nothing in n8n references them yet:
+no node sends them, and the welcome template is not attached to the `subscribe` consent path.
+That work also needs to resolve the v2 workflow's unpublished draft state before any send
+behavior changes.
