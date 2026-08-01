@@ -2,7 +2,11 @@ import { normalizeEmailPayload } from '../_lib/emailPayload';
 import { verifyTurnstile } from '../_lib/turnstile';
 
 const MAX_BODY_BYTES = 10 * 1_024;
-const UPSTREAM_TIMEOUT_MS = 5_000;
+// The n8n workflow responds only when its last node finishes (responseMode
+// "responseNode"), and observed executions run 2.6-4.6s before the reply is sent.
+// A 5s budget aborted real successes, surfacing 502 upstream_unavailable while the
+// email had in fact delivered. 10s clears the observed worst case with headroom.
+const UPSTREAM_TIMEOUT_MS = 10_000;
 
 export interface EmailFunctionEnv {
   TURNSTILE_SECRET_KEY: string;
