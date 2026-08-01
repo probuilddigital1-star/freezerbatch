@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Calculator from '../../components/Calculator.astro';
+import EmailSignup from '../../components/EmailSignup.astro';
 import CocktailCard from '../../components/CocktailCard.astro';
 import AffiliateLink from '../../components/AffiliateLink.astro';
 import GlassIcon from '../../components/GlassIcon.astro';
@@ -285,6 +286,13 @@ const recipeSchema = {
         </section>
       )}
     </div>
+
+    <!-- Cold Open — end-of-recipe capture card (variant A).
+         Sits well below the calculator's own email form so the two never
+         compete in one viewport. -->
+    <section class="mt-16 px-6 sm:px-10 lg:px-20">
+      <EmailSignup variant="card" />
+    </section>
 
     <!-- Related Cocktails -->
     {relatedCocktails.length > 0 && (
