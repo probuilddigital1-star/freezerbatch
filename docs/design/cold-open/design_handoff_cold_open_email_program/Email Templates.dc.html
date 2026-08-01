@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#080604; }
+a { color:#c8a55c; } a:hover { color:#e2bc6d; }
+</style>
+</helmet>
+<section style="padding:56px; display:flex; flex-direction:column; gap:28px; font-family:Outfit, Helvetica, Arial, sans-serif;">
+  <div style="display:flex; flex-direction:column; gap:6px;">
+    <div style="font-size:11px; letter-spacing:0.22em; color:#c8a55c; text-transform:uppercase;">Deliverable 3 · Cold Open by FBC</div>
+    <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:32px; color:#f0e8da;">Email template system</div>
+    <div style="font-size:13px; color:#9a8e7e; max-width:680px; line-height:1.5;">Send-ready HTML files in <span style="font-family:'Courier New', monospace; color:#c8a55c;">emails/</span> — 600px, table-based, all styles inline, no JS, bulletproof buttons, unsubscribe + postal placeholders. "The Study" palette; Cormorant Garamond / Outfit load as progressive enhancement over the Georgia / Helvetica stacks.</div>
+  </div>
+  <div style="display:flex; gap:28px; align-items:flex-start;">
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <span style="font-size:12px; letter-spacing:0.18em; color:#f0e8da; text-transform:uppercase;">a · Welcome</span>
+        <span style="font-size:11px; color:#9a8e7e;">delivers the label sheet</span>
+      </div>
+      <iframe src="emails/welcome.html" title="Welcome email" style="width:624px; height:1560px; border:1px solid #2e2720; background:#0c0a08;"></iframe>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <span style="font-size:12px; letter-spacing:0.18em; color:#f0e8da; text-transform:uppercase;">b · Monthly issue</span>
+        <span style="font-size:11px; color:#9a8e7e;">recipe + timeline + one product</span>
+      </div>
+      <iframe src="emails/monthly-issue.html" title="Monthly issue email" style="width:624px; height:1760px; border:1px solid #2e2720; background:#0c0a08;"></iframe>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <span style="font-size:12px; letter-spacing:0.18em; color:#f0e8da; text-transform:uppercase;">c · Countdown step</span>
+        <span style="font-size:11px; color:#9a8e7e;">occasion sequences</span>
+      </div>
+      <iframe src="emails/countdown-step.html" title="Countdown step email" style="width:624px; height:1120px; border:1px solid #2e2720; background:#0c0a08;"></iframe>
+    </div>
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#0c0a08; }
+a { color:#c8a55c; } a:hover { color:#d4b76e; }
+input::placeholder { color:#9a8e7e; }
+</style>
+</helmet>
+<div style="min-height:100vh; background:#0c0a08; display:flex; flex-direction:column; align-items:center; font-family:Outfit, Helvetica, Arial, sans-serif; padding:64px 24px 96px; box-sizing:border-box;">
+  <div style="width:720px; max-width:100%; display:flex; flex-direction:column; gap:16px;">
+    <div style="font-size:11px; letter-spacing:0.22em; color:#9a8e7e; text-transform:uppercase;">Context · End of a recipe page</div>
+    <div style="display:flex; flex-direction:column; gap:10px; opacity:0.4;">
+      <div style="font-family:'Cormorant Garamond', Georgia, serif; font-size:26px; color:#f0e8da;">Serving notes</div>
+      <div style="font-size:15px; color:#e8e0d4; line-height:1.7;">Pour straight from the freezer into a chilled coupe. No ice, no stirring — the batch already carries its dilution. Express an orange peel over the top if you're feeling ceremonial.</div>
+    </div>
+
+    <div style="margin-top:24px; background:#161310; border:1px solid #3d3428; padding:40px 44px; display:flex; flex-direction:column; gap:20px;">
+      <div style="display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
+        <div style="display:flex; align-items:center; gap:11px;">
+          <span style="background:#c8a55c; color:#161310; font-family:'Cormorant Garamond', Georgia, serif; font-weight:600; font-size:13px; letter-spacing:0.06em; padding:4px 7px 3px;">FBC</span>
+          <span style="font-family:'Cormorant Garamond', Georgia, serif; font-size:19px; letter-spacing:0.18em; color:#f0e8da; text-transform:uppercase;">{{ programName }}</span>
+        </div>
+        <div style="font-family:'Cormorant Garamond', Georgia, serif; font-weight:500; font-size:30px; color:#f0e8da; line-height:1.25; text-wrap:pretty;">Ready before the guests arrive.</div>
+        <div style="font-size:15px; color:#e8e0d4; line-height:1.6; max-width:520px; text-wrap:pretty;">One make-ahead recipe and a hosting timeline, monthly — plus the printable bottle-label sheet when you join.</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:stretch; flex-wrap:wrap;">
+        <input type="email" placeholder="Email address" style="flex:1; min-width:220px; background:#1e1a16; border:1px solid #3d3428; color:#e8e0d4; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:15px; padding:13px 16px; outline:none;" style-focus="border-color:#c8a55c">
+        <button onClick="{{ noop }}" style="background:#c8a55c; color:#161310; border:none; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; padding:0 26px; cursor:pointer;" style-hover="background:#d4b76e">{{ ctaLabel }}</button>
+      </div>
+      <div style="font-size:13px; color:#9a8e7e;">No spam. Unsubscribe anytime.</div>
+    </div>
+  </div>
+
+  <div style="width:720px; max-width:100%; display:flex; flex-direction:column; gap:16px; margin-top:72px;">
+    <div style="font-size:11px; letter-spacing:0.22em; color:#9a8e7e; text-transform:uppercase;">Variant · Homepage footer one-liner</div>
+    <div style="background:#0c0a08; border-top:1px solid #2e2720; border-bottom:1px solid #2e2720; padding:18px 4px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <span style="background:#c8a55c; color:#161310; font-family:'Cormorant Garamond', Georgia, serif; font-weight:600; font-size:12px; letter-spacing:0.06em; padding:3px 6px 2px;">FBC</span>
+      <span style="font-family:'Cormorant Garamond', Georgia, serif; font-size:16px; letter-spacing:0.16em; color:#f0e8da; text-transform:uppercase; white-space:nowrap;">{{ programName }}</span>
+      <span style="font-size:14px; color:#9a8e7e; white-space:nowrap;">A recipe and a hosting timeline, monthly.</span>
+      <div style="display:flex; gap:8px; flex:1; min-width:280px; justify-content:flex-end;">
+        <input type="email" placeholder="Email address" style="width:200px; background:#1e1a16; border:1px solid #3d3428; color:#e8e0d4; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; padding:9px 12px; outline:none;" style-focus="border-color:#c8a55c">
+        <button onClick="{{ noop }}" style="background:#c8a55c; color:#161310; border:none; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; padding:0 18px; cursor:pointer;" style-hover="background:#d4b76e">Join</button>
+      </div>
+    </div>
+    <div style="font-size:13px; color:#9a8e7e; line-height:1.6; max-width:560px;">Both variants drop into the dark theme unmodified — palette, brass button and dark input field match "The Study" tokens exactly.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;900px&quot;},&quot;programName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Cold Open&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Program&quot;},&quot;ctaLabel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Get the label sheet&quot;,&quot;Join the batch&quot;,&quot;Subscribe&quot;],&quot;default&quot;:&quot;Get the label sheet&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Program&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      programName: this.props.programName ?? "Cold Open",
+      ctaLabel: this.props.ctaLabel ?? "Get the label sheet",
+      noop: (e) => e.preventDefault(),
+    };
+  }
+}
+</script>
+</body>
+</html>
