@@ -44,6 +44,31 @@ async function mockEmailApi(page: Page, responses: Array<{ status: number; code?
   return requests;
 }
 
+test.describe('Cold Open capture placement', () => {
+  test('recipe page renders the card once and the homepage renders the footer variant', async ({ page }) => {
+    await page.goto('/cocktails/negroni/');
+    const recipeSignup = page.locator('email-signup-form');
+    await expect(recipeSignup).toHaveCount(1);
+    await expect(recipeSignup).toHaveAttribute('data-variant', 'card');
+    await expect(recipeSignup.locator('.cold-open-card')).toHaveCount(1);
+    await expect(recipeSignup.locator('.cold-open-footer')).toHaveCount(0);
+    await expect(recipeSignup).toContainText('Ready before the guests arrive.');
+    await expect(recipeSignup).toContainText('No spam. Unsubscribe anytime.');
+    // The calculator keeps its own recipe-email form; the two are separate elements
+    // and the Cold Open card must not be mistaken for it.
+    await expect(page.locator('batch-calculator')).toHaveCount(1);
+    await expect(page.locator('batch-calculator email-signup-form')).toHaveCount(0);
+
+    await page.goto('/');
+    const homeSignup = page.locator('email-signup-form');
+    await expect(homeSignup).toHaveCount(1);
+    await expect(homeSignup).toHaveAttribute('data-variant', 'footer');
+    await expect(homeSignup.locator('.cold-open-footer')).toHaveCount(1);
+    await expect(homeSignup.locator('.cold-open-card')).toHaveCount(0);
+    await expect(homeSignup).toContainText('A recipe and a hosting timeline, monthly.');
+  });
+});
+
 test.describe('same-origin email forms', () => {
   test('recipe email emits contract payloads with and without marketing consent', async ({ page }) => {
     await enableMockTurnstile(page);
