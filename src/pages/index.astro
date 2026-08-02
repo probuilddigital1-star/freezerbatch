@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Calculator from '../components/Calculator.astro';
 import CocktailCard from '../components/CocktailCard.astro';
 import EmailSignup from '../components/EmailSignup.astro';
+import type { Storage } from '../components/CocktailCard.astro';
 import cocktailsData from '../data/cocktails.json';
 import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../lib/calculator';
 
@@ -20,8 +21,9 @@ const enriched = cocktailsData.cocktails.map(c => {
   };
 });
 
+// Feature the batches that keep longest — the least demanding place to start.
 const featuredCocktails = enriched
-  .filter(c => c.reliability === 'bulletproof')
+  .filter(c => c.storage.bestWithin === 'months')
   .slice(0, 6);
 
 const schema = {
@@ -161,7 +163,7 @@ const schema = {
             name={cocktail.name}
             tagline={cocktail.tagline}
             baseSpirit={cocktail.baseSpirit}
-            reliability={cocktail.reliability as 'bulletproof' | 'needs-attention'}
+            storage={cocktail.storage as Storage}
             finalAbv={cocktail.finalAbv}
             freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
             servings={cocktail.servings}

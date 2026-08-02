@@ -4,12 +4,21 @@
  * Dark surface, brass-on-active border, italic Cormorant cocktail name.
  */
 
+// Quality window — how long the batch is at its best. Independent of freezeStatus,
+// which answers the different question of whether it freezes solid.
+export type Storage = {
+  bestWithin: 'months' | 'weeks' | 'week';
+  bestWithinLabel: string;
+  limitedBy: 'citrus' | 'coffee' | 'vermouth' | null;
+  note: string;
+};
+
 export interface Props {
   slug: string;
   name: string;
   tagline: string;
   baseSpirit: string[];
-  reliability: 'bulletproof' | 'needs-attention';
+  storage: Storage;
   finalAbv: number;
   freezeStatus: 'freeze' | 'slushy' | 'safe';
   servings: number;
@@ -21,7 +30,7 @@ const {
   name,
   tagline,
   baseSpirit,
-  reliability,
+  storage,
   finalAbv,
   freezeStatus,
   servings,
@@ -35,6 +44,14 @@ const statusConfig = {
 };
 
 const status = statusConfig[freezeStatus];
+
+// The label itself is the claim — rendered verbatim so no surface can drift from
+// storage.bestWithinLabel. Only the emphasis changes with the window.
+const storageClass = {
+  months: 'text-study-muted',
+  weeks: 'text-amber-500/70',
+  week: 'text-amber-500/90',
+}[storage.bestWithin];
 ---
 
 <a
@@ -76,15 +93,9 @@ const status = statusConfig[freezeStatus];
 
   <!-- Footer link -->
   <div class="flex items-center justify-between pt-5 border-t border-study-border">
-    {reliability === 'bulletproof' ? (
-      <span class="text-[10px] uppercase tracking-[0.2em] text-study-muted font-light" title="Spirit-forward — keeps for months in the freezer">
-        Lasts months
-      </span>
-    ) : (
-      <span class="text-[10px] uppercase tracking-[0.2em] text-amber-500/80 font-light" title="Contains fresh citrus or coffee — flavor peaks early">
-        Best within a week
-      </span>
-    )}
+    <span class={`text-[10px] uppercase tracking-[0.2em] font-light ${storageClass}`} title={storage.note}>
+      Best within {storage.bestWithinLabel}
+    </span>
     <span class="text-[11px] uppercase tracking-[0.2em] text-study-muted group-hover:text-accent-500 transition-colors flex items-center gap-2">
       Calculate batch
       <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

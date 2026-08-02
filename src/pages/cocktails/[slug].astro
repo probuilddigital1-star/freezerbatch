@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import Calculator from '../../components/Calculator.astro';
 import EmailSignup from '../../components/EmailSignup.astro';
 import CocktailCard from '../../components/CocktailCard.astro';
+import type { Storage } from '../../components/CocktailCard.astro';
 import AffiliateLink from '../../components/AffiliateLink.astro';
 import GlassIcon from '../../components/GlassIcon.astro';
 import type { GlassType } from '../../components/GlassIcon.astro';
@@ -51,6 +52,9 @@ const displayAbv = liveBatch ? Math.round(liveBatch.finalAbv) : cocktail.finalAb
 const displayServings = liveBatch ? liveBatch.servings : cocktail.servings;
 const displayFreezeStatus = liveBatch ? liveBatch.freezeStatus : cocktail.freezeStatus;
 const glassType: GlassType = GLASS_BY_SLUG[cocktail.slug] ?? 'coupe';
+
+// Single source of truth for every storage claim on this page.
+const storage = cocktail.storage as Storage;
 
 // Get related cocktails
 const relatedCocktails = cocktailsData.cocktails
@@ -144,11 +148,9 @@ const recipeSchema = {
               <span>{status.icon}</span>
               {status.text}
             </span>
-            {cocktail.reliability === 'bulletproof' && (
-              <span class="px-3 py-1 text-[10px] uppercase tracking-[0.18em] font-medium border border-accent-500/40 text-accent-300 bg-accent-500/5" title="Spirit-forward — keeps for months in the freezer">
-                Lasts months
-              </span>
-            )}
+            <span class="px-3 py-1 text-[10px] uppercase tracking-[0.18em] font-medium border border-accent-500/40 text-accent-300 bg-accent-500/5" title={storage.note}>
+              Best within {storage.bestWithinLabel}
+            </span>
           </div>
 
           <h1 class="font-display italic text-cream-100 font-normal mb-3" style="font-size: clamp(2.5rem, 5vw, 3.75rem); line-height: 1.05;">
@@ -203,11 +205,10 @@ const recipeSchema = {
         <p class="section-eyebrow mb-3">At Serve</p>
         <h2 class="font-display italic text-[24px] text-cream-100 font-normal mb-4">How to serve</h2>
         <p class="text-[15px] text-cognac-700 leading-[1.7] font-light">{cocktail.serve}</p>
-        {cocktail.shelfLife && (
-          <p class="mt-4 text-[12px] uppercase tracking-[0.18em] text-study-muted">
-            <strong class="text-accent-500 font-medium">Best within:</strong> {cocktail.shelfLife}
-          </p>
-        )}
+        <p class="mt-4 text-[12px] uppercase tracking-[0.18em] text-study-muted">
+          <strong class="text-accent-500 font-medium">Best within:</strong> {storage.bestWithinLabel}
+        </p>
+        <p class="mt-2 text-[14px] text-cognac-700 leading-[1.7] font-light normal-case tracking-normal">{storage.note}</p>
       </section>
 
       <!-- Tips + Common Mistakes — side by side on desktop, stacked on mobile.
@@ -307,7 +308,7 @@ const recipeSchema = {
                 name={related.name}
                 tagline={related.tagline}
                 baseSpirit={related.baseSpirit}
-                reliability={related.reliability as 'bulletproof' | 'needs-attention'}
+                storage={related.storage as Storage}
                 finalAbv={related.finalAbv}
                 freezeStatus={related.freezeStatus as 'freeze' | 'slushy' | 'safe'}
                 servings={related.servings}

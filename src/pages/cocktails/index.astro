@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CocktailCard from '../../components/CocktailCard.astro';
+import type { Storage } from '../../components/CocktailCard.astro';
 import cocktailsData from '../../data/cocktails.json';
 import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../../lib/calculator';
 
@@ -19,9 +20,11 @@ const enriched = cocktailsData.cocktails.map(c => {
   };
 });
 
-// Separate by reliability
-const bulletproof = enriched.filter(c => c.reliability === 'bulletproof');
-const needsAttention = enriched.filter(c => c.reliability === 'needs-attention');
+// Group by quality window. This is storage.bestWithin — how long the batch is at
+// its best — not freezeStatus, which is the separate question of whether it freezes.
+const lastsMonths = enriched.filter(c => c.storage.bestWithin === 'months');
+const lastsWeeks = enriched.filter(c => c.storage.bestWithin === 'weeks');
+const lastsWeek = enriched.filter(c => c.storage.bestWithin === 'week');
 
 // Get all unique base spirits
 const allSpirits = [...new Set(enriched.flatMap(c => c.baseSpirit))].sort();
@@ -100,61 +103,59 @@ const tagFilters: Array<{ tag: string; label: string }> = [
         </div>
       </div>
 
-      <!-- Long shelf life: spirit-forward, no fresh ingredients -->
-      <div class="mb-20" data-section="bulletproof">
-        <div class="flex items-baseline gap-4 mb-10 pb-5 border-b border-study-border">
-          <span class="text-accent-500 text-2xl font-display italic font-light leading-none">01</span>
-          <div>
-            <h2 class="font-display italic text-[28px] sm:text-[32px] text-cream-100 font-normal leading-tight">Lasts months</h2>
-            <p class="text-[13px] text-study-muted mt-1 font-light">Spirit-forward batches that keep in the freezer indefinitely</p>
+      {[
+        {
+          key: 'months',
+          num: '01',
+          heading: 'Lasts months',
+          blurb: 'Spirit-forward batches with no fresh juice. Where there is vermouth, its freshness at batching is the only clock.',
+          items: lastsMonths,
+          spacing: 'mb-20',
+        },
+        {
+          key: 'weeks',
+          num: '02',
+          heading: 'Best within a few weeks',
+          blurb: 'Fresh citrus or cold-brew coffee. Still drinkable after, but brightest early.',
+          items: lastsWeeks,
+          spacing: 'mb-20',
+        },
+        {
+          key: 'week',
+          num: '03',
+          heading: 'Best within a week',
+          blurb: 'Fresh lemon that mellows fast. Batch small and drink it soon.',
+          items: lastsWeek,
+          spacing: '',
+        },
+      ].map(section => (
+        <div class={section.spacing} data-section={section.key}>
+          <div class="flex items-baseline gap-4 mb-10 pb-5 border-b border-study-border">
+            <span class="text-accent-500 text-2xl font-display italic font-light leading-none">{section.num}</span>
+            <div>
+              <h2 class="font-display italic text-[28px] sm:text-[32px] text-cream-100 font-normal leading-tight">{section.heading}</h2>
+              <p class="text-[13px] text-study-muted mt-1 font-light">{section.blurb}</p>
+            </div>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id={`${section.key}-grid`}>
+            {section.items.map(cocktail => (
+              <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')} data-tags={(cocktail.tags ?? []).join(',')}>
+                <CocktailCard
+                  slug={cocktail.slug}
+                  name={cocktail.name}
+                  tagline={cocktail.tagline}
+                  baseSpirit={cocktail.baseSpirit}
+                  storage={cocktail.storage as Storage}
+                  finalAbv={cocktail.finalAbv}
+                  freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
+                  servings={cocktail.servings}
+                  technique={cocktail.recipe?.dilutionType}
+                />
+              </div>
+            ))}
           </div>
         </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="bulletproof-grid">
-          {bulletproof.map(cocktail => (
-            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')} data-tags={(cocktail.tags ?? []).join(',')}>
-              <CocktailCard
-                slug={cocktail.slug}
-                name={cocktail.name}
-                tagline={cocktail.tagline}
-                baseSpirit={cocktail.baseSpirit}
-                reliability={cocktail.reliability as 'bulletproof' | 'needs-attention'}
-                finalAbv={cocktail.finalAbv}
-                freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
-                servings={cocktail.servings}
-                technique={cocktail.recipe?.dilutionType}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <!-- Shorter shelf life: contains fresh citrus or coffee -->
-      <div data-section="attention">
-        <div class="flex items-baseline gap-4 mb-10 pb-5 border-b border-study-border">
-          <span class="text-accent-500 text-2xl font-display italic font-light leading-none">02</span>
-          <div>
-            <h2 class="font-display italic text-[28px] sm:text-[32px] text-cream-100 font-normal leading-tight">Best within a week</h2>
-            <p class="text-[13px] text-study-muted mt-1 font-light">Fresh citrus or coffee. Flavor peaks early, still drinkable longer.</p>
-          </div>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="attention-grid">
-          {needsAttention.map(cocktail => (
-            <div class="cocktail-item" data-spirits={cocktail.baseSpirit.join(',')} data-tags={(cocktail.tags ?? []).join(',')}>
-              <CocktailCard
-                slug={cocktail.slug}
-                name={cocktail.name}
-                tagline={cocktail.tagline}
-                baseSpirit={cocktail.baseSpirit}
-                reliability={cocktail.reliability as 'bulletproof' | 'needs-attention'}
-                finalAbv={cocktail.finalAbv}
-                freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
-                servings={cocktail.servings}
-                technique={cocktail.recipe?.dilutionType}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      ))}
 
       <!-- Pro tip card -->
       <div class="mt-20 bg-study-card border border-study-border p-8 sm:p-10 max-w-2xl mx-auto">

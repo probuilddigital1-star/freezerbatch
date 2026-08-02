@@ -20,7 +20,7 @@ const { cocktailSlug, simple = false } = Astro.props;
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 // Only show recipes that have a Milk Street batch defined (the calculator
-// can compute them). Order matches cocktails.json — bulletproof first.
+// can compute them). Order matches cocktails.json.
 const recipeTiles = cocktailsData.cocktails
   .filter(c => MILK_STREET_BATCHES[c.slug])
   .map(c => ({

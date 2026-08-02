@@ -7,7 +7,12 @@
       "name": "Negroni",
       "tagline": "The perfect aperitivo, always ready",
       "description": "The Negroni was reportedly invented in Florence around 1919 when Count Camillo Negroni asked his bartender to fortify an Americano by replacing the soda water with gin. Equal parts gin, Campari, and sweet vermouth, no water, no fuss. Of every classic cocktail, this is probably the best argument for freezer batching: the balance only tightens when the drink is cold, and a properly batched bottle pours into the glass already at the right temperature. Use a London Dry gin and a fresh bottle of sweet vermouth (Cocchi Storico is the bartender's pick).",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Gin and Campari keep indefinitely — the sweet vermouth's freshness at batching sets the ceiling."
+      },
       "baseSpirit": ["gin"],
       "tags": ["bitter", "aperitivo", "classic", "italian", "stirred"],
       "difficulty": 1,
@@ -62,7 +67,12 @@
       "name": "Manhattan",
       "tagline": "Sophisticated sipping, zero wait time",
       "description": "The Manhattan first appeared in print in the 1880s, supposedly created at the Manhattan Club in New York for a banquet hosted by Lady Randolph Churchill. Two parts rye, one part sweet vermouth, a couple dashes of bitters. Of the spirit-forward classics, the Manhattan is the one that benefits most from freezer batching. The rye's heat backs off and the vermouth's fruit rounds out; the bitters finish reads as more aromatic than at room temperature. The drink is famously sensitive to vermouth quality, so replace your bottle every six weeks.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Batch with vermouth opened in the last 4-6 weeks; that freshness, not the whiskey, is the limit."
+      },
       "baseSpirit": ["rye", "bourbon"],
       "tags": ["whiskey", "classic", "stirred", "sophisticated"],
       "difficulty": 1,
@@ -118,7 +128,12 @@
       "name": "Old Fashioned",
       "tagline": "Timeless simplicity, perfectly chilled",
       "description": "The Old Fashioned is older than the term \"cocktail\" itself. The 1806 definition of a cocktail was \"spirits, sugar, water, and bitters,\" which is a literal Old Fashioned. Bourbon (or rye), a small amount of rich simple syrup, two or three dashes of Angostura, and a lemon peel expressed over the surface. The freezer version skips the muddled-orange-and-cherry vandalism that took hold in the mid-twentieth century. As a freezer batch the bourbon's vanilla and oak come forward; the syrup mostly disappears, which is why we batch slightly less of it than you would pour over ice.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": null,
+        "note": "Bourbon, syrup, and bitters only — nothing here degrades in the freezer."
+      },
       "baseSpirit": ["bourbon", "rye"],
       "tags": ["whiskey", "classic", "simple", "stirred"],
       "difficulty": 1,
@@ -173,7 +188,12 @@
       "name": "Boulevardier",
       "tagline": "A whiskey Negroni that improves with time",
       "description": "The Boulevardier is what you get when you swap the Negroni's gin for bourbon. Erskine Gwynne, an American magazine editor in 1920s Paris, named the drink after his expat literary magazine of the same name. Equal parts bourbon, Campari, and sweet vermouth. The bourbon's caramel-vanilla makes it sweeter and softer than its gin parent, which is why some bartenders prefer it to a Negroni in cold weather. As a freezer batch it improves over the first week as the Campari and vermouth marry into the bourbon.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Improves after a week in the freezer; the sweet vermouth's freshness sets the ceiling."
+      },
       "baseSpirit": ["bourbon"],
       "tags": ["whiskey", "bitter", "negroni-family", "stirred"],
       "difficulty": 1,
@@ -216,7 +236,12 @@
       "name": "Dirty Martini",
       "tagline": "Briny, cold, and always ready",
       "description": "The Dirty Martini is a 1980s American invention, not a true classic, but it is the rare modern drink that batches better than its standard form. Olive brine has more shelf life than fresh citrus, and the vodka-and-vermouth base barely changes character at -18°C. The \"dirty\" part is the brine, half an ounce per drink, which adds salinity without overwhelming the vermouth. Use a quality olive brine; the cheap stuff tastes industrial. Sicilian Castelvetrano olives produce the cleanest brine for batching.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Dry vermouth oxidizes faster than sweet, so batch from a recently opened bottle; the brine itself keeps."
+      },
       "baseSpirit": ["vodka", "gin"],
       "tags": ["vodka", "gin", "savory", "martini", "stirred"],
       "difficulty": 1,
@@ -271,14 +296,18 @@
       "name": "Margarita",
       "tagline": "Party-ready lime perfection",
       "description": "The Margarita's origin story has too many claimants for any of them to be definitive. The version most bartenders pour today comes from the early 1940s, somewhere between Tijuana and Acapulco. Tequila, fresh lime, orange liqueur, and a touch of agave syrup. Salt rim optional but traditional. As a freezer batch it works best within a week, while the lime is still bright; after that the citrus turns into a pale ghost of itself. Use a 100% agave blanco tequila and squeeze the limes the same day you batch.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "citrus",
+        "note": "Fresh lime is the clock here — brightest in the first two to three weeks."
+      },
       "baseSpirit": ["tequila"],
       "tags": ["tequila", "citrus", "party", "shaken", "summer"],
       "difficulty": 2,
       "servings": 8,
       "prepTime": "10 min",
       "freezeTime": "4+ hours",
-      "shelfLife": "2-3 weeks",
       "recipe": {
         "batch": {
           "baseBottle": "750ml Tequila Blanco",
@@ -331,14 +360,18 @@
       "name": "Cosmopolitan",
       "tagline": "Perfectly pink and party-ready",
       "description": "The Cosmopolitan owes most of its fame to a single decade and a single TV show. The drink itself predates Sex and the City; bartender Toby Cecchini popularized the modern version at the Odeon in lower Manhattan around 1988. Vodka, orange liqueur, cranberry concentrate, and a bare quarter-ounce of fresh lime. In freezer-batch form the cranberry holds its color for weeks; the lime is the time-limited ingredient. Use cranberry concentrate, not the bottled red juice from the supermarket. The concentrate gives the right body and the right pink.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "citrus",
+        "note": "Lime and cranberry juice both fade; brightest in the first two to three weeks."
+      },
       "baseSpirit": ["vodka"],
       "tags": ["vodka", "citrus", "fruity", "shaken", "party"],
       "difficulty": 1,
       "servings": 8,
       "prepTime": "10 min",
       "freezeTime": "4+ hours",
-      "shelfLife": "2-3 weeks",
       "recipe": {
         "batch": {
           "baseBottle": "750ml Vodka",
@@ -389,14 +422,18 @@
       "name": "Moscow Mule",
       "tagline": "Spicy-sweet base, ready for fizz",
       "description": "The Moscow Mule was invented in 1941 in Hollywood, the result of three inventory problems landing in the same room: too much vodka, too much ginger beer, and a stack of unsold copper mugs. The standard build is vodka, fresh lime, and ginger beer over crushed ice in the copper mug. The freezer batch handles only the vodka-and-lime portion. Carbonated ginger beer cannot be batched (it goes flat); add 2 oz fresh ginger beer in the mug at serve, after pouring the freezer mix. The copper mug is not just decoration; it stays cold longer than glass and carries a faint metallic note that flatters the ginger.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "citrus",
+        "note": "Fresh lime sets the window; the ginger syrup outlasts it."
+      },
       "baseSpirit": ["vodka"],
       "tags": ["vodka", "ginger", "refreshing", "shaken", "summer"],
       "difficulty": 2,
       "servings": 8,
       "prepTime": "10 min",
       "freezeTime": "4+ hours",
-      "shelfLife": "2-3 weeks",
       "recipe": {
         "single": [
           { "name": "Vodka", "volumeMl": 60, "abv": 40 },
@@ -436,7 +473,12 @@
       "name": "Espresso Martini",
       "tagline": "Coffee meets cocktail, chilled and ready",
       "description": "The Espresso Martini was invented in 1983 by Dick Bradsell at the Soho Brasserie in London, after a young model walked up and asked him for something that would wake her up and knock her sideways. The result: vodka, Kahlúa, and fresh espresso. As a freezer batch we substitute cold-brew concentrate for the fresh espresso, which preserves the coffee character without the make-it-hot-then-cool-then-shake sequence. The bottle pours from the freezer into a chilled coupe; a hard shake just before serving brings back some of the foam.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "coffee",
+        "note": "Cold brew concentrate, not fresh espresso, is what buys this weeks instead of days."
+      },
       "baseSpirit": ["vodka"],
       "tags": ["vodka", "coffee", "after-dinner", "shaken"],
       "difficulty": 2,
@@ -490,14 +532,18 @@
       "name": "Paper Plane",
       "tagline": "Modern classic, built for batching",
       "description": "The Paper Plane is a modern classic, created by Sam Ross at Milk & Honey New York around 2008 and named after the M.I.A. song that was on the speakers when he was working it out. Equal parts bourbon, Aperol, Amaro Nonino, and fresh lemon juice. The four-way equal-parts ratio is unusual and works because all four ingredients are roughly the same intensity. As a freezer batch the lemon juice is the limiting factor (best within a week); the bourbon, Aperol, and Amaro Nonino batch indefinitely on their own. Some bartenders pre-batch the three spirits and add fresh lemon at serve. Either approach works.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "citrus",
+        "note": "Lemon juice is the clock; the three amari would keep for months on their own."
+      },
       "baseSpirit": ["bourbon"],
       "tags": ["bourbon", "amaro", "modern-classic", "shaken", "bitter-sweet"],
       "difficulty": 2,
       "servings": 8,
       "prepTime": "10 min",
       "freezeTime": "4+ hours",
-      "shelfLife": "2-3 weeks",
       "recipe": {
         "single": [
           { "name": "Bourbon", "volumeMl": 22, "abv": 45 },
@@ -537,14 +583,18 @@
       "name": "Daiquiri",
       "tagline": "The original rum sour, perfected",
       "description": "The Daiquiri is the most under-appreciated drink in the canon. White rum, fresh lime, simple syrup. Three ingredients, no bitters, no garnish, nothing to hide behind. The version most bartenders pour today traces to the 1898 mining town of Daiquirí in eastern Cuba, where American engineer Jennings Cox combined rum, lime, and sugar after running out of gin. As a freezer batch the rum's character comes forward and the lime stays bright for about a week. Use a quality white rum (Plantation 3 Stars or Probitas are reliable picks) and squeeze the limes within hours of batching.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "citrus",
+        "note": "Fresh lime stays bright for 2-3 weeks in the freezer."
+      },
       "baseSpirit": ["rum"],
       "tags": ["rum", "citrus", "classic", "shaken", "summer"],
       "difficulty": 2,
       "servings": 8,
       "prepTime": "10 min",
       "freezeTime": "4+ hours",
-      "shelfLife": "2-3 weeks",
       "recipe": {
         "batch": {
           "baseBottle": "750ml White Rum",
@@ -593,7 +643,12 @@
       "name": "Vesper",
       "tagline": "Bond's drink, from your freezer",
       "description": "Ian Fleming wrote the Vesper into the first James Bond novel, Casino Royale, in 1953. Three ingredients: London gin, vodka, and Lillet (or, since the original Kina Lillet was discontinued in 1986, Cocchi Americano as the modern stand-in). Bond's specification was \"shaken until ice-cold.\" As a freezer batch the cold is built in, and the high spirit content keeps the bottle perfectly pourable. The Cocchi Americano carries quinine bitterness that backs off in the freezer, leaving a cleaner, more spirit-forward Vesper than the shaken-with-ice version.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Cocchi Americano is an aromatized wine like vermouth — its freshness is the limit, not the spirits."
+      },
       "baseSpirit": ["gin", "vodka"],
       "tags": ["gin", "vodka", "martini", "classic", "stirred"],
       "difficulty": 1,
@@ -648,7 +703,12 @@
       "name": "Mint Julep",
       "tagline": "Kentucky's finest, freezer-ready",
       "description": "The Mint Julep is the Kentucky Derby's official drink and the South's answer to the Old Fashioned. Bourbon, fresh mint, and a generous amount of crushed ice in a silver or copper cup. The traditional service involves muddling fresh mint into sugar, which doesn't translate to a bottle. Our freezer version uses a pre-made mint syrup (fresh mint blended into rich simple syrup, then strained), which delivers the same flavor without the texture risk. Pour the batched bourbon over crushed ice and garnish with a generous bouquet of fresh mint at serve. The mint flavor in the syrup peaks in the first 48 hours and stays acceptable for about a week.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": null,
+        "note": "Bourbon and mint syrup only; the syrup is stable in the freezer."
+      },
       "baseSpirit": ["bourbon"],
       "tags": ["bourbon", "mint", "southern", "classic", "stirred"],
       "difficulty": 2,
@@ -701,7 +761,12 @@
       "name": "Vieux Carré",
       "tagline": "New Orleans' rye-and-cognac aristocrat",
       "description": "The Vieux Carré is what the Roosevelt Hotel in New Orleans built around 1937, when bartender Walter Bergeron decided to put rye, cognac, and sweet vermouth in the same glass. Equal parts of each, with a quarter-ounce of Bénédictine and two kinds of bitters. Spirit-forward, lightly herbal, one of the easiest classics to batch. Pour off 17.5 oz from a bottle of rye, add cognac and vermouth, finish with the Bénédictine.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Rye, cognac, and Bénédictine keep indefinitely; the sweet vermouth is the clock."
+      },
       "baseSpirit": ["rye"],
       "tags": ["whiskey", "stirred", "classic", "spirit-forward", "new-orleans"],
       "difficulty": 1,
@@ -758,7 +823,12 @@
       "name": "Hanky-Panky",
       "tagline": "Equal-parts gin and vermouth, with a wash of Fernet",
       "description": "Created by Ada Coleman at the Savoy Hotel in London around 1903, the Hanky-Panky is gin and sweet vermouth in equal measure, knitted together by two dashes of Fernet-Branca. Coleman supposedly served the first one to actor Charles Hawtrey, who pronounced it 'the real hanky-panky.' The Fernet adds a savory, bitter herbal note that should sit just under the surface. As a freezer batch it pours straight, no ice, no fuss.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Fresh sweet vermouth is critical — replace a bottle open more than four weeks before batching."
+      },
       "baseSpirit": ["gin"],
       "tags": ["gin", "stirred", "classic", "vermouth", "british"],
       "difficulty": 1,
@@ -812,14 +882,18 @@
       "name": "Aviation",
       "tagline": "Gin, lemon, and a violet sky",
       "description": "First printed in Hugo Ensslin's 1916 'Recipes for Mixed Drinks.' Gin, fresh lemon juice, maraschino liqueur, and a quarter-ounce of crème de violette that turns the drink the color of a clear sky right before sunset. Crème de violette nearly disappeared from the American market in the second half of the twentieth century, which is why most pre-1990s recipes call only for maraschino. Use violette if you can find it. Combier and Rothman & Winter both make a good one. Because of the fresh lemon juice, this batch is best within a week of making.",
-      "reliability": "needs-attention",
+      "storage": {
+        "bestWithin": "week",
+        "bestWithinLabel": "5-7 days",
+        "limitedBy": "citrus",
+        "note": "The lemon juice mellows quickly; it peaks in the first 48 hours."
+      },
       "baseSpirit": ["gin"],
       "tags": ["gin", "shaken", "citrus", "classic", "floral"],
       "difficulty": 2,
       "servings": 7,
       "prepTime": "10 min",
       "freezeTime": "4+ hours",
-      "shelfLife": "5-7 days; the lemon juice mellows quickly",
       "recipe": {
         "batch": {
           "baseBottle": "750ml Gin",
@@ -871,7 +945,12 @@
       "name": "Sazerac",
       "tagline": "New Orleans' oldest cocktail, ready in your freezer",
       "description": "The Sazerac is among the strongest claimants to 'America's first cocktail.' It started in New Orleans in the 1830s with Sazerac de Forge cognac, then shifted to rye whiskey when phylloxera wiped out the French vineyards in the 1870s. The drink is rye, a small amount of simple syrup, Peychaud's bitters, and an absinthe rinse. As a freezer batch the rye and syrup go in the bottle; the bitters and absinthe rinse happen at the moment of service. Final ABV lands around 40%, so go easy.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": null,
+        "note": "Rye and rich simple syrup only — nothing in here has a clock."
+      },
       "baseSpirit": ["rye"],
       "tags": ["whiskey", "stirred", "classic", "spirit-forward", "new-orleans"],
       "difficulty": 2,
@@ -923,7 +1002,12 @@
       "name": "Bijou",
       "tagline": "The forgotten three-jewel cocktail",
       "description": "The Bijou ('jewel' in French) was popularized by Harry Johnson's Bartender's Manual in 1900. Each of its three ingredients was named for a different precious stone: gin for diamond, sweet vermouth for ruby, and green Chartreuse for emerald. Equal parts of all three. The Chartreuse is the wildcard, made by French monks since 1764 with 130 botanicals at 55% ABV. It commands the cocktail unless you treat it carefully. As a freezer batch, the cold tames the Chartreuse's heat and lets the gin and vermouth come forward. A dash of orange bitters at serve ties the three together.",
-      "reliability": "bulletproof",
+      "storage": {
+        "bestWithin": "months",
+        "bestWithinLabel": "3+ months",
+        "limitedBy": "vermouth",
+        "note": "Gin and Chartreuse are indefinite; the sweet vermouth's freshness sets the limit."
+      },
       "baseSpirit": ["gin"],
       "tags": ["gin", "stirred", "classic", "herbal", "vermouth"],
       "difficulty": 1,
