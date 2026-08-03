@@ -36,3 +36,14 @@ lighthouse-*.json
 
 # Stray Windows redirect placeholder
 nul
+
+# Photography in progress — not published until the full set is complete.
+# Anything under public/ ships on the very next deploy, so these stay out of the
+# repo entirely rather than relying on nobody running `git add .`. To publish the
+# set, delete the public/images/cocktails line and commit the finished images.
+/photos/
+/public/images/cocktails/
+/_to_delete/
+# Raw camera drops that landed in public/ unprocessed.
+/public/images/IMG_*.jpg
+/public/images/IMG_*.jpeg
