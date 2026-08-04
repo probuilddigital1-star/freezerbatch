@@ -13,7 +13,7 @@ describe('recipe storage claims', () => {
       expect(['months', 'weeks', 'week']).toContain(c.storage.bestWithin);
       expect(c.storage.bestWithinLabel, `${c.slug} label`).toBeTruthy();
       expect(c.storage.note, `${c.slug} note`).toBeTruthy();
-      expect([null, 'citrus', 'coffee', 'vermouth']).toContain(c.storage.limitedBy);
+      expect([null, 'citrus', 'coffee', 'vermouth', 'mint']).toContain(c.storage.limitedBy);
     }
   });
 
@@ -24,12 +24,14 @@ describe('recipe storage claims', () => {
     }
   });
 
-  it('groups 11 / 6 / 1 by quality window', () => {
+  it('groups 10 / 7 / 1 by quality window', () => {
+    // Mint Julep moved months -> weeks: a strained fresh-herb syrup is not in the
+    // same durability class as fortified wine, even at high proof in a freezer.
     const counts = cocktails.reduce<Record<string, number>>((acc, c) => {
       acc[c.storage.bestWithin] = (acc[c.storage.bestWithin] ?? 0) + 1;
       return acc;
     }, {});
-    expect(counts).toEqual({ months: 11, weeks: 6, week: 1 });
+    expect(counts).toEqual({ months: 10, weeks: 7, week: 1 });
   });
 
   it('uses one label per window, so no two recipes in a group can disagree', () => {
@@ -52,20 +54,18 @@ describe('recipe storage claims', () => {
     expect(safeWindows.size).toBeGreaterThan(1);
   });
 
-  it('only marks a recipe citrus- or coffee-limited when it contains one', () => {
-    const CITRUS = /lime|lemon|orange|grapefruit|cranberry/i;
-    const COFFEE = /coffee|espresso|cold brew|kahlua/i;
-    const VERMOUTH = /vermouth|lillet|cocchi|americano/i;
+  it('only marks a recipe limited by an ingredient it actually contains', () => {
+    const IN_INGREDIENTS: Record<string, RegExp> = {
+      citrus: /lime|lemon|orange|grapefruit|cranberry/i,
+      coffee: /coffee|espresso|cold brew|kahlua/i,
+      vermouth: /vermouth|lillet|cocchi|americano/i,
+      mint: /mint/i,
+    };
     for (const c of cocktails) {
       const names = (c.recipe?.single ?? []).map((i: any) => i.name).join(' ');
-      if (c.storage.limitedBy === 'citrus') {
-        expect(CITRUS.test(names), `${c.slug} marked citrus but has none`).toBe(true);
-      }
-      if (c.storage.limitedBy === 'coffee') {
-        expect(COFFEE.test(names), `${c.slug} marked coffee but has none`).toBe(true);
-      }
-      if (c.storage.limitedBy === 'vermouth') {
-        expect(VERMOUTH.test(names), `${c.slug} marked vermouth but has none`).toBe(true);
+      const rx = IN_INGREDIENTS[c.storage.limitedBy];
+      if (rx) {
+        expect(rx.test(names), `${c.slug} marked ${c.storage.limitedBy} but has none`).toBe(true);
       }
     }
   });

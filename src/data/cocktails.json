@@ -295,7 +295,7 @@
       "slug": "margarita",
       "name": "Margarita",
       "tagline": "Party-ready lime perfection",
-      "description": "The Margarita's origin story has too many claimants for any of them to be definitive. The version most bartenders pour today comes from the early 1940s, somewhere between Tijuana and Acapulco. Tequila, fresh lime, orange liqueur, and a touch of agave syrup. Salt rim optional but traditional. As a freezer batch it works best within a week, while the lime is still bright; after that the citrus turns into a pale ghost of itself. Use a 100% agave blanco tequila and squeeze the limes the same day you batch.",
+      "description": "The Margarita's origin story has too many claimants for any of them to be definitive. The version most bartenders pour today comes from the early 1940s, somewhere between Tijuana and Acapulco. Tequila, fresh lime, orange liqueur, and a touch of agave syrup. Salt rim optional but traditional. As a freezer batch it is brightest in the first two to three weeks, while the lime still has its lift; past that the citrus fades into a pale ghost of itself. Use a 100% agave blanco tequila and squeeze the limes the same day you batch.",
       "storage": {
         "bestWithin": "weeks",
         "bestWithinLabel": "2-3 weeks",
@@ -531,7 +531,7 @@
       "slug": "paper-plane",
       "name": "Paper Plane",
       "tagline": "Modern classic, built for batching",
-      "description": "The Paper Plane is a modern classic, created by Sam Ross at Milk & Honey New York around 2008 and named after the M.I.A. song that was on the speakers when he was working it out. Equal parts bourbon, Aperol, Amaro Nonino, and fresh lemon juice. The four-way equal-parts ratio is unusual and works because all four ingredients are roughly the same intensity. As a freezer batch the lemon juice is the limiting factor (best within a week); the bourbon, Aperol, and Amaro Nonino batch indefinitely on their own. Some bartenders pre-batch the three spirits and add fresh lemon at serve. Either approach works.",
+      "description": "The Paper Plane is a modern classic, created by Sam Ross at Milk & Honey New York around 2008 and named after the M.I.A. song that was on the speakers when he was working it out. Equal parts bourbon, Aperol, Amaro Nonino, and fresh lemon juice. The four-way equal-parts ratio is unusual and works because all four ingredients are roughly the same intensity. As a freezer batch the lemon juice is the limiting factor (brightest in the first two to three weeks); the bourbon, Aperol, and Amaro Nonino batch indefinitely on their own. Some bartenders pre-batch the three spirits and add fresh lemon at serve. Either approach works.",
       "storage": {
         "bestWithin": "weeks",
         "bestWithinLabel": "2-3 weeks",
@@ -582,7 +582,7 @@
       "slug": "daiquiri",
       "name": "Daiquiri",
       "tagline": "The original rum sour, perfected",
-      "description": "The Daiquiri is the most under-appreciated drink in the canon. White rum, fresh lime, simple syrup. Three ingredients, no bitters, no garnish, nothing to hide behind. The version most bartenders pour today traces to the 1898 mining town of Daiquirí in eastern Cuba, where American engineer Jennings Cox combined rum, lime, and sugar after running out of gin. As a freezer batch the rum's character comes forward and the lime stays bright for about a week. Use a quality white rum (Plantation 3 Stars or Probitas are reliable picks) and squeeze the limes within hours of batching.",
+      "description": "The Daiquiri is the most under-appreciated drink in the canon. White rum, fresh lime, simple syrup. Three ingredients, no bitters, no garnish, nothing to hide behind. The version most bartenders pour today traces to the 1898 mining town of Daiquirí in eastern Cuba, where American engineer Jennings Cox combined rum, lime, and sugar after running out of gin. As a freezer batch the rum's character comes forward and the lime stays bright for two to three weeks. Use a quality white rum (Plantation 3 Stars or Probitas are reliable picks) and squeeze the limes within hours of batching.",
       "storage": {
         "bestWithin": "weeks",
         "bestWithinLabel": "2-3 weeks",
@@ -702,12 +702,12 @@
       "slug": "mint-julep",
       "name": "Mint Julep",
       "tagline": "Kentucky's finest, freezer-ready",
-      "description": "The Mint Julep is the Kentucky Derby's official drink and the South's answer to the Old Fashioned. Bourbon, fresh mint, and a generous amount of crushed ice in a silver or copper cup. The traditional service involves muddling fresh mint into sugar, which doesn't translate to a bottle. Our freezer version uses a pre-made mint syrup (fresh mint blended into rich simple syrup, then strained), which delivers the same flavor without the texture risk. Pour the batched bourbon over crushed ice and garnish with a generous bouquet of fresh mint at serve. The mint flavor in the syrup peaks in the first 48 hours and stays acceptable for about a week.",
+      "description": "The Mint Julep is the Kentucky Derby's official drink and the South's answer to the Old Fashioned. Bourbon, fresh mint, and a generous amount of crushed ice in a silver or copper cup. The traditional service involves muddling fresh mint into sugar, which doesn't translate to a bottle. Our freezer version uses a pre-made mint syrup (fresh mint blended into rich simple syrup, then strained), which delivers the same flavor without the texture risk. Pour the batched bourbon over crushed ice and garnish with a generous bouquet of fresh mint at serve. The mint is brightest in the first week and holds its lift for two to three; the syrup, not fresh mint, is what makes that possible.",
       "storage": {
-        "bestWithin": "months",
-        "bestWithinLabel": "3+ months",
-        "limitedBy": null,
-        "note": "Bourbon and mint syrup only; the syrup is stable in the freezer."
+        "bestWithin": "weeks",
+        "bestWithinLabel": "2-3 weeks",
+        "limitedBy": "mint",
+        "note": "The mint is brightest in the first week; strained into syrup and held at high proof, it keeps its lift for two to three."
       },
       "baseSpirit": ["bourbon"],
       "tags": ["bourbon", "mint", "southern", "classic", "stirred"],
