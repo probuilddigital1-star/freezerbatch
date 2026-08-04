@@ -1,150 +1,70 @@
-# QA Test Report - FreezerBatchCocktails.com
+# QA Test Report — FreezerBatchCocktails.com
 
-**Date:** January 9, 2026
-**Test Framework:** Playwright
-**Browser:** Chromium
-**Total Tests:** 47
-**Pass Rate:** 100%
+**Date:** August 4, 2026
+**Supersedes:** the January 9, 2026 report, which described a pre-redesign site
+(13 recipes, old selectors) and had gone stale.
 
----
+## Current state — all suites green
 
-## Executive Summary
+| Suite | Command | Tests | Result |
+|---|---|---|---|
+| Unit (vitest) | `npm run test:unit` | 112 | 112 pass |
+| E2E default (Playwright, chromium) | `npm run test:e2e` | 75 | 75 pass |
+| E2E analytics-enabled | `npm run test:e2e:analytics` | 14 | 14 pass |
+| Build + types | `npm run build` (runs `astro check`) | 30 pages | 0 errors, 0 warnings |
 
-All 47 automated E2E tests have passed successfully. The website is functioning correctly across desktop, tablet, and mobile viewports. The batch calculator performs accurate calculations for all preset recipes and custom inputs.
+## The 2026-08-04 repair
 
----
+The suite carried 17 failures inherited from the site redesign — 11 in
+`calculator.spec.ts`, 6 in `responsive.spec.ts`. Every one was triaged
+individually as stale-vs-defect. **Verdict: all 17 stale, zero site defects.**
+Root causes, in order of blast radius:
 
-## Test Suites
+1. **Preset mode is now the calculator's default.** The custom-recipe form
+   (ingredient rows, dilution controls) is hidden on load, so every test that
+   filled `.ingredient-row` inputs without first entering custom mode timed out
+   on hidden elements (11 tests). Fix: an `enterCustomMode()` helper that clicks
+   `[data-mode="custom"]` and waits for `#custom-recipe-form`; the mode-toggle
+   test now asserts the new default direction explicitly.
+2. **`.card` → `.recipe-card`** in the CocktailCard redesign (3 tests).
+3. **New hero copy** — heading assertion updated to the current headline (1).
+4. **Mobile menu restructure** — the brand link left `#mobile-menu`; the test
+   now asserts the `/cocktails` and `/#calculator` links instead (1).
+5. **Small-mobile usability** — asserts preset tiles, then enters custom mode
+   before expecting `#add-ingredient` (1).
 
-### 1. Calculator Tests (`calculator.spec.ts`) - 30 Tests
+Assertion intent was preserved throughout — selectors and setup steps changed,
+what each test proves did not. Two TypeScript warnings (`tolerance` unused,
+`devices` unused) were also fixed; the `tolerance` one became a real assertion
+(ml within 10% of oz × 29.5735).
 
-| Category | Tests | Status |
-|----------|-------|--------|
-| Negroni Batch Tests | 2 | PASS |
-| Margarita Batch Tests | 2 | PASS |
-| Custom Recipe Tests | 3 | PASS |
-| Unit Toggle Tests | 3 | PASS |
-| Edge Cases | 5 | PASS |
-| Bottle Size Tests | 2 | PASS |
-| Dilution Settings | 1 | PASS |
-| Mode Toggle Tests | 1 | PASS |
-| Ingredient Suggestions | 1 | PASS |
-| Servings Calculation | 1 | PASS |
+## Config hardening (same date)
 
-**Verified Functionality:**
-- Preset recipe loading (Negroni, Margarita, Manhattan, etc.)
-- ABV calculation accuracy (25.9% for Negroni, 30.3% for Margarita)
-- Pour-off calculations with quarter-ounce rounding
-- Unit conversion (oz/ml)
-- Dilution percentage adjustments (20%, 22%, 25%)
-- Bottle size scaling (375ml, 750ml, 1L, custom)
-- Freeze status classification (safe/slushy/freeze)
-- Edge cases (empty recipes, 0% ABV, 100% ABV)
+Stale dev servers from another project once squatted ports 4321–4325 and the
+suite silently tested the wrong site (HTTP 200 alone proves nothing — this
+site's 404 page returns 200). Both Playwright configs now:
 
-### 2. Margarita Milk Street Tests (`margarita-milkstreet.spec.ts`) - 9 Tests
+- run on **dedicated ports** (default suite 4381, analytics 4382) instead of
+  Astro's 4321 default;
+- set **`reuseExistingServer: false` unconditionally** — anything already
+  listening on the port fails the run loudly instead of being tested by
+  accident;
+- bound local parallelism at **`workers: 2`** (CI stays at 1);
+- default suite reporter is `html` with `open: 'never'`.
 
-| Test | Expected | Actual | Status |
-|------|----------|--------|--------|
-| Pour-off (750ml) | 10 oz | 10.01 oz | PASS |
-| Lime Juice | 5 oz | 5 oz | PASS |
-| Orange Liqueur | 4 oz | 3.99 oz | PASS |
-| Agave Syrup | 1.5 oz | 1.49 oz | PASS |
-| Water | 0 oz | 0 oz | PASS |
-| Final ABV | 28-30% | 30.3% | PASS |
-| 375ml Scaling | Halved | Correct | PASS |
-| 1L Scaling | 1.33x | Correct | PASS |
-| Complete Verification | All values | All correct | PASS |
+## Known scope limits
 
-### 3. Responsive Design Tests (`responsive.spec.ts`) - 17 Tests
+- Chromium only; no WebKit/Firefox projects.
+- No visual-regression coverage.
+- E2E runs against `astro dev`, not a production build (the analytics suite
+  injects its key via the dev server env).
 
-| Viewport | Tests | Status |
-|----------|-------|--------|
-| Desktop (1280x720) | 4 | PASS |
-| Mobile (390x844) | 8 | PASS |
-| Tablet (768x1024) | 2 | PASS |
-| Calculator Usability | 2 | PASS |
-| Footer Responsive | 1 | PASS |
+## Sign-off
 
-**Verified Responsive Behavior:**
-- Desktop navigation visibility
-- Mobile menu toggle functionality
-- Card grid layout (2-3 columns on desktop, stacked on mobile)
-- Calculator touch interactions on mobile
-- Hero section layout across viewports
-- Footer column stacking
-
----
-
-## Defects Fixed During Testing
-
-| ID | Issue | Resolution |
-|----|-------|------------|
-| DEF-001 | ABV showing 0% for preset recipes | Added `syncResultsPanel()` to update hidden elements |
-| DEF-002 | Dilution buttons hidden in preset mode | Moved dilution controls outside custom form |
-| DEF-003 | Ingredient rows empty in preset mode | Added `populateIngredientRows()` for test compatibility |
-| DEF-004 | #ingredients-output not populated | Updated `syncResultsPanel()` to populate ingredient list |
-| DEF-005 | Test precision failures for scaled values | Adjusted `toBeCloseTo()` precision for quarter-ounce rounding |
-| DEF-006 | Test expected values incorrect | Updated ABV ranges to match Milk Street recipes |
-
----
-
-## Calculator Accuracy
-
-### ABV Calculations
-- Negroni: **25.9%** (Gin 40%, Campari 25%, Sweet Vermouth 16%)
-- Margarita: **30.3%** (Tequila 40%, Cointreau 40%, Lime 0%)
-- Custom recipes: Real-time calculation verified
-
-### Pour-off Rounding
-Values are rounded to nearest 0.25 oz for practical measurement:
-- 750ml Margarita: 10.01 oz (within 0.01 oz tolerance)
-- 750ml Negroni: 15.99 oz (within 0.01 oz tolerance)
-
-### Scaling Accuracy
-Bottle size scaling maintains proportions:
-- 375ml = 50% of 750ml values
-- 1L = 133% of 750ml values (with quarter-ounce rounding)
-
----
-
-## Test Coverage Summary
-
-| Area | Coverage |
-|------|----------|
-| Calculator Functionality | 100% |
-| Preset Recipes | 13 recipes available |
-| Custom Recipe Input | Verified |
-| Unit Conversions | oz/ml verified |
-| Bottle Sizes | 375ml, 500ml, 750ml, 1L verified |
-| Responsive Design | Mobile, Tablet, Desktop verified |
-| Edge Cases | Zero ABV, 100% ABV, empty inputs |
-
----
-
-## QA Manager Sign-Off
-
-| Role | Name | Status | Date |
-|------|------|--------|------|
-| QA Manager | Automated Test Suite | **APPROVED** | 2026-01-09 |
-| Test Execution | Playwright CI | **COMPLETE** | 2026-01-09 |
-
-### Sign-Off Criteria Met:
-- [x] All 47 tests passing
-- [x] Calculator calculations accurate
-- [x] Responsive design verified across viewports
-- [x] No critical defects remaining
-- [x] Edge cases handled gracefully
-- [x] User interactions working on mobile and desktop
-
----
-
-## Recommendations
-
-1. **Minor Rounding**: Pour-off values show 10.01 instead of 10 - cosmetic but could be improved
-2. **Test Coverage**: Consider adding visual regression tests
-3. **Performance**: Consider Lighthouse integration for performance monitoring
-
----
-
-**Report Generated:** January 9, 2026
-**Next Review:** Before production deployment
+| Check | Status |
+|---|---|
+| 17 inherited failures triaged individually | done — 17 stale, 0 defects |
+| Full default suite | 75/75 pass (1.7m) |
+| Analytics suite | 14/14 pass (20s) |
+| Unit suite | 112/112 pass |
+| `astro check` | 0 errors, 0 warnings |

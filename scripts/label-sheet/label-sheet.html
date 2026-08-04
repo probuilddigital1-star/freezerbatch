@@ -91,6 +91,24 @@
   .qr-block { display: flex; flex-direction: column; align-items: center; gap: 0.04in; }
   .qr { width: 1in; height: 1in; display: block; border: 1px solid #b6ad9c; box-sizing: border-box; }
   .qr-caption { font-size: 6.5pt; letter-spacing: 0.14em; color: #8d846f; text-transform: uppercase; }
+
+  /* ---- page 2: printing guidance ------------------------------------------
+     A second Letter page after the labels. Freezer-specific stock and timing
+     advice (researched 2026-08-02): paper label stock fails at cut edges,
+     adhesives never bond to a cold bottle, and the 2x3 grid matches no die-cut
+     template. break-before keeps it off the label page in print. */
+  .guide-sheet { page-break-before: always; break-before: page; }
+
+  .guide { max-width: 6.4in; }
+  .guide-kicker { font-size: 8pt; letter-spacing: 0.22em; color: #8d846f; text-transform: uppercase; padding-top: 0.35in; }
+  .guide-title { font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 26pt; color: #2b2620; margin: 0.12in 0 0.1in; }
+  .guide-lede { font-size: 10.5pt; line-height: 1.55; color: #3a352c; margin: 0 0 0.28in; }
+  .guide-step { display: flex; gap: 0.22in; padding: 0.16in 0; border-top: 1px solid #d9d2c2; }
+  .guide-num { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15pt; color: #a8863f; min-width: 0.3in; }
+  .guide-body { flex: 1; }
+  .guide-head { font-size: 10.5pt; font-weight: 600; color: #2b2620; margin: 0 0 0.05in; }
+  .guide-text { font-size: 9.5pt; line-height: 1.55; color: #3a352c; margin: 0; }
+  .guide-foot { margin-top: 0.28in; padding-top: 0.14in; border-top: 1px solid #d9d2c2; font-size: 8.5pt; letter-spacing: 0.14em; color: #8d846f; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -229,6 +247,48 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<div class="sheet guide-sheet">
+  <div class="guide">
+    <div class="guide-kicker">Freezer Batch Cocktails &middot; free printable</div>
+    <h1 class="guide-title">Before you print</h1>
+    <p class="guide-lede">This sheet is free &mdash; print as many copies as you need. One minute on paper stock and timing is the difference between a label that survives the freezer and one that curls off in a week.</p>
+
+    <div class="guide-step">
+      <div class="guide-num">01</div>
+      <div class="guide-body">
+        <p class="guide-head">Skip die-cut label sheets</p>
+        <p class="guide-text">This grid doesn&rsquo;t match any pre-cut template, so die-cut sheets go to waste &mdash; and paper label stock fails in a freezer anyway. Moisture wicks in at every cut edge, travels under the face, and separates it from the adhesive. A cut-your-own label has four cut edges: the worst case for exactly that failure.</p>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">02</div>
+      <div class="guide-body">
+        <p class="guide-head">Print on full-sheet label stock or plain cardstock</p>
+        <p class="guide-text">Full-sheet (8.5&times;11) adhesive label stock, or ordinary cardstock. Print this sheet, then cut along the dashed lines.</p>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">03</div>
+      <div class="guide-body">
+        <p class="guide-head">Apply warm and dry &mdash; before the first freeze</p>
+        <p class="guide-text">Adhesives have a minimum application temperature well above your freezer. A label pressed onto a cold or frosted bottle never bonds. Fill in the label, stick it to a dry, room-temperature bottle, and then batch and freeze.</p>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">04</div>
+      <div class="guide-body">
+        <p class="guide-head">Or skip adhesive entirely</p>
+        <p class="guide-text">Cut the label from cardstock, punch a hole in the corner, and hang it off the bottle neck with twine or a rubber band. Nothing to peel, nothing to fail, and it moves to the next batch with the bottle.</p>
+      </div>
+    </div>
+
+    <div class="guide-foot">freezerbatchcocktails.com &middot; six labels per page &middot; 750 ml swing-tops</div>
   </div>
 </div>
 </body>

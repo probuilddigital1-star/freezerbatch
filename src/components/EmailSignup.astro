@@ -16,9 +16,9 @@ export interface Props {
 const {
   variant = 'card',
   programName = 'Cold Open',
-  ctaLabel = variant === 'footer' ? 'Join' : 'Get the label sheet',
+  ctaLabel = variant === 'footer' ? 'Join' : 'Get the free label sheet',
   headline = 'Ready before the guests arrive.',
-  promise = 'One make-ahead recipe and a hosting timeline, monthly — plus the printable bottle-label sheet when you join.',
+  promise = 'One make-ahead recipe and a hosting timeline, monthly — plus the free printable bottle-label sheet when you join.',
   reassurance = 'No spam. Unsubscribe anytime.',
 } = Astro.props;
 
@@ -199,7 +199,7 @@ const buttonBase =
         this.emailInput!.value = '';
         this.requestId = null;
         this.resetTurnstile();
-        this.showStatus("You're in. Your label sheet link is on its way.", true);
+        this.showStatus("You're in. Your free label sheet link is on its way.", true);
       } catch (error) {
         if (error instanceof TypeError) this.resetTurnstile();
         this.showStatus(this.errorMessage(error instanceof Error ? error.message : undefined), false);

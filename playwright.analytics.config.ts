@@ -19,10 +19,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Bounded locally for the same reason as the default config.
+  workers: process.env.CI ? 1 : 2,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:4331',
+    // 4382: adjacent to the default suite's 4381, same rationale — a dedicated
+    // port where anything already listening fails the run loudly.
+    baseURL: 'http://127.0.0.1:4382',
     trace: 'on-first-retry',
   },
   projects: [
@@ -32,8 +35,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --port 4331',
-    url: 'http://localhost:4331',
+    command: 'npm run dev -- --port 4382 --host 127.0.0.1',
+    url: 'http://127.0.0.1:4382',
     reuseExistingServer: false,
     timeout: 120000,
     env: {

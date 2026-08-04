@@ -9,10 +9,16 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  // Bounded locally: an unbounded worker pool hammers one dev server and turns
+  // slow responses into flaky timeouts.
+  workers: process.env.CI ? 1 : 2,
+  reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:4321',
+    // Dedicated port, NOT Astro's 4321 default. Stale dev servers from another
+    // project once squatted 4321-4325 and the suite silently tested the wrong
+    // site. Combined with reuseExistingServer: false below, anything already
+    // listening here fails the run loudly instead.
+    baseURL: 'http://127.0.0.1:4381',
     trace: 'on-first-retry',
   },
   projects: [
@@ -22,9 +28,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
+    command: 'npm run dev -- --port 4381 --host 127.0.0.1',
+    url: 'http://127.0.0.1:4381',
+    // Never reuse a server we didn't start — a leftover process on this port is
+    // an error, not a convenience.
+    reuseExistingServer: false,
     timeout: 120000,
   },
 });

@@ -1,4 +1,4 @@
-import { test, expect, devices } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 /**
  * Responsive Design Tests
@@ -37,8 +37,8 @@ test.describe('Desktop Viewport (1280x720)', () => {
   test('should show cocktail cards in grid layout', async ({ page }) => {
     await page.goto('/cocktails');
 
-    // Wait for cards to load
-    const cards = page.locator('.card');
+    // Wait for cards to load (redesigned cards use .recipe-card)
+    const cards = page.locator('.recipe-card');
     await expect(cards.first()).toBeVisible();
 
     // On desktop, cards should be in a multi-column grid
@@ -59,7 +59,7 @@ test.describe('Desktop Viewport (1280x720)', () => {
     await expect(hero).toBeVisible();
 
     // Hero heading should be visible and properly sized (select specific hero heading)
-    const heading = page.getByRole('heading', { name: /Cocktails That Wait/i });
+    const heading = page.getByRole('heading', { name: /Do the math once/i });
     await expect(heading).toBeVisible();
 
     const headingBox = await heading.boundingBox();
@@ -96,9 +96,12 @@ test.describe('Mobile Viewport (390x844)', () => {
     await mobileMenuBtn.click();
     await expect(mobileMenu).toBeVisible();
 
-    // Menu should contain navigation links
-    const homeLink = mobileMenu.locator('a[href="/"]');
-    await expect(homeLink).toBeVisible();
+    // Menu should contain navigation links (redesigned menu links to
+    // /cocktails, /#calculator, /blog, /how-it-works — no bare "/" entry)
+    const recipesLink = mobileMenu.locator('a[href="/cocktails"]');
+    await expect(recipesLink).toBeVisible();
+    const calculatorLink = mobileMenu.locator('a[href="/#calculator"]');
+    await expect(calculatorLink).toBeVisible();
   });
 
   test('should show calculator at mobile width', async ({ page }) => {
@@ -116,8 +119,8 @@ test.describe('Mobile Viewport (390x844)', () => {
   test('should stack cocktail cards vertically on mobile', async ({ page }) => {
     await page.goto('/cocktails');
 
-    // Wait for cards to load
-    const cards = page.locator('.card');
+    // Wait for cards to load (redesigned cards use .recipe-card)
+    const cards = page.locator('.recipe-card');
     await expect(cards.first()).toBeVisible();
 
     // On mobile, cards should stack (different Y positions)
@@ -194,7 +197,7 @@ test.describe('Tablet Viewport (768x1024)', () => {
   test('should show cocktail cards in 2-column grid', async ({ page }) => {
     await page.goto('/cocktails');
 
-    const cards = page.locator('.card');
+    const cards = page.locator('.recipe-card');
     await expect(cards.first()).toBeVisible();
 
     // On tablet, first two cards should be side by side
@@ -221,7 +224,12 @@ test.describe('Calculator Usability', () => {
     // Bottle size buttons should be visible
     await expect(page.locator('[data-size="750"]')).toBeVisible();
 
-    // Add ingredient button should be visible
+    // Recipe tiles should be visible in the default preset mode
+    await expect(page.locator('.recipe-tile').first()).toBeVisible();
+
+    // Add ingredient button should be visible once custom mode is entered
+    // (the custom form is hidden while preset mode is active)
+    await page.click('[data-mode="custom"]');
     await expect(page.locator('#add-ingredient')).toBeVisible();
   });
 

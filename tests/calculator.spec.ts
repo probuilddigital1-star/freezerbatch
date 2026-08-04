@@ -32,6 +32,14 @@ async function addIngredientRow(page: Page) {
   await page.click('#add-ingredient');
 }
 
+// Helper function to enter custom (Build My Own) mode.
+// The redesigned calculator defaults to preset mode, so the custom ingredient
+// form is hidden until the "Custom" toggle is clicked.
+async function enterCustomMode(page: Page) {
+  await page.click('[data-mode="custom"]');
+  await expect(page.locator('#custom-recipe-form')).toBeVisible();
+}
+
 // Helper function to select preset recipe
 async function selectPreset(page: Page, presetValue: string) {
   // Click "Start with Recipe" mode button
@@ -193,6 +201,9 @@ test.describe('Freezer Batch Calculator', () => {
 
   test.describe('3. Custom Recipe Test', () => {
     test('should allow adding custom ingredients and calculate ABV in real-time', async ({ page }) => {
+      // Switch to custom mode (preset is the default)
+      await enterCustomMode(page);
+
       // Clear existing rows and add custom ingredients
       // The calculator starts with 2 empty rows by default
 
@@ -231,6 +242,7 @@ test.describe('Freezer Batch Calculator', () => {
 
     test('should show freeze warning when ABV is below 22%', async ({ page }) => {
       // Create a low-ABV recipe
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Vodka', '1', '40');
       await fillIngredientRow(page, 1, 'Orange Juice', '4', '0');
 
@@ -250,6 +262,7 @@ test.describe('Freezer Batch Calculator', () => {
 
     test('should update calculations when removing ingredients', async ({ page }) => {
       // Add ingredients
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Gin', '2', '40');
       await fillIngredientRow(page, 1, 'Tonic', '4', '0');
 
@@ -298,6 +311,7 @@ test.describe('Freezer Batch Calculator', () => {
       // Verify conversion is approximately correct (1 oz = 29.5735 ml)
       const expectedPourOffMl = pourOffOz.value * 29.5735;
       const tolerance = expectedPourOffMl * 0.1; // 10% tolerance
+      expect(Math.abs(pourOffMl.value - expectedPourOffMl)).toBeLessThanOrEqual(tolerance);
 
       // Values should be different and in the right ballpark
       expect(pourOffMl.value).toBeGreaterThan(pourOffOz.value);
@@ -340,6 +354,7 @@ test.describe('Freezer Batch Calculator', () => {
   test.describe('5. Edge Cases', () => {
     test('should handle empty ingredients gracefully', async ({ page }) => {
       // Clear all ingredient fields (leave them empty)
+      await enterCustomMode(page);
       const nameInputs = page.locator('.ingredient-row [name="name"]');
       const amountInputs = page.locator('.ingredient-row [name="amount"]');
 
@@ -362,6 +377,7 @@ test.describe('Freezer Batch Calculator', () => {
 
     test('should warn for very low ABV recipe (will freeze)', async ({ page }) => {
       // Create a very low ABV recipe - mostly juice
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Vodka', '0.5', '40');
       await fillIngredientRow(page, 1, 'Orange Juice', '5', '0');
 
@@ -384,6 +400,7 @@ test.describe('Freezer Batch Calculator', () => {
 
     test('should show safe for very high ABV recipe', async ({ page }) => {
       // Create a high ABV recipe - spirit-forward
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Overproof Rum', '3', '63');
       await fillIngredientRow(page, 1, 'Lime Juice', '0.5', '0');
 
@@ -405,6 +422,7 @@ test.describe('Freezer Batch Calculator', () => {
     });
 
     test('should handle maximum ABV (100%) ingredient', async ({ page }) => {
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Pure Ethanol', '2', '100');
 
       await page.waitForTimeout(300);
@@ -419,6 +437,7 @@ test.describe('Freezer Batch Calculator', () => {
 
     test('should handle zero ABV (0%) ingredients only', async ({ page }) => {
       // Only non-alcoholic ingredients
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Orange Juice', '3', '0');
       await fillIngredientRow(page, 1, 'Simple Syrup', '1', '0');
 
@@ -493,6 +512,7 @@ test.describe('Freezer Batch Calculator', () => {
     test('should update ABV when changing dilution percentage', async ({ page }) => {
       // Use custom mode for dilution testing (presets have fixed water amounts).
       // Default dilution is now 20% (Stirred). Buttons are 0% / 20% / 25%.
+      await enterCustomMode(page);
       await fillIngredientRow(page, 0, 'Vodka', '2', '40');
       await fillIngredientRow(page, 1, 'Lime Juice', '1', '0');
       await page.waitForTimeout(300);
@@ -519,36 +539,40 @@ test.describe('Freezer Batch Calculator', () => {
 
   test.describe('8. Mode Toggle Tests', () => {
     test('should toggle between custom and preset modes', async ({ page }) => {
-      // Check initial state - custom mode should be active
+      // Check initial state - preset (Recipe) mode is the default in the redesign
       const customBtn = page.locator('[data-mode="custom"]');
       const presetBtn = page.locator('[data-mode="preset"]');
-
-      await expect(customBtn).toHaveAttribute('aria-pressed', 'true');
-      await expect(presetBtn).toHaveAttribute('aria-pressed', 'false');
-
-      // Preset selector should be hidden
-      await expect(page.locator('#preset-selector')).toBeHidden();
-
-      // Switch to preset mode
-      await presetBtn.click();
 
       await expect(presetBtn).toHaveAttribute('aria-pressed', 'true');
       await expect(customBtn).toHaveAttribute('aria-pressed', 'false');
 
-      // Preset selector should now be visible
+      // Preset selector should be visible; custom form hidden
       await expect(page.locator('#preset-selector')).toBeVisible();
+      await expect(page.locator('#custom-recipe-form')).toBeHidden();
 
-      // Switch back to custom mode
+      // Switch to custom mode
       await customBtn.click();
 
       await expect(customBtn).toHaveAttribute('aria-pressed', 'true');
+      await expect(presetBtn).toHaveAttribute('aria-pressed', 'false');
+
+      // Custom form should now be visible; preset selector hidden
+      await expect(page.locator('#custom-recipe-form')).toBeVisible();
       await expect(page.locator('#preset-selector')).toBeHidden();
+
+      // Switch back to preset mode
+      await presetBtn.click();
+
+      await expect(presetBtn).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.locator('#preset-selector')).toBeVisible();
+      await expect(page.locator('#custom-recipe-form')).toBeHidden();
     });
   });
 
   test.describe('9. Ingredient Suggestions', () => {
     test('should auto-fill ABV when known ingredient is entered', async ({ page }) => {
       // Type a known ingredient name
+      await enterCustomMode(page);
       const nameInput = page.locator('.ingredient-row').first().locator('[name="name"]');
       const abvInput = page.locator('.ingredient-row').first().locator('[name="abv"]');
 
