@@ -79,20 +79,27 @@ Backups go to `~/n8n-backups/`, **never** the repo.
    (and `staticData` if present). The API rejects `settings.binaryMode` — filter it out
    and expect the server to preserve the stored value, as it did on 2026-08-01.
 
-## Step 4 — the user reviews and publishes
+## Step 4 — ⚠️ the PUT itself goes live: review BEFORE step 3, not after
 
-**Claude never publishes.** Print a node-by-node summary, then hand off.
+**Corrected 2026-08-06, proven during the secret rotation:** on this n8n instance an API
+PUT activates immediately — `activeVersionId` tracked the PUT with no publish step, twice.
+Only *editor* edits create drafts. The earlier model ("PUT lands as a draft, then the user
+reviews and clicks Publish") is wrong, and treating the PUT as reversible staging would
+ship unreviewed changes to production.
 
-Review checklist in the n8n editor:
+So the user's review happens on the committed artifacts, before any PUT is sent:
 
-- [ ] Exactly two nodes show as changed
+- [ ] `welcome-node.jsCode.js` and `recipe-node.jsCode.js` — read both
+- [ ] `verify-republish.mjs` reports 20/20
+- [ ] Exactly two nodes in the planned diff
 - [ ] `Build Newsletter Double Opt-In Confirmation` — new subject, timing-sheet link, postal address
 - [ ] `Build Transactional Recipe Email` — utility line present, subject unchanged
 - [ ] No other node, connection, or credential touched
 - [ ] Webhook trigger still `responseMode: "responseNode"`
 - [ ] `Record Unsubscribe → Respond Unsubscribed` — still no reachable email node
 
-Then click **Publish**.
+Only after the user explicitly approves go-live does step 3's PUT get sent. The moment it
+returns, the change is serving production traffic — run step 5 immediately.
 
 ## Step 5 — live signup test
 
