@@ -11,8 +11,10 @@
 // Literal-secret shapes worth catching. Deliberately broad: a false positive costs one
 // manual look, a false negative costs a rotation.
 const SECRET_PATTERNS = [
-  // expectedSecret / apiKey / token / password assigned a quoted literal of any length
-  /\b(expectedSecret|secret|apiKey|api_key|token|password|passphrase)\s*=\s*(['"`])([^'"`]{12,})\2/gi,
+  // Any *secret*/*token*-ish identifier assigned a quoted literal. \w* on both sides so
+  // camelCase like previousSecret or newSecretValue cannot slip past the word boundary —
+  // "previousSecret" has no \b before "Secret", which let the rotation shape leak.
+  /\b(\w*[sS]ecret\w*|apiKey|api_key|\w*[tT]oken\w*|password|passphrase)\s*=\s*(['"`])([^'"`]{12,})\2/gi,
   // Resend keys
   /\bre_[A-Za-z0-9_-]{12,}\b/g,
   // Bearer literals
@@ -30,6 +32,14 @@ export function redactJsCode(code) {
     /const expectedSecret\s*=\s*(['"])([^'"]+)\1\s*;([^\n]*)/,
     `const expectedSecret = ${ENV_REFERENCE}; // NOTE: the live node hardcodes this literal` +
       ` (no Variables feature on this plan). Never commit the literal — see n8n/SECURITY.md.`,
+  );
+
+  // Rotation-transition shape: previousSecret holds the outgoing literal while both are
+  // accepted. Rewrite it to a named reference the same way as expectedSecret.
+  out = out.replace(
+    /const previousSecret\s*=\s*(['"])([^'"]+)\1\s*;([^\n]*)/,
+    `const previousSecret = $env.N8N_WEBHOOK_SECRET_PREVIOUS;` +
+      ` // NOTE: the live node hardcodes this literal during rotation. Never commit it.`,
   );
 
   // Anything else that still looks like a literal secret becomes an obvious placeholder.

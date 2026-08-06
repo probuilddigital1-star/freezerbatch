@@ -274,7 +274,8 @@ for (const n of workflow.nodes) {
   if (!code) continue;
   assert.doesNotMatch(
     code,
-    /\b(expectedSecret|apiKey|api_key|token|password)\s*=\s*['"][^'"]{12,}['"]/,
+    // \w* on both sides so camelCase (previousSecret, newSecretValue) cannot slip the \b.
+    /\b(\w*[sS]ecret\w*|apiKey|api_key|\w*[tT]oken\w*|password)\s*=\s*['"][^'"]{12,}['"]/,
     `${n.name} contains no literal secret`,
   );
 }
