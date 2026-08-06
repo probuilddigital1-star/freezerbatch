@@ -1,0 +1,28 @@
+<!--
+  Recipe-email utility line — source of truth.
+
+  The transactional recipe email's HTML is built inline inside the v2 workflow's
+  "Build Transactional Recipe Email" Code node, so this fragment lives here and is
+  embedded there verbatim. Edit this file, then re-run the republish diff.
+
+  Placement: immediately after the "Freezer note" paragraph, before the
+  "Browse cocktails" link.
+
+  EVERY recipe-email recipient gets this, consented or not. That is the point: it is
+  what makes the calculator's consent checkbox honest, because the labels are promised
+  to everyone who asks for a recipe rather than held behind the opt-in.
+
+  Style notes: this email uses the older palette (#171411 / #241f1a / #d7b46a), NOT the
+  Cold Open palette (#0c0a08 / #c8a55c). Attributes are single-quoted so the fragment
+  drops into the node's backtick template literal without escaping.
+-->
+<table role='presentation' width='100%' style='margin:26px 0 0;border-top:1px solid #3b342e;'>
+  <tr><td style='padding:20px 0 0;'>
+    <p style='margin:0 0 12px;font-size:15px;color:#f4ede3;'>Batching this? <a href='https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf' style='color:#d7b46a;'>Print the free labels &rarr;</a></p>
+    <table role='presentation' width='100%' style='font-size:13px;color:#c8c0b7;'>
+      <tr><td style='padding:3px 0;'><span style='color:#d7b46a;'>1.</span> Label the bottle while the jigger is still out.</td></tr>
+      <tr><td style='padding:3px 0;'><span style='color:#d7b46a;'>2.</span> Taste a small pour a few days in &mdash; that is when it settles.</td></tr>
+      <tr><td style='padding:3px 0;'><span style='color:#d7b46a;'>3.</span> Glasses in the freezer an hour before guests.</td></tr>
+    </table>
+  </td></tr>
+</table>

@@ -1,0 +1,1819 @@
+{
+  "updatedAt": "2026-08-01T23:54:19.308Z",
+  "createdAt": "2026-07-25T15:54:56.699Z",
+  "id": "oAutYB68sxicWzZZ",
+  "name": "FreezerBatchCocktails v2",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "freezerbatch-email-v2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fbc-v2-webhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        128,
+        560
+      ],
+      "webhookId": "7599f4ee-16bf-484a-b599-164e68099503"
+    },
+    {
+      "parameters": {
+        "jsCode": "const headers = $json.headers || {};\nconst providedSecret = headers['x-fbc-webhook-secret'] || headers['X-FBC-Webhook-Secret'];\nconst expectedSecret = '***ROTATED-2026-08-06***'; // Hardcoded: this n8n Cloud plan has no Variables/env feature licensed.\n\n// Keep failed authentication isolated from the request body so it cannot have side effects.\nif (typeof providedSecret !== 'string' || typeof expectedSecret !== 'string' || providedSecret !== expectedSecret) {\n  return [{ json: { authorized: false } }];\n}\n\nconst body = $json.body && typeof $json.body === 'object' ? $json.body : {};\nreturn [{\n  json: {\n    authorized: true,\n    action: body.action,\n    requestId: headers['x-fbc-request-id'] || headers['X-FBC-Request-Id'] || body.requestId,\n    email: body.email,\n    page: body.page,\n    marketingConsent: body.marketingConsent === true,\n    consentVersion: body.consentVersion || '',\n    recipe: body.recipe || null,\n    receivedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "fbc-v2-normalize-authorize",
+      "name": "Authorize and Normalize Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fbc-v2-auth-condition",
+              "leftValue": "={{ $json.authorized }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fbc-v2-auth-check",
+      "name": "Webhook Secret Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":false,\"code\":\"unauthorized\"}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "fbc-v2-respond-unauthorized",
+      "name": "Respond Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "send_recipe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "send_recipe"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "subscribe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "subscribe"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "unsubscribe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "unsubscribe"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "fbc-v2-route-action",
+      "name": "Route by action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.requestId }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+        "options": {}
+      },
+      "id": "fbc-v2-send-recipe",
+      "name": "Send Transactional Recipe Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1248,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fbc-v2-recipe-consent-condition",
+              "leftValue": "={{ $('Build Transactional Recipe Email').item.json.marketingConsent }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fbc-v2-recipe-consent",
+      "name": "Recipe Includes Marketing Consent",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// HTTP Request outputs Resend's response, so restore the normalized request for the consent decision.\nconst request = $('Build Transactional Recipe Email').item.json;\nreturn [{ json: request }];"
+      },
+      "id": "fbc-v2-restore-recipe-request",
+      "name": "Restore Recipe Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'subscribed', consentSource: data.action === 'send_recipe' ? 'recipe-email-consent' : 'newsletter' } }];"
+      },
+      "id": "fbc-v2-prepare-consent",
+      "name": "Prepare Newsletter Marketing Consent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "fbc-v2-respond-recipe",
+      "name": "Respond Recipe Sent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Subscribers",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Status": "subscribed",
+            "Source": "={{ $json.consentSource }}",
+            "Consent Version": "={{ $json.consentVersion }}",
+            "Consent Timestamp": "={{ $json.receivedAt }}",
+            "Page": "={{ $json.page }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "fbc-v2-upsert-consent",
+      "name": "Upsert Newsletter Pending Consent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1248,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'subscribed', consentSource: 'recipe-email-consent' } }];"
+      },
+      "id": "fbc-v2-prepare-recipe-consent",
+      "name": "Prepare Recipe Marketing Consent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Subscribers",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Status": "subscribed",
+            "Source": "={{ $json.consentSource }}",
+            "Consent Version": "={{ $json.consentVersion }}",
+            "Consent Timestamp": "={{ $json.receivedAt }}",
+            "Page": "={{ $json.page }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "fbc-v2-upsert-recipe-consent",
+      "name": "Upsert Recipe Pending Consent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2144,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const request = $('Prepare Recipe Marketing Consent').item.json;\nreturn [{ json: request }];"
+      },
+      "id": "fbc-v2-restore-recipe-consent",
+      "name": "Restore Recipe Consent Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2368,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Welcome to the newsletter</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Your recipe is on its way. You also opted into the newsletter, so you're subscribed — we'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nYour recipe is on its way. You also opted into the newsletter, so you're subscribed — we'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Welcome to Freezer Batch Cocktails' } }];"
+      },
+      "id": "fbc-v2-build-recipe-confirmation",
+      "name": "Build Recipe Double Opt-In Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2592,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.requestId + '-consent' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+        "options": {}
+      },
+      "id": "fbc-v2-send-recipe-confirmation",
+      "name": "Send Recipe Double Opt-In Confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2816,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "fbc-v2-respond-recipe-consent",
+      "name": "Respond Recipe Consent Recorded",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3040,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const request = $('Prepare Newsletter Marketing Consent').item.json;\nreturn [{ json: request }];"
+      },
+      "id": "fbc-v2-restore-newsletter-consent",
+      "name": "Restore Newsletter Consent Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// Cold Open welcome email. Source of truth: n8n/emails/cold-open/welcome.html in the site\n// repo — edit there and re-run n8n/republish-2026-08/build-republish.mjs. Do not hand-edit\n// this node; the next build would silently overwrite it. No build timestamp here on\n// purpose, so re-running produces a byte-identical node and the diff stays honest.\nconst TEMPLATE = \"<!DOCTYPE html>\\r\\n<html lang=\\\"en\\\" xmlns:v=\\\"urn:schemas-microsoft-com:vml\\\">\\r\\n<head>\\r\\n<meta charset=\\\"utf-8\\\">\\r\\n<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\r\\n<meta name=\\\"color-scheme\\\" content=\\\"light dark\\\">\\r\\n<meta name=\\\"supported-color-schemes\\\" content=\\\"light dark\\\">\\r\\n<title>Cold Open by FBC — Welcome</title>\\r\\n<!--[if !mso]><!--><link href=\\\"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap\\\" rel=\\\"stylesheet\\\"><!--<![endif]-->\\r\\n<!--[if mso]><style>table{border-collapse:collapse;}</style><![endif]-->\\r\\n</head>\\r\\n<body style=\\\"margin:0; padding:0; background-color:#0c0a08;\\\">\\r\\n<span style=\\\"display:none; font-size:1px; color:#0c0a08; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;\\\">Your free printable bottle-label sheet is inside — plus what arrives, and how often.</span>\\r\\n<table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"100%\\\" style=\\\"background-color:#0c0a08;\\\">\\r\\n<tr><td align=\\\"center\\\" style=\\\"padding:24px 12px;\\\">\\r\\n<table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"600\\\" style=\\\"width:600px; max-width:600px;\\\">\\r\\n\\r\\n<!-- masthead -->\\r\\n<tr><td align=\\\"center\\\" style=\\\"padding:34px 24px 8px; background-color:#0c0a08;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr>\\r\\n    <td width=\\\"44\\\" style=\\\"width:44px; border-top:1px solid #c8a55c; font-size:1px; line-height:1px;\\\">&nbsp;</td>\\r\\n  </tr></table>\\r\\n</td></tr>\\r\\n<tr><td align=\\\"center\\\" bgcolor=\\\"#0c0a08\\\" style=\\\"background-color:#0c0a08; padding:12px 24px 4px; font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:30px; letter-spacing:6px; color:#f0e8da; text-transform:uppercase; mso-line-height-rule:exactly; line-height:36px;\\\">Cold Open</td></tr>\\r\\n<tr><td align=\\\"center\\\" bgcolor=\\\"#0c0a08\\\" style=\\\"background-color:#0c0a08; padding:0 24px 6px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:4px; color:#c8a55c; text-transform:uppercase;\\\">By FBC</td></tr>\\r\\n<tr><td align=\\\"center\\\" bgcolor=\\\"#0c0a08\\\" style=\\\"background-color:#0c0a08; padding:0 24px 26px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:2px; color:#9a8e7e; text-transform:uppercase;\\\">Ready before the guests arrive</td></tr>\\r\\n\\r\\n<!-- welcome card -->\\r\\n<tr><td style=\\\"background-color:#161310; padding:36px 40px 8px;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td style=\\\"font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; color:#f0e8da; mso-line-height-rule:exactly; line-height:34px;\\\">You're in. Here's your free label sheet.</td></tr>\\r\\n    <tr><td style=\\\"padding:14px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:15px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:24px;\\\">Print it, batch something, and write on it with whatever pen is closest. Yours free: six labels per page, sized for 750&nbsp;ml swing-tops, and they survive the freezer better than your memory of what's in the bottle.</td></tr>\\r\\n    <tr><td style=\\\"padding:26px 0 10px;\\\">\\r\\n      <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr>\\r\\n        <td bgcolor=\\\"#c8a55c\\\" style=\\\"background-color:#c8a55c;\\\">\\r\\n          <a href=\\\"{{LABEL_SHEET_URL}}\\\" style=\\\"display:block; padding:15px 34px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:13px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#161310; text-decoration:none; mso-line-height-rule:exactly; line-height:16px;\\\">Download your free label sheet</a>\\r\\n        </td>\\r\\n      </tr></table>\\r\\n    </td></tr>\\r\\n\\r\\n    <!-- before you print — condensed from page 2 of the label PDF -->\\r\\n    <tr><td style=\\\"padding:18px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#c8a55c; text-transform:uppercase;\\\">Before you print</td></tr>\\r\\n    <tr><td style=\\\"padding:9px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:13px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:21px;\\\">Full-sheet label stock or plain cardstock. Die-cut sheets won't match the grid, and they lift in a freezer anyway.</td></tr>\\r\\n    <tr><td style=\\\"padding:5px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:13px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:21px;\\\">Cut on the dashed lines.</td></tr>\\r\\n    <tr><td style=\\\"padding:5px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:13px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:21px;\\\">Apply to a dry, room-temperature bottle before the first freeze &mdash; or punch a hole in the cardstock and hang it as a neck tag.</td></tr>\\r\\n\\r\\n    <!-- secondary download: timing sheet. Bordered link, not a second gold button. -->\\r\\n    <tr><td style=\\\"padding:22px 0 4px;\\\">\\r\\n      <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px; border:1px solid #2e2720;\\\">\\r\\n        <tr><td style=\\\"padding:16px 20px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:13px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:21px;\\\">\\r\\n          One more, also free: <a href=\\\"{{TIMING_SHEET_URL}}\\\" style=\\\"color:#c8a55c; text-decoration:underline;\\\">the batch timing sheet</a> &mdash; how long each of the 18 recipes keeps in the freezer, on one page.\\r\\n        </td></tr>\\r\\n      </table>\\r\\n    </td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n<!-- expectations -->\\r\\n<tr><td style=\\\"background-color:#161310; padding:24px 40px 8px;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td style=\\\"border-top:1px solid #2e2720; padding:22px 0 12px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#c8a55c; text-transform:uppercase;\\\">What arrives, and how often</td></tr>\\r\\n    <tr><td style=\\\"padding:4px 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:23px;\\\"><span style=\\\"color:#f0e8da;\\\">Monthly:</span> one make-ahead recipe and a hosting timeline that works backward from the doorbell.</td></tr>\\r\\n    <tr><td style=\\\"padding:4px 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:23px;\\\"><span style=\\\"color:#f0e8da;\\\">Occasionally:</span> a short countdown series before the big hosting holidays. Skippable, and clearly labeled.</td></tr>\\r\\n    <tr><td style=\\\"padding:4px 0 20px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:23px;\\\"><span style=\\\"color:#f0e8da;\\\">Never:</span> daily email, countdown clocks, or anything shouting LAST CHANCE.</td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n<!-- featured recipe -->\\r\\n<tr><td style=\\\"background-color:#161310; padding:8px 40px 40px;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td style=\\\"border-top:1px solid #2e2720; padding:22px 0 14px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#c8a55c; text-transform:uppercase;\\\">Start here</td></tr>\\r\\n    <tr><td>\\r\\n      <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px; border:1px solid #2e2720;\\\">\\r\\n        <!-- Image row intentionally absent until the Negroni is shot. To restore, re-add a\\r\\n             row here holding an image tag 518px wide over a #1e1a16 cell, with alt text that\\r\\n             carries the meaning when images are blocked. Deliberately not written as a live\\r\\n             token here: an unresolved merge token would trip the build node's guard. -->\\r\\n        <tr><td style=\\\"padding:20px 24px 6px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#9a8e7e; text-transform:uppercase;\\\">Gin · Stirred · Freezer safe</td></tr>\\r\\n        <tr><td style=\\\"padding:0 24px; font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:22px; color:#f0e8da; mso-line-height-rule:exactly; line-height:30px;\\\">The Negroni</td></tr>\\r\\n        <tr><td style=\\\"padding:8px 24px 18px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:22px;\\\">Equal parts, foolproof, and it improves in the freezer. The calculator scales it to your bottle.</td></tr>\\r\\n        <tr><td style=\\\"padding:0 24px 24px;\\\">\\r\\n          <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr>\\r\\n            <td style=\\\"border:1px solid #c8a55c;\\\">\\r\\n              <a href=\\\"{{RECIPE_URL}}\\\" style=\\\"display:block; padding:11px 24px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#c8a55c; text-decoration:none; mso-line-height-rule:exactly; line-height:14px;\\\">Batch the Negroni</a>\\r\\n            </td>\\r\\n          </tr></table>\\r\\n        </td></tr>\\r\\n      </table>\\r\\n    </td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n<!-- footer -->\\r\\n<tr><td align=\\\"center\\\" style=\\\"padding:28px 40px 40px; background-color:#0c0a08;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:0 0 14px;\\\"><table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr><td width=\\\"44\\\" style=\\\"width:44px; border-top:1px solid #3d3428; font-size:1px; line-height:1px;\\\">&nbsp;</td></tr></table></td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:20px;\\\">You're getting this because you joined Cold Open by FBC at <a href=\\\"https://freezerbatchcocktails.com\\\" style=\\\"color:#c8a55c; text-decoration:none;\\\">freezerbatchcocktails.com</a>.</td></tr>\\r\\n    <!-- No preferences link: no preferences page exists. Removed in n8n 2026-08-01; the\\r\\n         template now matches what actually sends. -->\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:10px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:20px;\\\"><a href=\\\"{{UNSUBSCRIBE_URL}}\\\" style=\\\"color:#c8a55c; text-decoration:underline;\\\">Unsubscribe</a></td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:10px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:18px;\\\">{{COMPANY_NAME}}</td></tr>\\r\\n    <!-- CAN-SPAM: physical mailing address, its own line. The build node refuses to send\\r\\n         if this token is still unresolved. -->\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:4px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:18px;\\\">{{POSTAL_ADDRESS}}</td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:10px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:18px;\\\">For readers 21+. Please drink responsibly.</td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n</table>\\r\\n</td></tr>\\r\\n</table>\\r\\n</body>\\r\\n</html>\\r\\n\";\n\nconst TOKENS = {\n  \"{{LABEL_SHEET_URL}}\": \"https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf\",\n  \"{{TIMING_SHEET_URL}}\": \"https://freezerbatchcocktails.com/downloads/fbc-batch-timing.pdf\",\n  \"{{RECIPE_URL}}\": \"https://freezerbatchcocktails.com/cocktails/negroni\",\n  \"{{UNSUBSCRIBE_URL}}\": \"https://freezerbatchcocktails.com/unsubscribe\",\n  \"{{COMPANY_NAME}}\": \"Freezer Batch Cocktails\",\n  \"{{POSTAL_ADDRESS}}\": \"\"\n};\n\nlet html = TEMPLATE;\nfor (const [token, value] of Object.entries(TOKENS)) {\n  html = html.split(token).join(value);\n}\n\nlet text = \"COLD OPEN BY FBC\\n\\nYou're in. Here's your free label sheet.\\n\\nDownload your free label sheet: https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf\\n\\nBefore you print\\n  Full-sheet label stock or plain cardstock. Die-cut sheets will not match the grid.\\n  Cut on the dashed lines.\\n  Apply to a dry, room-temperature bottle before the first freeze, or hang it as a neck tag.\\n\\nAlso free - the batch timing sheet, how long each of the 18 recipes keeps in the freezer:\\n  https://freezerbatchcocktails.com/downloads/fbc-batch-timing.pdf\\n\\nWhat arrives, and how often\\n  Monthly - one make-ahead recipe and a hosting timeline.\\n  Occasionally - a short countdown series before the big hosting holidays.\\n  Never - daily email, countdown clocks, or anything shouting LAST CHANCE.\\n\\nStart here: batch the Negroni - https://freezerbatchcocktails.com/cocktails/negroni\\n\\n---\\nUnsubscribe: https://freezerbatchcocktails.com/unsubscribe\\nFreezer Batch Cocktails\\n__POSTAL_ADDRESS_LINE__\\nFor readers 21+. Please drink responsibly.\";\ntext = text.replace('__POSTAL_ADDRESS_LINE__', TOKENS['{{POSTAL_ADDRESS}}']);\n\n// ── fail closed ─────────────────────────────────────────────────────────────\n// Same posture as the unsubscribe guard that has been live since 2026-08-01: refuse to\n// hand Resend a message that is legally or functionally broken, rather than sending it.\nconst leftover = html.match(/\\{\\{[^}]*\\}\\}/g);\nif (leftover) {\n  throw new Error('Unresolved merge tokens in welcome email: ' + [...new Set(leftover)].join(', '));\n}\nif (!TOKENS['{{UNSUBSCRIBE_URL}}'] || !html.includes(TOKENS['{{UNSUBSCRIBE_URL}}'])) {\n  throw new Error('Welcome email is missing its unsubscribe link');\n}\nif (!TOKENS['{{TIMING_SHEET_URL}}'] || !html.includes(TOKENS['{{TIMING_SHEET_URL}}'])) {\n  throw new Error('Welcome email is missing the batch timing sheet link');\n}\n// CAN-SPAM: a marketing email without a physical mailing address must not go out.\nconst postal = (TOKENS['{{POSTAL_ADDRESS}}'] || '').trim();\nif (!postal) {\n  throw new Error('Welcome email has no postal address: refusing to send (CAN-SPAM)');\n}\nif (!html.includes(postal) || !text.includes(postal)) {\n  throw new Error('Welcome email postal address did not render into both html and text');\n}\n\nreturn [{ json: { ...data, html, text, subject: \"Your free label sheet is inside\" } }];\n"
+      },
+      "id": "fbc-v2-build-confirmation",
+      "name": "Build Newsletter Double Opt-In Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.requestId + '-consent' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+        "options": {}
+      },
+      "id": "fbc-v2-send-confirmation",
+      "name": "Send Newsletter Double Opt-In Confirmation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "fbc-v2-respond-consent",
+      "name": "Respond Newsletter Consent Recorded",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2144,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Subscribers",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Status": "unsubscribed",
+            "Source": "unsubscribe",
+            "Unsubscribed At": "={{ $json.receivedAt }}",
+            "Page": "={{ $json.page }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "fbc-v2-unsubscribe",
+      "name": "Record Unsubscribe",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1024,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "fbc-v2-respond-unsubscribe",
+      "name": "Respond Unsubscribed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":false,\"code\":\"invalid_action\"}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "fbc-v2-respond-invalid-action",
+      "name": "Respond Invalid Action",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst recipe = data.recipe && typeof data.recipe === 'object' ? data.recipe : {};\nconst display = recipe.display && typeof recipe.display === 'object' ? recipe.display : {};\nconst plain = (value) => String(value ?? '').replace(/[\\r\\n]+/g, ' ').trim();\nconst bounded = (value, max = 160) => Array.from(plain(value)).slice(0, max).join('');\nconst escapeHtml = (value) => bounded(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\\\"/g, '&quot;').replace(/'/g, '&#39;');\nconst show = (value, fallback = '—') => escapeHtml(bounded(value) || fallback);\nconst slugLabel = (slug) => bounded(slug, 80).split('-').filter(Boolean).map((part) => part[0]?.toUpperCase() + part.slice(1)).join(' ');\nconst unit = recipe.unit === 'oz' || recipe.unit === 'ml' ? recipe.unit : 'ml';\nconst bottleFallback = Number.isInteger(recipe.bottleMl) ? `${recipe.bottleMl} ml` : '—';\nconst dilutionFallback = recipe.mode === 'custom' && Number.isFinite(recipe.dilutionPercent) ? `${recipe.dilutionPercent}%` : '—';\nconst recipeNamePlain = bounded(display.name) || (recipe.mode === 'preset' ? slugLabel(recipe.slug) : '') || (recipe.mode === 'custom' ? 'Custom Freezer Batch' : 'Freezer Batch');\nconst recipeName = escapeHtml(recipeNamePlain);\nconst presentationIngredients = Array.isArray(display.ingredients) ? display.ingredients : [];\nconst coreIngredients = recipe.mode === 'custom' && Array.isArray(recipe.ingredients) ? recipe.ingredients : [];\nconst ingredients = presentationIngredients.length ? presentationIngredients : coreIngredients.map((ingredient) => ({ name: ingredient?.name, amount: `${ingredient?.amount ?? ''} ${unit}`.trim() }));\nconst ingredientRows = ingredients.length ? ingredients.map((ingredient) => `<tr><td>${show(ingredient?.name, 'Ingredient')}</td><td>${show(ingredient?.amount)}</td></tr>`).join('') : `<tr><td colspan='2'>See the calculator for the complete ingredient list.</td></tr>`;\nconst textIngredients = ingredients.length ? ingredients.map((ingredient) => `- ${bounded(ingredient?.name) || 'Ingredient'}: ${bounded(ingredient?.amount) || '—'}`).join('\\n') : '- See the calculator for the complete ingredient list.';\nconst abv = show(display.abv);\nconst servings = show(display.servings);\nconst bottleSize = show(display.bottleSize, bottleFallback);\nconst dilution = show(display.dilution, dilutionFallback);\nconst pourOff = show(display.pourOff, 'See calculator');\nconst waterToAdd = show(display.waterToAdd, 'See calculator');\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style='margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;'><table role='presentation' width='100%'><tr><td align='center' style='padding:32px 16px;'><table role='presentation' width='600' style='max-width:600px;background:#241f1a;border:1px solid #3b342e;'><tr><td style='padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;'><p style='margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;'>FREEZER BATCH COCKTAILS</p><h1 style='color:#f4ede3;'>${recipeName}</h1></td></tr><tr><td style='padding:32px;'><p style='color:#c8c0b7;'>A measured batch for your freezer door.</p><p><strong>ABV:</strong> ${abv} · <strong>Drinks:</strong> ${servings} · <strong>Bottle:</strong> ${bottleSize} · <strong>Dilution:</strong> ${dilution}</p><p><strong>First:</strong> pour off ${pourOff} to make room.</p><h2>Add these ingredients</h2><table role='presentation' width='100%'>${ingredientRows}<tr><td>Water (dilution)</td><td>${waterToAdd}</td></tr></table><p><strong>Freezer note:</strong> cocktails under 22% ABV may freeze too firm to pour. Fresh citrus evolves in the freezer; for longer storage, batch the spirits and add fresh citrus when serving.</p><table role='presentation' width='100%' style='margin:26px 0 0;border-top:1px solid #3b342e;'><tr><td style='padding:20px 0 0;'><p style='margin:0 0 12px;font-size:15px;color:#f4ede3;'>Batching this? <a href='https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf' style='color:#d7b46a;'>Print the free labels &rarr;</a></p><table role='presentation' width='100%' style='font-size:13px;color:#c8c0b7;'><tr><td style='padding:3px 0;'><span style='color:#d7b46a;'>1.</span> Label the bottle while the jigger is still out.</td></tr><tr><td style='padding:3px 0;'><span style='color:#d7b46a;'>2.</span> Taste a small pour a few days in &mdash; that is when it settles.</td></tr><tr><td style='padding:3px 0;'><span style='color:#d7b46a;'>3.</span> Glasses in the freezer an hour before guests.</td></tr></table></td></tr></table><p><a href='${escapeHtml(websiteUrl)}/cocktails'>Browse cocktails</a></p></td></tr><tr><td style='padding:22px;background:#0e0c0a;color:#a69d93;'>Freezer Batch Cocktails · <a href='${escapeHtml(unsubscribeUrl)}'>Unsubscribe from marketing</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\n${recipeNamePlain}\\nABV: ${bounded(display.abv) || '—'} · Drinks: ${bounded(display.servings) || '—'} · Bottle: ${bounded(display.bottleSize) || bottleFallback}\\nDilution: ${bounded(display.dilution) || dilutionFallback}\\n\\nFirst, pour off ${bounded(display.pourOff) || 'See calculator'} to make room.\\n\\nIngredients:\\n${textIngredients}\\n- Water (dilution): ${bounded(display.waterToAdd) || 'See calculator'}\\n\\nFreezer note: cocktails under 22% ABV may freeze too firm to pour. Fresh citrus evolves in the freezer; for longer storage, batch the spirits and add fresh citrus when serving.\\n\\nBrowse cocktails: ${websiteUrl}/cocktails`;\nreturn [{ json: { ...data, html, text, subject: `Your ${recipeNamePlain} recipe` } }];"
+      },
+      "id": "fbc-v2-build-recipe-email-a3",
+      "name": "Build Transactional Recipe Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        352
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Authorize and Normalize Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authorize and Normalize Request": {
+      "main": [
+        [
+          {
+            "node": "Webhook Secret Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Secret Valid": {
+      "main": [
+        [
+          {
+            "node": "Route by action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by action": {
+      "main": [
+        [
+          {
+            "node": "Build Transactional Recipe Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Newsletter Marketing Consent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Unsubscribe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Transactional Recipe Email": {
+      "main": [
+        [
+          {
+            "node": "Send Transactional Recipe Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Transactional Recipe Email": {
+      "main": [
+        [
+          {
+            "node": "Restore Recipe Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Recipe Request": {
+      "main": [
+        [
+          {
+            "node": "Recipe Includes Marketing Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recipe Includes Marketing Consent": {
+      "main": [
+        [
+          {
+            "node": "Prepare Recipe Marketing Consent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Recipe Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Newsletter Marketing Consent": {
+      "main": [
+        [
+          {
+            "node": "Upsert Newsletter Pending Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Newsletter Pending Consent": {
+      "main": [
+        [
+          {
+            "node": "Restore Newsletter Consent Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Newsletter Consent Request": {
+      "main": [
+        [
+          {
+            "node": "Build Newsletter Double Opt-In Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Newsletter Double Opt-In Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Send Newsletter Double Opt-In Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Newsletter Double Opt-In Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Respond Newsletter Consent Recorded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Recipe Marketing Consent": {
+      "main": [
+        [
+          {
+            "node": "Upsert Recipe Pending Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Recipe Pending Consent": {
+      "main": [
+        [
+          {
+            "node": "Restore Recipe Consent Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Recipe Consent Request": {
+      "main": [
+        [
+          {
+            "node": "Build Recipe Double Opt-In Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Recipe Double Opt-In Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Send Recipe Double Opt-In Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Recipe Double Opt-In Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Respond Recipe Consent Recorded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Unsubscribe": {
+      "main": [
+        [
+          {
+            "node": "Respond Unsubscribed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "04794c4a-e95a-4946-9de2-5d8e91da43e6",
+  "activeVersionId": "04794c4a-e95a-4946-9de2-5d8e91da43e6",
+  "versionCounter": 6,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "shared": [
+    {
+      "updatedAt": "2026-07-25T15:54:56.703Z",
+      "createdAt": "2026-07-25T15:54:56.703Z",
+      "role": "workflow:owner",
+      "workflowId": "oAutYB68sxicWzZZ",
+      "projectId": "9JiZxdf2Z8J2mfb9",
+      "project": {
+        "updatedAt": "2025-06-14T14:53:06.801Z",
+        "createdAt": "2025-06-14T14:53:04.339Z",
+        "id": "9JiZxdf2Z8J2mfb9",
+        "name": "Zachary Pearson <zckpearson@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "e8637f1f-2082-4adb-a3e6-0cf6b147f4e2"
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-08-01T23:54:19.310Z",
+    "createdAt": "2026-08-01T23:54:19.310Z",
+    "versionId": "04794c4a-e95a-4946-9de2-5d8e91da43e6",
+    "workflowId": "oAutYB68sxicWzZZ",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "freezerbatch-email-v2",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "fbc-v2-webhook",
+        "name": "Webhook Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          128,
+          560
+        ],
+        "webhookId": "7599f4ee-16bf-484a-b599-164e68099503"
+      },
+      {
+        "parameters": {
+          "jsCode": "const headers = $json.headers || {};\nconst providedSecret = headers['x-fbc-webhook-secret'] || headers['X-FBC-Webhook-Secret'];\nconst expectedSecret = '***ROTATED-2026-08-06***'; // Hardcoded: this n8n Cloud plan has no Variables/env feature licensed.\n\n// Keep failed authentication isolated from the request body so it cannot have side effects.\nif (typeof providedSecret !== 'string' || typeof expectedSecret !== 'string' || providedSecret !== expectedSecret) {\n  return [{ json: { authorized: false } }];\n}\n\nconst body = $json.body && typeof $json.body === 'object' ? $json.body : {};\nreturn [{\n  json: {\n    authorized: true,\n    action: body.action,\n    requestId: headers['x-fbc-request-id'] || headers['X-FBC-Request-Id'] || body.requestId,\n    email: body.email,\n    page: body.page,\n    marketingConsent: body.marketingConsent === true,\n    consentVersion: body.consentVersion || '',\n    recipe: body.recipe || null,\n    receivedAt: new Date().toISOString()\n  }\n}];"
+        },
+        "id": "fbc-v2-normalize-authorize",
+        "name": "Authorize and Normalize Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          352,
+          560
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "fbc-v2-auth-condition",
+                "leftValue": "={{ $json.authorized }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "fbc-v2-auth-check",
+        "name": "Webhook Secret Valid",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          576,
+          560
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":false,\"code\":\"unauthorized\"}",
+          "options": {
+            "responseCode": 401
+          }
+        },
+        "id": "fbc-v2-respond-unauthorized",
+        "name": "Respond Unauthorized",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          800,
+          672
+        ]
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.action }}",
+                      "rightValue": "send_recipe",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "send_recipe"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.action }}",
+                      "rightValue": "subscribe",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "subscribe"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.action }}",
+                      "rightValue": "unsubscribe",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "unsubscribe"
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "id": "fbc-v2-route-action",
+        "name": "Route by action",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          800,
+          416
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.resend.com/emails",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": "={{ $json.requestId }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+          "options": {}
+        },
+        "id": "fbc-v2-send-recipe",
+        "name": "Send Transactional Recipe Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1248,
+          352
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "nwW0T85RSFJRhgoE",
+            "name": "Resend API Header - FreezerBatchCocktails v2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "fbc-v2-recipe-consent-condition",
+                "leftValue": "={{ $('Build Transactional Recipe Email').item.json.marketingConsent }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "fbc-v2-recipe-consent",
+        "name": "Recipe Includes Marketing Consent",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1696,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// HTTP Request outputs Resend's response, so restore the normalized request for the consent decision.\nconst request = $('Build Transactional Recipe Email').item.json;\nreturn [{ json: request }];"
+        },
+        "id": "fbc-v2-restore-recipe-request",
+        "name": "Restore Recipe Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1472,
+          352
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'subscribed', consentSource: data.action === 'send_recipe' ? 'recipe-email-consent' : 'newsletter' } }];"
+        },
+        "id": "fbc-v2-prepare-consent",
+        "name": "Prepare Newsletter Marketing Consent",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1024,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":true}",
+          "options": {
+            "responseCode": 202
+          }
+        },
+        "id": "fbc-v2-respond-recipe",
+        "name": "Respond Recipe Sent",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1920,
+          256
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "Subscribers",
+            "mode": "name"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.email }}",
+              "Status": "subscribed",
+              "Source": "={{ $json.consentSource }}",
+              "Consent Version": "={{ $json.consentVersion }}",
+              "Consent Timestamp": "={{ $json.receivedAt }}",
+              "Page": "={{ $json.page }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "fbc-v2-upsert-consent",
+        "name": "Upsert Newsletter Pending Consent",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1248,
+          64
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "UJSSHsLFLaefEEBi",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nreturn [{ json: { ...data, consentStatus: 'subscribed', consentSource: 'recipe-email-consent' } }];"
+        },
+        "id": "fbc-v2-prepare-recipe-consent",
+        "name": "Prepare Recipe Marketing Consent",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1920,
+          448
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "Subscribers",
+            "mode": "name"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.email }}",
+              "Status": "subscribed",
+              "Source": "={{ $json.consentSource }}",
+              "Consent Version": "={{ $json.consentVersion }}",
+              "Consent Timestamp": "={{ $json.receivedAt }}",
+              "Page": "={{ $json.page }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "fbc-v2-upsert-recipe-consent",
+        "name": "Upsert Recipe Pending Consent",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2144,
+          448
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "UJSSHsLFLaefEEBi",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const request = $('Prepare Recipe Marketing Consent').item.json;\nreturn [{ json: request }];"
+        },
+        "id": "fbc-v2-restore-recipe-consent",
+        "name": "Restore Recipe Consent Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2368,
+          448
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style=\"margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;\"><table role=\"presentation\" width=\"100%\"><tr><td align=\"center\" style=\"padding:32px 16px;\"><table role=\"presentation\" width=\"600\" style=\"max-width:600px;background:#241f1a;border:1px solid #3b342e;\"><tr><td style=\"padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;\"><p style=\"margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;\">FREEZER BATCH COCKTAILS</p><h1 style=\"margin:8px 0 0;color:#f4ede3;\">Welcome to the newsletter</h1></td></tr><tr><td style=\"padding:32px;color:#c8c0b7;line-height:1.6;\"><p>Your recipe is on its way. You also opted into the newsletter, so you're subscribed — we'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.</p><p><a href=\"${websiteUrl}/cocktails\" style=\"background:#d7b46a;color:#171411;padding:13px 20px;text-decoration:none;font-weight:bold;\">Explore cocktails</a></p></td></tr><tr><td style=\"padding:22px 32px;background:#0e0c0a;color:#a69d93;font-size:12px;\">Freezer Batch Cocktails · <a href=\"${unsubscribeUrl}\" style=\"color:#d7b46a;\">Unsubscribe</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\nYour recipe is on its way. You also opted into the newsletter, so you're subscribed — we'll send occasional freezer-batch recipes, ratios, and technique notes, a few times a month at most. Every email includes an unsubscribe link, so you can leave whenever you like.\\n\\nExplore cocktails: ${websiteUrl}/cocktails\\nUnsubscribe: ${unsubscribeUrl}`;\nreturn [{ json: { ...data, html, text, subject: 'Welcome to Freezer Batch Cocktails' } }];"
+        },
+        "id": "fbc-v2-build-recipe-confirmation",
+        "name": "Build Recipe Double Opt-In Confirmation",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2592,
+          448
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.resend.com/emails",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": "={{ $json.requestId + '-consent' }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+          "options": {}
+        },
+        "id": "fbc-v2-send-recipe-confirmation",
+        "name": "Send Recipe Double Opt-In Confirmation",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2816,
+          448
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "nwW0T85RSFJRhgoE",
+            "name": "Resend API Header - FreezerBatchCocktails v2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":true}",
+          "options": {
+            "responseCode": 202
+          }
+        },
+        "id": "fbc-v2-respond-recipe-consent",
+        "name": "Respond Recipe Consent Recorded",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          3040,
+          448
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const request = $('Prepare Newsletter Marketing Consent').item.json;\nreturn [{ json: request }];"
+        },
+        "id": "fbc-v2-restore-newsletter-consent",
+        "name": "Restore Newsletter Consent Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1472,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\n\n// Cold Open welcome email. Source of truth: n8n/emails/cold-open/welcome.html in the\n// site repo, with the image row and the preferences link removed (no Negroni\n// photography and no preferences page exist yet). Keep this in sync with that file.\nconst TEMPLATE = \"<!DOCTYPE html>\\r\\n<html lang=\\\"en\\\" xmlns:v=\\\"urn:schemas-microsoft-com:vml\\\">\\r\\n<head>\\r\\n<meta charset=\\\"utf-8\\\">\\r\\n<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\r\\n<meta name=\\\"color-scheme\\\" content=\\\"light dark\\\">\\r\\n<meta name=\\\"supported-color-schemes\\\" content=\\\"light dark\\\">\\r\\n<title>Cold Open by FBC — Welcome</title>\\r\\n<!--[if !mso]><!--><link href=\\\"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap\\\" rel=\\\"stylesheet\\\"><!--<![endif]-->\\r\\n<!--[if mso]><style>table{border-collapse:collapse;}</style><![endif]-->\\r\\n</head>\\r\\n<body style=\\\"margin:0; padding:0; background-color:#0c0a08;\\\">\\r\\n<span style=\\\"display:none; font-size:1px; color:#0c0a08; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;\\\">Your printable bottle-label sheet is inside — plus what arrives, and how often.</span>\\r\\n<table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"100%\\\" style=\\\"background-color:#0c0a08;\\\">\\r\\n<tr><td align=\\\"center\\\" style=\\\"padding:24px 12px;\\\">\\r\\n<table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"600\\\" style=\\\"width:600px; max-width:600px;\\\">\\r\\n\\r\\n<!-- masthead -->\\r\\n<tr><td align=\\\"center\\\" style=\\\"padding:34px 24px 8px; background-color:#0c0a08;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr>\\r\\n    <td width=\\\"44\\\" style=\\\"width:44px; border-top:1px solid #c8a55c; font-size:1px; line-height:1px;\\\">&nbsp;</td>\\r\\n  </tr></table>\\r\\n</td></tr>\\r\\n<tr><td align=\\\"center\\\" bgcolor=\\\"#0c0a08\\\" style=\\\"background-color:#0c0a08; padding:12px 24px 4px; font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:30px; letter-spacing:6px; color:#f0e8da; text-transform:uppercase; mso-line-height-rule:exactly; line-height:36px;\\\">Cold Open</td></tr>\\r\\n<tr><td align=\\\"center\\\" bgcolor=\\\"#0c0a08\\\" style=\\\"background-color:#0c0a08; padding:0 24px 6px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:4px; color:#c8a55c; text-transform:uppercase;\\\">By FBC</td></tr>\\r\\n<tr><td align=\\\"center\\\" bgcolor=\\\"#0c0a08\\\" style=\\\"background-color:#0c0a08; padding:0 24px 26px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:2px; color:#9a8e7e; text-transform:uppercase;\\\">Ready before the guests arrive</td></tr>\\r\\n\\r\\n<!-- welcome card -->\\r\\n<tr><td style=\\\"background-color:#161310; padding:36px 40px 8px;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td style=\\\"font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:26px; color:#f0e8da; mso-line-height-rule:exactly; line-height:34px;\\\">You're in. Here's your label sheet.</td></tr>\\r\\n    <tr><td style=\\\"padding:14px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:15px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:24px;\\\">Print it, batch something, and write on it with whatever pen is closest. Six labels per page, sized for 750&nbsp;ml swing-tops, and they survive the freezer better than your memory of what's in the bottle.</td></tr>\\r\\n    <tr><td style=\\\"padding:26px 0 10px;\\\">\\r\\n      <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr>\\r\\n        <td bgcolor=\\\"#c8a55c\\\" style=\\\"background-color:#c8a55c;\\\">\\r\\n          <a href=\\\"{{LABEL_SHEET_URL}}\\\" style=\\\"display:block; padding:15px 34px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:13px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#161310; text-decoration:none; mso-line-height-rule:exactly; line-height:16px;\\\">Download your label sheet</a>\\r\\n        </td>\\r\\n      </tr></table>\\r\\n    </td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n<!-- expectations -->\\r\\n<tr><td style=\\\"background-color:#161310; padding:24px 40px 8px;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td style=\\\"border-top:1px solid #2e2720; padding:22px 0 12px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#c8a55c; text-transform:uppercase;\\\">What arrives, and how often</td></tr>\\r\\n    <tr><td style=\\\"padding:4px 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:23px;\\\"><span style=\\\"color:#f0e8da;\\\">Monthly:</span> one make-ahead recipe and a hosting timeline that works backward from the doorbell.</td></tr>\\r\\n    <tr><td style=\\\"padding:4px 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:23px;\\\"><span style=\\\"color:#f0e8da;\\\">Occasionally:</span> a short countdown series before the big hosting holidays. Skippable, and clearly labeled.</td></tr>\\r\\n    <tr><td style=\\\"padding:4px 0 20px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:23px;\\\"><span style=\\\"color:#f0e8da;\\\">Never:</span> daily email, countdown clocks, or anything shouting LAST CHANCE.</td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n<!-- featured recipe -->\\r\\n<tr><td style=\\\"background-color:#161310; padding:8px 40px 40px;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td style=\\\"border-top:1px solid #2e2720; padding:22px 0 14px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#c8a55c; text-transform:uppercase;\\\">Start here</td></tr>\\r\\n    <tr><td>\\r\\n      <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px; border:1px solid #2e2720;\\\">\\r\\n        <tr><td style=\\\"padding:20px 24px 6px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#9a8e7e; text-transform:uppercase;\\\">Gin · Stirred · Freezer safe</td></tr>\\r\\n        <tr><td style=\\\"padding:0 24px; font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:22px; color:#f0e8da; mso-line-height-rule:exactly; line-height:30px;\\\">The Negroni</td></tr>\\r\\n        <tr><td style=\\\"padding:8px 24px 18px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:22px;\\\">Equal parts, foolproof, and it improves in the freezer. The calculator scales it to your bottle.</td></tr>\\r\\n        <tr><td style=\\\"padding:0 24px 24px;\\\">\\r\\n          <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr>\\r\\n            <td style=\\\"border:1px solid #c8a55c;\\\">\\r\\n              <a href=\\\"{{RECIPE_URL}}\\\" style=\\\"display:block; padding:11px 24px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; color:#c8a55c; text-decoration:none; mso-line-height-rule:exactly; line-height:14px;\\\">Batch the Negroni</a>\\r\\n            </td>\\r\\n          </tr></table>\\r\\n        </td></tr>\\r\\n      </table>\\r\\n    </td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n<!-- footer -->\\r\\n<tr><td align=\\\"center\\\" style=\\\"padding:28px 40px 40px; background-color:#0c0a08;\\\">\\r\\n  <table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\" width=\\\"520\\\" style=\\\"width:520px;\\\">\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:0 0 14px;\\\"><table role=\\\"presentation\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" border=\\\"0\\\"><tr><td width=\\\"44\\\" style=\\\"width:44px; border-top:1px solid #3d3428; font-size:1px; line-height:1px;\\\">&nbsp;</td></tr></table></td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:20px;\\\">You're getting this because you joined Cold Open by FBC at <a href=\\\"https://freezerbatchcocktails.com\\\" style=\\\"color:#c8a55c; text-decoration:none;\\\">freezerbatchcocktails.com</a>.</td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:10px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:12px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:20px;\\\"><a href=\\\"{{UNSUBSCRIBE_URL}}\\\" style=\\\"color:#c8a55c; text-decoration:underline;\\\">Unsubscribe</a></td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:10px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:18px;\\\">{{COMPANY_NAME}}</td></tr>\\r\\n    <tr><td align=\\\"center\\\" style=\\\"padding:10px 0 0; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; color:#9a8e7e; mso-line-height-rule:exactly; line-height:18px;\\\">For readers 21+. Please drink responsibly.</td></tr>\\r\\n  </table>\\r\\n</td></tr>\\r\\n\\r\\n</table>\\r\\n</td></tr>\\r\\n</table>\\r\\n</body>\\r\\n</html>\\r\\n\";\n\nconst TOKENS = {\n  \"{{LABEL_SHEET_URL}}\": \"https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf\",\n  \"{{RECIPE_URL}}\": \"https://freezerbatchcocktails.com/cocktails/negroni\",\n  \"{{UNSUBSCRIBE_URL}}\": \"https://freezerbatchcocktails.com/unsubscribe\",\n  \"{{COMPANY_NAME}}\": \"Freezer Batch Cocktails\"\n};\n\nlet html = TEMPLATE;\nfor (const [token, value] of Object.entries(TOKENS)) {\n  html = html.split(token).join(value);\n}\n\n// The template must reach Resend with no merge tokens left.\nconst leftover = html.match(/\\{\\{[^}]*\\}\\}/g);\nif (leftover) {\n  throw new Error('Unresolved merge tokens in welcome email: ' + [...new Set(leftover)].join(', '));\n}\nif (!html.includes(TOKENS['{{UNSUBSCRIBE_URL}}'])) {\n  throw new Error('Welcome email is missing its unsubscribe link');\n}\n\nconst text = \"COLD OPEN BY FBC\\n\\nYou're in. Here's your label sheet.\\n\\nDownload your label sheet: https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf\\n\\nWhat arrives, and how often\\n  Monthly - one make-ahead recipe and a hosting timeline.\\n  Occasionally - a technique note when it earns the send.\\n  Never - urgency, countdowns, or a nagging cart.\\n\\nStart here: batch the Negroni - https://freezerbatchcocktails.com/cocktails/negroni\\n\\n---\\nUnsubscribe: https://freezerbatchcocktails.com/unsubscribe\\nFreezer Batch Cocktails\\nPlease drink responsibly. You must be 21+ to purchase alcohol in the US.\";\n\nreturn [{ json: { ...data, html, text, subject: \"You're in — your label sheet is inside\" } }];\n"
+        },
+        "id": "fbc-v2-build-confirmation",
+        "name": "Build Newsletter Double Opt-In Confirmation",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1696,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.resend.com/emails",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": "={{ $json.requestId + '-consent' }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ { from: 'Freezer Batch Cocktails <recipes@freezerbatchcocktails.com>', reply_to: 'hello@freezerbatchcocktails.com', to: [$json.email], subject: $json.subject, html: $json.html, text: $json.text } }}",
+          "options": {}
+        },
+        "id": "fbc-v2-send-confirmation",
+        "name": "Send Newsletter Double Opt-In Confirmation",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1920,
+          64
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "nwW0T85RSFJRhgoE",
+            "name": "Resend API Header - FreezerBatchCocktails v2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":true}",
+          "options": {
+            "responseCode": 202
+          }
+        },
+        "id": "fbc-v2-respond-consent",
+        "name": "Respond Newsletter Consent Recorded",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          2144,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1ByK5aGD8ds-aeUMRZBYF6kBOXWujFBldOMWiZ51kods",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "Subscribers",
+            "mode": "name"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.email }}",
+              "Status": "unsubscribed",
+              "Source": "unsubscribe",
+              "Unsubscribed At": "={{ $json.receivedAt }}",
+              "Page": "={{ $json.page }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "fbc-v2-unsubscribe",
+        "name": "Record Unsubscribe",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1024,
+          544
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "UJSSHsLFLaefEEBi",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":true}",
+          "options": {
+            "responseCode": 202
+          }
+        },
+        "id": "fbc-v2-respond-unsubscribe",
+        "name": "Respond Unsubscribed",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1248,
+          544
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":false,\"code\":\"invalid_action\"}",
+          "options": {
+            "responseCode": 400
+          }
+        },
+        "id": "fbc-v2-respond-invalid-action",
+        "name": "Respond Invalid Action",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1024,
+          736
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nconst recipe = data.recipe && typeof data.recipe === 'object' ? data.recipe : {};\nconst display = recipe.display && typeof recipe.display === 'object' ? recipe.display : {};\nconst plain = (value) => String(value ?? '').replace(/[\\r\\n]+/g, ' ').trim();\nconst bounded = (value, max = 160) => Array.from(plain(value)).slice(0, max).join('');\nconst escapeHtml = (value) => bounded(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\\\"/g, '&quot;').replace(/'/g, '&#39;');\nconst show = (value, fallback = '—') => escapeHtml(bounded(value) || fallback);\nconst slugLabel = (slug) => bounded(slug, 80).split('-').filter(Boolean).map((part) => part[0]?.toUpperCase() + part.slice(1)).join(' ');\nconst unit = recipe.unit === 'oz' || recipe.unit === 'ml' ? recipe.unit : 'ml';\nconst bottleFallback = Number.isInteger(recipe.bottleMl) ? `${recipe.bottleMl} ml` : '—';\nconst dilutionFallback = recipe.mode === 'custom' && Number.isFinite(recipe.dilutionPercent) ? `${recipe.dilutionPercent}%` : '—';\nconst recipeNamePlain = bounded(display.name) || (recipe.mode === 'preset' ? slugLabel(recipe.slug) : '') || (recipe.mode === 'custom' ? 'Custom Freezer Batch' : 'Freezer Batch');\nconst recipeName = escapeHtml(recipeNamePlain);\nconst presentationIngredients = Array.isArray(display.ingredients) ? display.ingredients : [];\nconst coreIngredients = recipe.mode === 'custom' && Array.isArray(recipe.ingredients) ? recipe.ingredients : [];\nconst ingredients = presentationIngredients.length ? presentationIngredients : coreIngredients.map((ingredient) => ({ name: ingredient?.name, amount: `${ingredient?.amount ?? ''} ${unit}`.trim() }));\nconst ingredientRows = ingredients.length ? ingredients.map((ingredient) => `<tr><td>${show(ingredient?.name, 'Ingredient')}</td><td>${show(ingredient?.amount)}</td></tr>`).join('') : `<tr><td colspan='2'>See the calculator for the complete ingredient list.</td></tr>`;\nconst textIngredients = ingredients.length ? ingredients.map((ingredient) => `- ${bounded(ingredient?.name) || 'Ingredient'}: ${bounded(ingredient?.amount) || '—'}`).join('\\n') : '- See the calculator for the complete ingredient list.';\nconst abv = show(display.abv);\nconst servings = show(display.servings);\nconst bottleSize = show(display.bottleSize, bottleFallback);\nconst dilution = show(display.dilution, dilutionFallback);\nconst pourOff = show(display.pourOff, 'See calculator');\nconst waterToAdd = show(display.waterToAdd, 'See calculator');\nconst websiteUrl = 'https://freezerbatchcocktails.com';\nconst unsubscribeUrl = 'https://freezerbatchcocktails.com/unsubscribe';\nconst html = `<!doctype html><html><body style='margin:0;background:#171411;color:#f4ede3;font-family:Arial,sans-serif;'><table role='presentation' width='100%'><tr><td align='center' style='padding:32px 16px;'><table role='presentation' width='600' style='max-width:600px;background:#241f1a;border:1px solid #3b342e;'><tr><td style='padding:36px;background:#0e0c0a;border-bottom:4px solid #d7b46a;'><p style='margin:0;color:#d7b46a;letter-spacing:2px;font-size:12px;'>FREEZER BATCH COCKTAILS</p><h1 style='color:#f4ede3;'>${recipeName}</h1></td></tr><tr><td style='padding:32px;'><p style='color:#c8c0b7;'>A measured batch for your freezer door.</p><p><strong>ABV:</strong> ${abv} · <strong>Drinks:</strong> ${servings} · <strong>Bottle:</strong> ${bottleSize} · <strong>Dilution:</strong> ${dilution}</p><p><strong>First:</strong> pour off ${pourOff} to make room.</p><h2>Add these ingredients</h2><table role='presentation' width='100%'>${ingredientRows}<tr><td>Water (dilution)</td><td>${waterToAdd}</td></tr></table><p><strong>Freezer note:</strong> cocktails under 22% ABV may freeze too firm to pour. Fresh citrus evolves in the freezer; for longer storage, batch the spirits and add fresh citrus when serving.</p><p><a href='${escapeHtml(websiteUrl)}/cocktails'>Browse cocktails</a></p></td></tr><tr><td style='padding:22px;background:#0e0c0a;color:#a69d93;'>Freezer Batch Cocktails · <a href='${escapeHtml(unsubscribeUrl)}'>Unsubscribe from marketing</a></td></tr></table></td></tr></table></body></html>`;\nconst text = `FREEZER BATCH COCKTAILS\\n\\n${recipeNamePlain}\\nABV: ${bounded(display.abv) || '—'} · Drinks: ${bounded(display.servings) || '—'} · Bottle: ${bounded(display.bottleSize) || bottleFallback}\\nDilution: ${bounded(display.dilution) || dilutionFallback}\\n\\nFirst, pour off ${bounded(display.pourOff) || 'See calculator'} to make room.\\n\\nIngredients:\\n${textIngredients}\\n- Water (dilution): ${bounded(display.waterToAdd) || 'See calculator'}\\n\\nFreezer note: cocktails under 22% ABV may freeze too firm to pour. Fresh citrus evolves in the freezer; for longer storage, batch the spirits and add fresh citrus when serving.\\n\\nBrowse cocktails: ${websiteUrl}/cocktails`;\nreturn [{ json: { ...data, html, text, subject: `Your ${recipeNamePlain} recipe` } }];"
+        },
+        "id": "fbc-v2-build-recipe-email-a3",
+        "name": "Build Transactional Recipe Email",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1024,
+          352
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook Trigger": {
+        "main": [
+          [
+            {
+              "node": "Authorize and Normalize Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Authorize and Normalize Request": {
+        "main": [
+          [
+            {
+              "node": "Webhook Secret Valid",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook Secret Valid": {
+        "main": [
+          [
+            {
+              "node": "Route by action",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond Unauthorized",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by action": {
+        "main": [
+          [
+            {
+              "node": "Build Transactional Recipe Email",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Prepare Newsletter Marketing Consent",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Record Unsubscribe",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond Invalid Action",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Transactional Recipe Email": {
+        "main": [
+          [
+            {
+              "node": "Send Transactional Recipe Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Transactional Recipe Email": {
+        "main": [
+          [
+            {
+              "node": "Restore Recipe Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Restore Recipe Request": {
+        "main": [
+          [
+            {
+              "node": "Recipe Includes Marketing Consent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recipe Includes Marketing Consent": {
+        "main": [
+          [
+            {
+              "node": "Prepare Recipe Marketing Consent",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond Recipe Sent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Newsletter Marketing Consent": {
+        "main": [
+          [
+            {
+              "node": "Upsert Newsletter Pending Consent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upsert Newsletter Pending Consent": {
+        "main": [
+          [
+            {
+              "node": "Restore Newsletter Consent Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Restore Newsletter Consent Request": {
+        "main": [
+          [
+            {
+              "node": "Build Newsletter Double Opt-In Confirmation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Newsletter Double Opt-In Confirmation": {
+        "main": [
+          [
+            {
+              "node": "Send Newsletter Double Opt-In Confirmation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Newsletter Double Opt-In Confirmation": {
+        "main": [
+          [
+            {
+              "node": "Respond Newsletter Consent Recorded",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Recipe Marketing Consent": {
+        "main": [
+          [
+            {
+              "node": "Upsert Recipe Pending Consent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upsert Recipe Pending Consent": {
+        "main": [
+          [
+            {
+              "node": "Restore Recipe Consent Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Restore Recipe Consent Request": {
+        "main": [
+          [
+            {
+              "node": "Build Recipe Double Opt-In Confirmation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Recipe Double Opt-In Confirmation": {
+        "main": [
+          [
+            {
+              "node": "Send Recipe Double Opt-In Confirmation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Recipe Double Opt-In Confirmation": {
+        "main": [
+          [
+            {
+              "node": "Respond Recipe Consent Recorded",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Record Unsubscribe": {
+        "main": [
+          [
+            {
+              "node": "Respond Unsubscribed",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": [],
+    "authors": "Zachary Pearson",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-08-01T23:54:19.560Z",
+        "id": 146,
+        "workflowId": "oAutYB68sxicWzZZ",
+        "versionId": "04794c4a-e95a-4946-9de2-5d8e91da43e6",
+        "event": "activated",
+        "userId": "e8637f1f-2082-4adb-a3e6-0cf6b147f4e2"
+      },
+      {
+        "createdAt": "2026-08-01T23:54:19.488Z",
+        "id": 145,
+        "workflowId": "oAutYB68sxicWzZZ",
+        "versionId": "04794c4a-e95a-4946-9de2-5d8e91da43e6",
+        "event": "deactivated",
+        "userId": "e8637f1f-2082-4adb-a3e6-0cf6b147f4e2"
+      }
+    ]
+  },
+  "_warning": "REVIEW AND STATIC-TEST ONLY. Credential bindings have been stripped so this file is safe to commit. Do NOT PUT this JSON: it would unbind Resend and Google Sheets from 6 nodes. Apply welcome-node.jsCode.js and recipe-node.jsCode.js on top of a fresh live export instead — see APPLY.md."
+}

@@ -1,0 +1,38 @@
+# checkbox-flip.patch — DO NOT APPLY YET
+#
+# Flips the calculator's marketing-consent copy to promise the label sheet, in both
+# checkbox instances (gap D).
+#
+#   git apply n8n/republish-2026-08/checkbox-flip.patch
+#
+# APPLY ONLY AFTER:
+#   1. the August republish is live in n8n, AND
+#   2. the welcome flow has been re-verified by a real signup (APPLY.md step 5),
+#      including that the recipe email actually carries the utility line.
+#
+# Until the recipe email ships the labels to everyone, this copy promises something the
+# product does not deliver — which is the exact dishonesty the republish exists to fix.
+# Staged 2026-08-06, deliberately not committed as a live edit to main.
+#
+diff --git a/src/components/Calculator.astro b/src/components/Calculator.astro
+index 4233f64..d36468f 100644
+--- a/src/components/Calculator.astro
++++ b/src/components/Calculator.astro
+@@ -338,7 +338,7 @@ const recipeTiles = cocktailsData.cocktails
+           </div>
+           <label class="flex items-center gap-2 mt-2.5 text-xs text-cognac-500 cursor-pointer select-none">
+             <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
+-            <span>Also send me Cold Open — one make-ahead recipe and a hosting timeline, monthly.</span>
++            <span>Also send me Cold Open — one make-ahead recipe and a hosting timeline, monthly, plus the free printable label sheet.</span>
+           </label>
+           <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+             Leave this field empty
+@@ -1260,7 +1260,7 @@ const recipeTiles = cocktailsData.cocktails
+             </div>
+           <label class="flex items-center gap-2 mt-2.5 text-xs text-cognac-500 cursor-pointer select-none">
+             <input type="checkbox" name="subscribe" class="w-3.5 h-3.5 text-accent-500 border-cognac-300 rounded focus:ring-accent-500" />
+-            <span>Also send me Cold Open — one make-ahead recipe and a hosting timeline, monthly.</span>
++            <span>Also send me Cold Open — one make-ahead recipe and a hosting timeline, monthly, plus the free printable label sheet.</span>
+           </label>
+           <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+             Leave this field empty

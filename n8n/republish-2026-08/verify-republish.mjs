@@ -1,0 +1,108 @@
+// Proves the proposed workflow is safe to apply, without touching n8n.
+//
+//   node n8n/republish-2026-08/verify-republish.mjs
+//
+// 1. Executes the generated welcome build node with NO postal address -> must throw.
+// 2. Executes it with an address -> must produce html + text carrying every required link.
+// 3. Asserts the recipe node carries the utility line and still returns a subject.
+// 4. Runs the repo's real static test unmodified against proposed-workflow.json.
+
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO = path.join(HERE, '..', '..');
+const PROPOSED = path.join(HERE, "proposed-workflow.REVIEW-ONLY.json");
+
+const wf = JSON.parse(fs.readFileSync(PROPOSED, 'utf8'));
+const node = (name) => {
+  const n = wf.nodes.find((x) => x.name === name);
+  assert.ok(n, `node present: ${name}`);
+  return n;
+};
+
+const welcomeCode = node('Build Newsletter Double Opt-In Confirmation').parameters.jsCode;
+const recipeCode = node('Build Transactional Recipe Email').parameters.jsCode;
+
+const run = (code, input) => new Function('$input', code)({ first: () => ({ json: input }) });
+const SAMPLE = { email: 'someone@example.com', requestId: 'req-verify' };
+
+let passed = 0;
+const ok = (label) => { console.log(`  PASS  ${label}`); passed++; };
+
+// ── 1. fail closed with no postal address ───────────────────────────────────
+assert.match(welcomeCode, /"\{\{POSTAL_ADDRESS\}\}": ""/, 'address is currently empty in the built node');
+assert.throws(() => run(welcomeCode, SAMPLE), /postal address/i, 'refuses to send without an address');
+ok('welcome node refuses to send with no postal address (CAN-SPAM guard)');
+
+// ── 2. succeeds once the address is filled ──────────────────────────────────
+const TEST_ADDRESS = 'PO Box 000, Anytown ST 00000';
+const filled = welcomeCode.replace('"{{POSTAL_ADDRESS}}": ""', `"{{POSTAL_ADDRESS}}": ${JSON.stringify(TEST_ADDRESS)}`);
+assert.notEqual(filled, welcomeCode, 'address substitution applied');
+
+const out = run(filled, SAMPLE);
+const j = out[0].json;
+
+assert.equal(j.subject, 'Your free label sheet is inside');
+ok(`welcome subject is ${JSON.stringify(j.subject)}`);
+
+assert.equal(j.html.match(/\{\{[^}]*\}\}/g), null, 'no unresolved tokens in html');
+ok('no unresolved merge tokens survive');
+
+for (const [label, needle] of [
+  ['label sheet URL', '/downloads/fbc-bottle-labels.pdf'],
+  ['timing sheet URL', '/downloads/fbc-batch-timing.pdf'],
+  ['unsubscribe link', '/unsubscribe'],
+  ['postal address', TEST_ADDRESS],
+  ['"Before you print" block', 'Before you print'],
+]) {
+  assert.ok(j.html.includes(needle), `html carries the ${label}`);
+  ok(`html carries the ${label}`);
+}
+for (const [label, needle] of [
+  ['label sheet URL', '/downloads/fbc-bottle-labels.pdf'],
+  ['timing sheet URL', '/downloads/fbc-batch-timing.pdf'],
+  ['postal address', TEST_ADDRESS],
+]) {
+  assert.ok(j.text.includes(needle), `text alternative carries the ${label}`);
+  ok(`text alternative carries the ${label}`);
+}
+
+assert.ok(!j.html.includes('<img'), 'no image row yet (waits on the Negroni photo)');
+ok('no image row (still waiting on the photo)');
+assert.ok(!j.html.includes('PREFERENCES'), 'no preferences link');
+ok('no preferences link (no such page exists)');
+assert.ok(j.html.length < 100_000, `html is ${j.html.length} bytes, under the 100KB Gmail clip`);
+ok(`html is ${j.html.length} bytes (under Gmail's 100KB clip)`);
+assert.deepEqual(Object.keys(j).filter((k) => !['html', 'text', 'subject'].includes(k)).sort(), ['email', 'requestId']);
+ok('passthrough keys preserved for the Resend node');
+
+// ── 3. recipe node ──────────────────────────────────────────────────────────
+assert.ok(recipeCode.includes('Print the free labels'), 'recipe node carries the utility line');
+ok('recipe node carries "Print the free labels"');
+assert.ok(recipeCode.includes('fbc-bottle-labels.pdf'), 'utility line links the label sheet');
+ok('utility line links the label sheet');
+assert.ok(/Glasses in the freezer an hour before guests/.test(recipeCode), '3-step timeline present');
+ok('recipe node carries the 3-step timeline');
+assert.ok(/subject: `Your \$\{recipeNamePlain\} recipe`/.test(recipeCode), 'recipe subject unchanged');
+ok('recipe subject unchanged');
+
+// ── 4. the repo's real static test, unmodified, against the proposed JSON ───
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fbc-static-'));
+fs.copyFileSync(path.join(REPO, 'n8n', 'FreezerBatchCocktails-v2.static-test.mjs'), path.join(tmp, 'test.mjs'));
+fs.copyFileSync(PROPOSED, path.join(tmp, 'FreezerBatchCocktails-v2.json'));
+try {
+  execFileSync(process.execPath, [path.join(tmp, 'test.mjs')], { stdio: 'pipe' });
+  ok('repo static test passes against proposed-workflow.json');
+} catch (err) {
+  console.error('  FAIL  static test:', err.stdout?.toString(), err.stderr?.toString());
+  process.exit(1);
+} finally {
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+console.log(`\n${passed} checks passed. Nothing was sent to n8n.`);
