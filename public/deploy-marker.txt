@@ -1,0 +1,5 @@
+deploy-marker: 2026-08-06 webhook-secret rotation redeploy
+
+This file makes deployments observable. The site answers 200 text/html for missing
+paths, so a new path serving 200 text/plain with this exact content proves the latest
+deployment is live. Update the first line when a deploy must be verified.
