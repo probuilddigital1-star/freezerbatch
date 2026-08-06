@@ -92,12 +92,23 @@ assert.ok(/subject: `Your \$\{recipeNamePlain\} recipe`/.test(recipeCode), 'reci
 ok('recipe subject unchanged');
 
 // ── 4. the repo's real static test, unmodified, against the proposed JSON ───
+// The static test executes the welcome node, so it needs an address to render at all —
+// check 1 above already proved the empty-address build refuses to send. Inject the same
+// placeholder here so this step measures structure, not the guard.
+const forStatic = JSON.parse(fs.readFileSync(PROPOSED, 'utf8'));
+delete forStatic._warning;
+const sw = forStatic.nodes.find((n) => n.name === 'Build Newsletter Double Opt-In Confirmation');
+sw.parameters.jsCode = sw.parameters.jsCode.replace(
+  '"{{POSTAL_ADDRESS}}": ""',
+  `"{{POSTAL_ADDRESS}}": ${JSON.stringify(TEST_ADDRESS)}`,
+);
+
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fbc-static-'));
 fs.copyFileSync(path.join(REPO, 'n8n', 'FreezerBatchCocktails-v2.static-test.mjs'), path.join(tmp, 'test.mjs'));
-fs.copyFileSync(PROPOSED, path.join(tmp, 'FreezerBatchCocktails-v2.json'));
+fs.writeFileSync(path.join(tmp, 'FreezerBatchCocktails-v2.json'), JSON.stringify(forStatic, null, 2));
 try {
   execFileSync(process.execPath, [path.join(tmp, 'test.mjs')], { stdio: 'pipe' });
-  ok('repo static test passes against proposed-workflow.json');
+  ok("repo static test passes against the proposed workflow (placeholder address)");
 } catch (err) {
   console.error('  FAIL  static test:', err.stdout?.toString(), err.stderr?.toString());
   process.exit(1);

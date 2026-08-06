@@ -200,23 +200,83 @@ function renderWelcome(nodeName) {
   return run({ first: () => ({ json: { email: 'person@example.com', requestId: 'req-1' } }) })[0].json;
 }
 
+// The two welcome emails are no longer the same design and must not be asserted as if
+// they were. The newsletter welcome was rebuilt as Cold Open and published 2026-08-01;
+// the recipe-consent welcome still carries the original. The previous shared loop
+// required them to stay identical, so when one was republished this file kept passing
+// against a stale snapshot while failing against production — undetected for five days.
+
+// Invariants both must hold, whatever the design.
 for (const welcomeName of [
   'Build Newsletter Double Opt-In Confirmation',
   'Build Recipe Double Opt-In Confirmation',
 ]) {
   const welcome = renderWelcome(welcomeName);
-  assert.equal(welcome.subject, 'Welcome to Freezer Batch Cocktails', `${welcomeName} sends the welcome subject`);
-  assert.match(welcome.html, /Welcome to the newsletter/, `${welcomeName} welcomes instead of asking to confirm`);
   assert.doesNotMatch(welcome.html, /pending|confirm/i, `${welcomeName} drops all confirmation language`);
   assert.doesNotMatch(welcome.text, /pending|confirm/i, `${welcomeName} plain text drops confirmation language`);
-  // Branding, apex-host links, unsubscribe, and the text alternative survive the rewrite.
-  assert.match(welcome.html, /#171411/, `${welcomeName} keeps the dark background`);
-  assert.match(welcome.html, /#d7b46a/, `${welcomeName} keeps the brass accent`);
-  assert.match(welcome.html, /https:\/\/freezerbatchcocktails\.com\/cocktails/, `${welcomeName} links the apex host`);
   assert.match(welcome.html, /https:\/\/freezerbatchcocktails\.com\/unsubscribe/, `${welcomeName} keeps the unsubscribe link`);
   assert.ok(welcome.text.length > 0, `${welcomeName} keeps a plain-text alternative`);
   assert.match(welcome.text, /Unsubscribe: https:\/\/freezerbatchcocktails\.com\/unsubscribe/, `${welcomeName} text keeps unsubscribe`);
   assert.doesNotMatch(welcome.subject, /[\r\n]/, `${welcomeName} subject stays header-safe`);
+  assert.equal(welcome.html.match(/\{\{[^}]*\}\}/g), null, `${welcomeName} leaves no unresolved merge tokens`);
+  assert.ok(welcome.html.length < 100_000, `${welcomeName} stays under Gmail's 100KB clip`);
+}
+
+// Newsletter welcome — Cold Open design, live since 2026-08-01.
+const newsletterWelcome = renderWelcome('Build Newsletter Double Opt-In Confirmation');
+
+// Two subjects are accepted because a republish is staged and not yet applied: this file
+// is run both against the committed snapshot (current live) and against the package's
+// proposed workflow. Listing both beats a single value that breaks the hour the republish
+// lands. Once it is live, run n8n/refresh-workflow-snapshot.mjs and delete the stale entry
+// — leaving both here permanently would let the subject silently regress.
+const ACCEPTED_WELCOME_SUBJECTS = [
+  "You're in — your label sheet is inside", // live since 2026-08-01
+  'Your free label sheet is inside', // staged in n8n/republish-2026-08/
+];
+assert.ok(
+  ACCEPTED_WELCOME_SUBJECTS.includes(newsletterWelcome.subject),
+  `newsletter welcome subject must be one of the accepted Cold Open subjects, got ${JSON.stringify(newsletterWelcome.subject)}`,
+);
+// Title case in the markup; the uppercase is text-transform, so assert the markup.
+assert.match(newsletterWelcome.html, />Cold Open</, 'newsletter welcome carries the Cold Open masthead');
+assert.match(newsletterWelcome.html, />By FBC</, 'newsletter welcome carries the By FBC lockup');
+assert.match(newsletterWelcome.html, /#0c0a08/, 'newsletter welcome uses the Study background');
+assert.match(newsletterWelcome.html, /#c8a55c/, 'newsletter welcome uses the Study brass');
+assert.match(
+  newsletterWelcome.html,
+  /https:\/\/freezerbatchcocktails\.com\/downloads\/fbc-bottle-labels\.pdf/,
+  'newsletter welcome delivers the label sheet, which is what it promises',
+);
+assert.doesNotMatch(newsletterWelcome.html, /<img/, 'newsletter welcome has no image row until the photo exists'); // republish: still true
+assert.doesNotMatch(newsletterWelcome.html, /PREFERENCES_URL|Email preferences/, 'no preferences link: no such page exists');
+
+// Recipe-consent welcome — original design, deliberately untouched by the Cold Open work.
+const recipeWelcome = renderWelcome('Build Recipe Double Opt-In Confirmation');
+assert.equal(recipeWelcome.subject, 'Welcome to Freezer Batch Cocktails', 'recipe-consent welcome keeps its subject');
+assert.match(recipeWelcome.html, /Welcome to the newsletter/, 'recipe-consent welcome welcomes instead of asking to confirm');
+assert.match(recipeWelcome.html, /#171411/, 'recipe-consent welcome keeps the original dark background');
+assert.match(recipeWelcome.html, /#d7b46a/, 'recipe-consent welcome keeps the original brass accent');
+assert.match(recipeWelcome.html, /https:\/\/freezerbatchcocktails\.com\/cocktails/, 'recipe-consent welcome links the apex host');
+
+// No committed artifact may carry a literal secret. The live "Authorize and Normalize
+// Request" node hardcodes the webhook secret because this n8n plan has no Variables
+// feature; n8n/refresh-workflow-snapshot.mjs redacts it to an $env reference on the way in.
+const authorize = workflow.nodes.find((n) => n.name === 'Authorize and Normalize Request');
+assert.ok(authorize, 'Authorize and Normalize Request exists');
+assert.match(
+  authorize.parameters.jsCode,
+  /const expectedSecret = \$env\.N8N_WEBHOOK_SECRET;/,
+  'the committed snapshot binds the webhook secret by name, never by value',
+);
+for (const n of workflow.nodes) {
+  const code = n.parameters?.jsCode;
+  if (!code) continue;
+  assert.doesNotMatch(
+    code,
+    /\b(expectedSecret|apiKey|api_key|token|password)\s*=\s*['"][^'"]{12,}['"]/,
+    `${n.name} contains no literal secret`,
+  );
 }
 
 console.log('n8n v2 graph, recipe-email, and single opt-in static checks: pass');

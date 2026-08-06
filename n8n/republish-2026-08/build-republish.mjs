@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { redactNode, assertNoSecrets } from '../redact-workflow-secrets.mjs';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  THE ONE FILL-IN. Put the physical mailing address here and re-run.
@@ -209,17 +210,38 @@ fs.writeFileSync(path.join(HERE, 'recipe-node.jsCode.js'), recipe.parameters.jsC
 // live export being written here). Stripping makes the file safe to commit and safe to
 // static-test — and unsafe to PUT, since PUTting it would unbind Resend and Google Sheets
 // from six nodes. Hence the filename and the _warning key.
-const review = JSON.parse(JSON.stringify(proposed));
+// Whitelist the top level to the same shape the committed snapshot uses. A live API
+// response also carries `activeVersion` — a complete nested copy of the published
+// workflow, i.e. a SECOND copy of every node and therefore of the hardcoded secret —
+// plus `shared` (owner records) and instance metadata. Copying the response wholesale
+// and only cleaning `nodes` leaks all of it, which is exactly what happened in fdecbf5.
+const KEEP_TOP = ['name', 'nodes', 'pinData', 'connections', 'active', 'settings', 'versionId', 'meta', 'tags'];
+const KEEP_NODE = ['parameters', 'id', 'name', 'type', 'typeVersion', 'position'];
+
+const review = {};
+for (const k of KEEP_TOP) review[k] = JSON.parse(JSON.stringify(proposed[k] ?? null));
+review.active = false;
+review.versionId = null;
+review.meta = { templateCredsSetupCompleted: false };
+review.pinData = review.pinData ?? {};
+review.tags = review.tags ?? [];
+
 let stripped = 0;
-for (const n of review.nodes) {
-  if (n.credentials) { delete n.credentials; stripped++; }
-}
+review.nodes = proposed.nodes.map((src) => {
+  if (src.credentials) stripped++;
+  const n = {};
+  for (const k of KEEP_NODE) if (k in src) n[k] = JSON.parse(JSON.stringify(src[k]));
+  // The live workflow hardcodes the webhook secret in a code node — redact before commit.
+  return redactNode(n);
+});
 review._warning =
   'REVIEW AND STATIC-TEST ONLY. Credential bindings have been stripped so this file is safe ' +
   'to commit. Do NOT PUT this JSON: it would unbind Resend and Google Sheets from ' +
   stripped + ' nodes. Apply welcome-node.jsCode.js and recipe-node.jsCode.js on top of a ' +
   'fresh live export instead — see APPLY.md.';
-fs.writeFileSync(path.join(HERE, 'proposed-workflow.REVIEW-ONLY.json'), JSON.stringify(review, null, 2));
+const reviewSerialised = JSON.stringify(review, null, 2);
+assertNoSecrets(reviewSerialised, 'proposed-workflow.REVIEW-ONLY.json');
+fs.writeFileSync(path.join(HERE, 'proposed-workflow.REVIEW-ONLY.json'), reviewSerialised);
 console.log(`\n  credential bindings stripped from ${stripped} nodes for the committed review copy`);
 
 console.log('\n=== node-level diff ===');
