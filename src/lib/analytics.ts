@@ -11,6 +11,9 @@
  *   payload; ingredient names and email addresses must never reach this module.
  * - Never break the feature. `track` swallows every error: analytics failures
  *   must not affect calculator, share, or form behavior.
+ * - Session replay runs with every input masked, so a typed value cannot reach
+ *   PostHog through a recording any more than it can through `track`. Page text
+ *   stays visible on purpose: the point is to see what people read and tap.
  *
  * Nothing outside this module imports `posthog-js` directly.
  */
@@ -186,7 +189,13 @@ export async function initAnalytics(options: InitOptions = {}): Promise<void> {
         capture_pageview: true,
         persistence: 'memory',
         person_profiles: 'identified_only',
-        disable_session_recording: true,
+        // Replay is on to diagnose where visitors drop out — mobile completes the
+        // calculator but converts on nothing downstream. Inputs are masked so a
+        // subscriber's email can never land in a recording; text is deliberately
+        // left visible, because we need to see what people read and tap.
+        session_recording: { maskAllInputs: true },
+        // Error autocapture: an uncaught script failure is otherwise invisible.
+        capture_exceptions: true,
       });
       client = posthog as unknown as AnalyticsClient;
     }
