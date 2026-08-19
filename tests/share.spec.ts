@@ -35,7 +35,7 @@ async function fillIngredient(
   ingredient: { name: string; amount: string; abv: string },
 ) {
   const row = page.locator('.ingredient-row').nth(index);
-  await row.getByPlaceholder('Ingredient name').fill(ingredient.name);
+  await row.getByPlaceholder('Ingredient').fill(ingredient.name);
   await row.getByPlaceholder('2').fill(ingredient.amount);
   await row.getByPlaceholder('40').fill(ingredient.abv);
 }
@@ -124,7 +124,7 @@ test.describe('versioned calculator shares', () => {
     await expect(page.getByRole('status')).toContainText('Shared recipe loaded');
     await expect(page.getByRole('button', { name: 'Custom' })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('.ingredient-row')).toHaveCount(2);
-    await expect(page.locator('.ingredient-row').nth(0).getByPlaceholder('Ingredient name')).toHaveValue('Rye Whiskey');
+    await expect(page.locator('.ingredient-row').nth(0).getByPlaceholder('Ingredient')).toHaveValue('Rye Whiskey');
     await expect(page.locator('#bottle-size')).toHaveValue('900');
     await expect(page.locator('.unit-btn[data-unit="ml"]')).toHaveAttribute('aria-checked', 'true');
     await expect(page.locator('.dilution-btn[data-dilution="25"]')).toHaveAttribute('aria-checked', 'true');
@@ -183,7 +183,7 @@ test.describe('versioned calculator shares', () => {
     });
 
     await page.goto(`/?batch=${encodeURIComponent(batch)}#calculator`);
-    await expect(page.locator('.ingredient-row').first().getByPlaceholder('Ingredient name')).toHaveValue(payload);
+    await expect(page.locator('.ingredient-row').first().getByPlaceholder('Ingredient')).toHaveValue(payload);
     await expect(page.locator('#composition-bar').getByText(payload, { exact: true })).toBeVisible();
     await expect(page.locator('batch-calculator img')).toHaveCount(0);
     await expect.poll(
@@ -225,7 +225,7 @@ test.describe('versioned calculator shares', () => {
     await page.goto(`/?ingredients=${encodeURIComponent(ingredients)}&bottle=800&dilution=20#calculator`);
     await expect(page.getByRole('status')).toContainText('Shared recipe loaded');
     await expect(page.getByRole('button', { name: 'Custom' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('.ingredient-row').nth(0).getByPlaceholder('Ingredient name')).toHaveValue('Gin');
+    await expect(page.locator('.ingredient-row').nth(0).getByPlaceholder('Ingredient')).toHaveValue('Gin');
     await expect(page.locator('#bottle-size')).toHaveValue('800');
     await expect(page.locator('#final-abv')).not.toHaveText('0');
   });

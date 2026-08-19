@@ -9,10 +9,10 @@ test.describe('custom ingredient DOM safety', () => {
     await page.getByRole('button', { name: 'Custom' }).click();
 
     const rows = page.locator('.ingredient-row');
-    await rows.nth(0).getByPlaceholder('Ingredient name').fill(imagePayload);
+    await rows.nth(0).getByPlaceholder('Ingredient').fill(imagePayload);
     await rows.nth(0).getByPlaceholder('2').fill('1');
     await rows.nth(0).getByPlaceholder('40').fill('40');
-    await rows.nth(1).getByPlaceholder('Ingredient name').fill(attributePayload);
+    await rows.nth(1).getByPlaceholder('Ingredient').fill(attributePayload);
     await rows.nth(1).getByPlaceholder('2').fill('1');
     await rows.nth(1).getByPlaceholder('40').fill('10');
 
@@ -34,7 +34,7 @@ test.describe('custom ingredient DOM safety', () => {
     await page.getByRole('button', { name: 'Custom' }).click();
 
     const firstRow = page.locator('.ingredient-row').first();
-    await expect(firstRow.getByPlaceholder('Ingredient name')).toHaveAttribute('maxlength', '60');
+    await expect(firstRow.getByPlaceholder('Ingredient')).toHaveAttribute('maxlength', '60');
     await expect(firstRow.getByPlaceholder('2')).toHaveAttribute('min', '0.01');
     await expect(firstRow.getByPlaceholder('2')).toHaveAttribute('max', '100');
     await expect(firstRow.getByPlaceholder('40')).toHaveAttribute('min', '0');
@@ -58,13 +58,13 @@ test.describe('custom ingredient DOM safety', () => {
     await page.getByRole('button', { name: 'Custom' }).click();
 
     const rows = page.locator('.ingredient-row');
-    await rows.nth(0).getByPlaceholder('Ingredient name').fill('Gin');
+    await rows.nth(0).getByPlaceholder('Ingredient').fill('Gin');
     await rows.nth(0).getByPlaceholder('2').fill('1');
     await rows.nth(0).getByPlaceholder('40').fill('40');
 
     const rejectedName = 'Out of range';
     const rejectedRow = rows.nth(1);
-    await rejectedRow.getByPlaceholder('Ingredient name').fill(rejectedName);
+    await rejectedRow.getByPlaceholder('Ingredient').fill(rejectedName);
     await rejectedRow.getByPlaceholder('40').fill('10');
     await rejectedRow.getByPlaceholder('2').fill('101');
     await expect(page.locator('#composition-bar').getByText(rejectedName, { exact: true })).toHaveCount(0);
@@ -74,7 +74,7 @@ test.describe('custom ingredient DOM safety', () => {
     await expect(page.locator('#composition-bar').getByText(rejectedName, { exact: true })).toHaveCount(0);
 
     await rejectedRow.getByPlaceholder('40').fill('10');
-    await rejectedRow.getByPlaceholder('Ingredient name').evaluate((input, value) => {
+    await rejectedRow.getByPlaceholder('Ingredient').evaluate((input, value) => {
       const field = input as HTMLInputElement;
       field.value = value;
       field.dispatchEvent(new Event('input', { bubbles: true }));

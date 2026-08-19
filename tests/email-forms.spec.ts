@@ -125,6 +125,26 @@ test.describe('same-origin email forms', () => {
     await expect(unsubscribe.locator('button[type="submit"]')).toBeEnabled();
   });
 
+  test('custom-mode recipe email with no valid ingredients is blocked client-side', async ({ page }) => {
+    // Regression coverage for the 2026-08-19 session: names-only ingredient
+    // rows produce an empty recipe, which the API correctly 400s — so the
+    // client must refuse to send it and say what is missing instead.
+    await enableMockTurnstile(page);
+    const requests = await mockEmailApi(page, [{ status: 202 }]);
+    await page.goto('/');
+
+    await page.click('[data-mode="custom"]');
+    await page.locator('.ingredient-row [name="name"]').first().fill('Fireball');
+
+    const form = page.locator('#email-recipe-form');
+    await form.locator('input[type="email"]').fill('person@example.com');
+    await form.locator('button[type="submit"]').click();
+
+    await expect(form.getByRole('status')).toContainText('Add your ingredients first');
+    // The request must never leave the browser.
+    expect(requests).toHaveLength(0);
+  });
+
   test('maps API errors accessibly and prevents duplicate requests', async ({ page }) => {
     for (const [status, code, message] of [
       [400, 'invalid_request', 'Please check the form and try again.'],

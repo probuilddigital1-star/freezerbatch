@@ -359,7 +359,7 @@ const recipeTiles = cocktailsData.cocktails
     <div class="grid grid-cols-12 gap-2 items-center">
       <input
         type="text"
-        placeholder="Ingredient name"
+        placeholder="Ingredient"
         class="col-span-5 input-field py-2 text-sm border-0 bg-white/80"
         name="name"
         maxlength="60"
@@ -1519,8 +1519,28 @@ const recipeTiles = cocktailsData.cocktails
 
       if (statusEl) statusEl.className = 'p-4 rounded-lg border-2 mb-6 status-empty';
       if (statusIcon) statusIcon.textContent = '·';
-      if (statusLabel) statusLabel.textContent = 'Waiting for ingredients';
-      if (statusMessage) statusMessage.textContent = 'Aim for around 22% ABV or higher to keep the batch pourable in the freezer.';
+      // A named ingredient with no amount/ABV is someone mid-task, not an empty
+      // form. Observed 2026-08-19: a visitor typed two names, got zeros and the
+      // neutral copy below, and rage-tapped the results for two minutes. Tell
+      // them what is missing instead.
+      if (this.hasIncompleteIngredientRows()) {
+        if (statusLabel) statusLabel.textContent = 'Add an amount for each ingredient';
+        if (statusMessage) statusMessage.textContent = 'Every ingredient needs an amount (in parts) and an ABV % — then the batch calculates itself.';
+      } else {
+        if (statusLabel) statusLabel.textContent = 'Waiting for ingredients';
+        if (statusMessage) statusMessage.textContent = 'Aim for around 22% ABV or higher to keep the batch pourable in the freezer.';
+      }
+    }
+
+    /** A row the visitor has started (named) but that cannot yet be calculated. */
+    private hasIncompleteIngredientRows(): boolean {
+      return Array.from(this.querySelectorAll('.ingredient-row')).some((row) => {
+        const name = (row.querySelector('[name="name"]') as HTMLInputElement | null)?.value.trim() || '';
+        if (!name) return false;
+        const amount = (row.querySelector('[name="amount"]') as HTMLInputElement | null)?.value.trim() || '';
+        const abv = (row.querySelector('[name="abv"]') as HTMLInputElement | null)?.value.trim() || '';
+        return amount === '' || abv === '';
+      });
     }
 
     /**
@@ -1946,6 +1966,20 @@ const recipeTiles = cocktailsData.cocktails
       const email = emailInput?.value.trim();
       const turnstileToken = form.dataset.turnstileToken;
       if (!email || !turnstileToken || submitBtn?.disabled) return;
+
+      // An empty custom recipe is a guaranteed 400 from the API — the payload
+      // validator requires at least one complete ingredient. Refuse it here
+      // with a message that says what's missing, instead of the generic
+      // server-error copy. (Observed 2026-08-19: names-only rows → submit →
+      // "Please check the form and try again", which explains nothing.)
+      if (this.mode === 'custom' && this.getRecipeIngredients().length === 0) {
+        if (status) {
+          status.textContent = 'Add your ingredients first — each needs a name, an amount, and an ABV %.';
+          status.className = 'email-status mt-2 text-xs text-danger';
+          status.focus();
+        }
+        return;
+      }
       const requestId = this.emailRequestIds.get(form) || crypto.randomUUID();
       this.emailRequestIds.set(form, requestId);
 

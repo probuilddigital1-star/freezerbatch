@@ -608,4 +608,48 @@ test.describe('Freezer Batch Calculator', () => {
       expect(servings).toBeLessThanOrEqual(10);
     });
   });
+
+  test.describe('11. Incomplete custom rows', () => {
+    // Regression coverage for the 2026-08-19 real-user session: ingredient
+    // names typed with no amounts left the results at zero with only the
+    // neutral "Waiting for ingredients" copy, and the visitor rage-tapped
+    // the zeros. Names-only rows must produce an actionable prompt.
+    test('names without amounts prompt for the missing fields', async ({ page }) => {
+      await enterCustomMode(page);
+
+      const rows = page.locator('.ingredient-row');
+      await rows.nth(0).locator('[name="name"]').fill('Fireball');
+      await rows.nth(1).locator('[name="name"]').fill('Apple cider');
+
+      await expect(page.locator('#status-label')).toHaveText('Add an amount for each ingredient');
+
+      // Completing the row resolves the prompt into a real result.
+      await rows.nth(0).locator('[name="amount"]').fill('2');
+      await rows.nth(0).locator('[name="abv"]').fill('33');
+      await expect(page.locator('#status-label')).not.toHaveText('Add an amount for each ingredient');
+      expect(await getFinalABV(page)).toBeGreaterThan(0);
+    });
+  });
+});
+
+// The exact path of the 2026-08-19 phone session, kept at phone width: the
+// homepage preset tiles must produce rendered batch instructions.
+test.describe('Homepage preset on a phone (390x844)', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('tapping a recipe tile renders batch instructions with measurements', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('batch-calculator')).toBeVisible();
+
+    const tile = page.locator('.recipe-tile[data-recipe="negroni"]');
+    await tile.scrollIntoViewIfNeeded();
+    await tile.click();
+
+    const instructions = page.locator('#preset-batch-instructions');
+    await expect(instructions).toBeVisible();
+    await expect(instructions).toContainText('Negroni');
+    await expect(instructions).toContainText('Gin');
+    // A concrete measurement, not just the shell: some "N oz" or "N ml" figure.
+    await expect(instructions.locator('text=/\\d+(\\.\\d+)?\\s*(oz|ml)/').first()).toBeVisible();
+  });
 });

@@ -65,7 +65,7 @@ test.describe('A8 adversarial share verification', () => {
     await page.goto(`/?batch=${encodeURIComponent(batch)}#calculator`);
 
     await expect(page.getByRole('status')).toContainText('Shared recipe loaded');
-    await expect(page.locator('.ingredient-row').first().getByPlaceholder('Ingredient name')).toHaveValue(
+    await expect(page.locator('.ingredient-row').first().getByPlaceholder('Ingredient')).toHaveValue(
       scriptPayload,
     );
     await expect(page.locator('#composition-bar').getByText(scriptPayload, { exact: true })).toBeVisible();
@@ -118,7 +118,7 @@ test.describe('A8 adversarial share verification', () => {
     await page.goto(`/?ingredients=${encodeURIComponent(ingredients)}&bottle=800&dilution=20#calculator`);
     await expect(page.getByRole('status')).toContainText('Shared recipe loaded');
     await expect(page.getByRole('button', { name: 'Custom' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('.ingredient-row').first().getByPlaceholder('Ingredient name')).toHaveValue('Gin');
+    await expect(page.locator('.ingredient-row').first().getByPlaceholder('Ingredient')).toHaveValue('Gin');
     await expect(page.locator('#bottle-size')).toHaveValue('800');
     await expect(page.locator('#final-abv')).not.toHaveText('0');
   });

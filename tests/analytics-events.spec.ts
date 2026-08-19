@@ -276,7 +276,7 @@ test.describe('analytics events', () => {
 
     await page.getByRole('button', { name: 'Custom' }).click();
     const rows = page.locator('.ingredient-row');
-    await rows.nth(0).getByPlaceholder('Ingredient name').fill('person@example.com');
+    await rows.nth(0).getByPlaceholder('Ingredient').fill('person@example.com');
     await rows.nth(0).getByPlaceholder('2').fill('2');
     await rows.nth(0).getByPlaceholder('40').fill('40');
     await expect(page.locator('#final-abv')).not.toHaveText('0');
