@@ -61,13 +61,21 @@ Reserved names for later phases (do not implement now): `plan_saved`, `host_mode
   settled, landing ahead of `$pageview` and stamping the page load's first event
   `$recording_status: disabled`. `auto` remains a legacy value in data captured before
   this date; every analysis already filtered to `trigger = 'user'`, so none were affected.
-- **2026-08-19 — persistence changed from `memory` to `localStorage`.** `memory` reset
-  identity on every navigation, and this is a static site where every navigation is a full
-  load: one visitor was counted as many, replays fragmented into one recording per
-  pageview, and retention and cross-page funnels were unmeasurable. First-party
-  localStorage only — deliberately **not** `localStorage+cookie`, so nothing is attached to
-  a request. Every device gets one fresh identity at the deploy, which is the analysis
-  boundary for any before/after comparison.
+- **2026-08-19 — persistence tried as `localStorage`, reverted the same day.** `memory`
+  reset identity on every navigation (a static site, so every navigation is a full load):
+  one visitor counted as many, replays fragmented into one recording per pageview, and
+  retention and cross-page funnels unmeasurable. `localStorage` fixed exactly that —
+  verified in production, one `$device_id` and one `$session_id` across a three-page
+  visit, and one 48-second recording spanning all three pages. **But it broke event
+  delivery.** Only `$pageleave` arrived; `$pageview`, `$web_vitals`, `calculator_started`
+  and `result_completed` were captured and silently never sent. `$pageleave` is the one
+  event posthog-js sends via `sendBeacon` rather than the batched `/e/` queue, and no `/e/`
+  request was made in 60+ seconds on an open page, while replay `/s/` snapshots kept
+  flowing. Ruled out: client rate limiting (99/100 tokens), project quota (volumes are
+  4–101 events/day), opt-out state (no `__ph_opt_in_out_` key), a stuck retry queue, bot
+  classification (`Regular`, `$virt_is_bot` false), and ingestion lag. Root cause inside
+  posthog-js is still unknown. Identity fragmentation is the accepted lesser defect until
+  it is understood; reproduce with `debug: true` and watch for `/e/` before retrying.
 
 `unsubscribe` is deliberately **not** tracked — negligible analytical value, disproportionate privacy sensitivity.
 
@@ -77,7 +85,7 @@ Reserved names for later phases (do not implement now): `plan_saved`, `host_mode
 
 `src/lib/analytics.ts`:
 
-- `initAnalytics()` — no-op unless `import.meta.env.PUBLIC_POSTHOG_KEY` exists and DNT is unset; loads `posthog-js` async with `autocapture: false`, `capture_pageview: true`, `persistence: 'localStorage'`, `person_profiles: 'identified_only'`, host from `PUBLIC_POSTHOG_HOST`.
+- `initAnalytics()` — no-op unless `import.meta.env.PUBLIC_POSTHOG_KEY` exists and DNT is unset; loads `posthog-js` async with `autocapture: false`, `capture_pageview: true`, `persistence: 'memory'`, `person_profiles: 'identified_only'`, host from `PUBLIC_POSTHOG_HOST`.
 - `track(event: string, props?: Record<string, string | number | boolean>)` — safe wrapper: silently no-ops if PostHog absent/failed. All call sites use this; nothing imports posthog directly.
 - Unit tests: no-op without key; no-op under DNT; track forwards name+props; property values restricted to primitives.
 
