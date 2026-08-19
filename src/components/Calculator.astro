@@ -1519,28 +1519,70 @@ const recipeTiles = cocktailsData.cocktails
 
       if (statusEl) statusEl.className = 'p-4 rounded-lg border-2 mb-6 status-empty';
       if (statusIcon) statusIcon.textContent = '·';
-      // A named ingredient with no amount/ABV is someone mid-task, not an empty
-      // form. Observed 2026-08-19: a visitor typed two names, got zeros and the
-      // neutral copy below, and rage-tapped the results for two minutes. Tell
-      // them what is missing instead.
-      if (this.hasIncompleteIngredientRows()) {
-        if (statusLabel) statusLabel.textContent = 'Add an amount for each ingredient';
-        if (statusMessage) statusMessage.textContent = 'Every ingredient needs an amount (in parts) and an ABV % — then the batch calculates itself.';
+      // A named ingredient that doesn't calculate is someone mid-task, not an
+      // empty form. Observed twice on 2026-08-19: names with no amounts, and —
+      // worse — complete rows with ml-scale amounts (750) that the amount<=100
+      // bound silently dropped, leaving zeros and a "waiting" message while
+      // the visitor stared at fields they had filled. Say what is wrong.
+      const problem = this.diagnoseIngredientRows();
+      if (problem) {
+        if (statusLabel) statusLabel.textContent = problem.label;
+        if (statusMessage) statusMessage.textContent = problem.message;
       } else {
         if (statusLabel) statusLabel.textContent = 'Waiting for ingredients';
         if (statusMessage) statusMessage.textContent = 'Aim for around 22% ABV or higher to keep the batch pourable in the freezer.';
       }
     }
 
-    /** A row the visitor has started (named) but that cannot yet be calculated. */
-    private hasIncompleteIngredientRows(): boolean {
-      return Array.from(this.querySelectorAll('.ingredient-row')).some((row) => {
-        const name = (row.querySelector('[name="name"]') as HTMLInputElement | null)?.value.trim() || '';
-        if (!name) return false;
-        const amount = (row.querySelector('[name="amount"]') as HTMLInputElement | null)?.value.trim() || '';
-        const abv = (row.querySelector('[name="abv"]') as HTMLInputElement | null)?.value.trim() || '';
-        return amount === '' || abv === '';
+    /**
+     * Why started ingredient rows aren't calculating, in the order a visitor
+     * can act on: missing fields first, then out-of-range values. Mirrors the
+     * validation in getRecipeIngredients — if that accepts every started row,
+     * this returns null.
+     */
+    private diagnoseIngredientRows(): { label: string; message: string } | null {
+      let missing = false;
+      let badAmount = false;
+      let badAbv = false;
+
+      this.querySelectorAll('.ingredient-row').forEach((row) => {
+        const nameEl = row.querySelector('[name="name"]') as HTMLInputElement | null;
+        const amountEl = row.querySelector('[name="amount"]') as HTMLInputElement | null;
+        const abvEl = row.querySelector('[name="abv"]') as HTMLInputElement | null;
+        const name = nameEl?.value.trim() || '';
+        if (!name) return;
+        const amountValue = amountEl?.value.trim() || '';
+        const abvValue = abvEl?.value.trim() || '';
+        // A number input with unparseable text (e.g. a decimal comma) reads as
+        // '' while the visitor still sees their typing — treat it as invalid,
+        // not missing.
+        if (amountEl?.validity?.badInput) { badAmount = true; }
+        else if (amountValue === '') { missing = true; }
+        else {
+          const amount = Number(amountValue);
+          if (!Number.isFinite(amount) || amount <= 0 || amount > 100) badAmount = true;
+        }
+        if (abvEl?.validity?.badInput) { badAbv = true; }
+        else if (abvValue === '') { missing = true; }
+        else {
+          const abv = Number(abvValue);
+          if (!Number.isFinite(abv) || abv < 0 || abv > 100) badAbv = true;
+        }
       });
+
+      if (missing) return {
+        label: 'Add an amount for each ingredient',
+        message: 'Every ingredient needs an amount (in parts) and an ABV % — then the batch calculates itself.',
+      };
+      if (badAmount) return {
+        label: 'Enter amounts for one drink, not the whole bottle',
+        message: 'Keep each amount at 100 or less — a single drink, like 2 oz (60 ml) of gin. The bottle size scales it up.',
+      };
+      if (badAbv) return {
+        label: 'ABV must be between 0 and 100',
+        message: 'Enter the ABV as a percentage — 40 for a typical spirit, 0 for juice or syrup.',
+      };
+      return null;
     }
 
     /**
@@ -1974,7 +2016,13 @@ const recipeTiles = cocktailsData.cocktails
       // "Please check the form and try again", which explains nothing.)
       if (this.mode === 'custom' && this.getRecipeIngredients().length === 0) {
         if (status) {
-          status.textContent = 'Add your ingredients first — each needs a name, an amount, and an ABV %.';
+          // Never claim fields are missing when the visitor filled them and a
+          // range bound dropped the row (2026-08-19: 750 "ml" in the parts
+          // field) — name the actual problem when we can.
+          const problem = this.diagnoseIngredientRows();
+          status.textContent = problem
+            ? `${problem.label}. ${problem.message}`
+            : 'Add your ingredients first — each needs a name, an amount, and an ABV %.';
           status.className = 'email-status mt-2 text-xs text-danger';
           status.focus();
         }

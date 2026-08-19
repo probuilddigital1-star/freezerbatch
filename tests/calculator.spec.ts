@@ -629,13 +629,66 @@ test.describe('Freezer Batch Calculator', () => {
       await expect(page.locator('#status-label')).not.toHaveText('Add an amount for each ingredient');
       expect(await getFinalABV(page)).toBeGreaterThan(0);
     });
+
+    // Regression coverage for the 2026-08-19 23:28 UTC session: the visitor
+    // switched display units to ml, filled COMPLETE rows with ml-scale
+    // amounts (e.g. 750), and every row was silently dropped by the
+    // amount<=100 bound — zeros, "Waiting for ingredients", and an email
+    // guard insisting fields he had filled were missing.
+    test('bottle-scale amounts get a one-drink explanation instead of silent zeros', async ({ page }) => {
+      await enterCustomMode(page);
+
+      const row = page.locator('.ingredient-row').first();
+      await row.locator('[name="name"]').fill('Vodka');
+      await row.locator('[name="amount"]').fill('750');
+      await row.locator('[name="abv"]').fill('40');
+
+      await expect(page.locator('#status-label')).toHaveText('Enter amounts for one drink, not the whole bottle');
+      expect(await getFinalABV(page)).toBe(0);
+
+      // Correcting to a parts-scale amount computes immediately.
+      await row.locator('[name="amount"]').fill('3');
+      await expect.poll(() => getFinalABV(page)).toBeGreaterThan(0);
+    });
+
+    test('empty custom email submit names the real problem for out-of-range amounts', async ({ page }) => {
+      await enterCustomMode(page);
+      const row = page.locator('.ingredient-row').first();
+      await row.locator('[name="name"]').fill('Vodka');
+      await row.locator('[name="amount"]').fill('750');
+      await row.locator('[name="abv"]').fill('40');
+
+      // The guard must not claim fields are missing when the problem is range.
+      // (Turnstile is absent under this config, so drive the handler directly
+      // through the same submit path the browser uses.)
+      await page.evaluate(() => {
+        const form = document.querySelector('#email-recipe-form') as HTMLFormElement;
+        (form.querySelector('input[type="email"]') as HTMLInputElement).value = 'person@example.com';
+        form.dataset.turnstileToken = 'test-token';
+        // No Turnstile site key under this config, so the button is disabled;
+        // enable it to reach the ingredient guard the way a real session does.
+        (form.querySelector('button[type="submit"]') as HTMLButtonElement).disabled = false;
+        form.requestSubmit();
+      });
+      const status = page.locator('#email-recipe-form .email-status');
+      await expect(status).toContainText('one drink, not the whole bottle');
+    });
   });
 });
 
 // The exact path of the 2026-08-19 phone session, kept at phone width: the
-// homepage preset tiles must produce rendered batch instructions.
+// homepage preset tiles must produce rendered batch instructions. Real touch
+// events (hasTouch + tap), not synthetic clicks.
 test.describe('Homepage preset on a phone (390x844)', () => {
-  test.use({ viewport: { width: 390, height: 844 } });
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+  async function expectInstructions(page: Page, name: string) {
+    const instructions = page.locator('#preset-batch-instructions');
+    await expect(instructions).toBeVisible();
+    await expect(instructions).toContainText(name);
+    // A concrete measurement, not just the shell: some "N oz" or "N ml" figure.
+    await expect(instructions.locator('text=/\\d+(\\.\\d+)?\\s*(oz|ml)/').first()).toBeVisible();
+  }
 
   test('tapping a recipe tile renders batch instructions with measurements', async ({ page }) => {
     await page.goto('/');
@@ -643,13 +696,45 @@ test.describe('Homepage preset on a phone (390x844)', () => {
 
     const tile = page.locator('.recipe-tile[data-recipe="negroni"]');
     await tile.scrollIntoViewIfNeeded();
-    await tile.click();
+    await tile.tap();
+    await expectInstructions(page, 'Negroni');
+    await expect(page.locator('#preset-batch-instructions')).toContainText('Gin');
+  });
 
-    const instructions = page.locator('#preset-batch-instructions');
-    await expect(instructions).toBeVisible();
-    await expect(instructions).toContainText('Negroni');
-    await expect(instructions).toContainText('Gin');
-    // A concrete measurement, not just the shell: some "N oz" or "N ml" figure.
-    await expect(instructions.locator('text=/\\d+(\\.\\d+)?\\s*(oz|ml)/').first()).toBeVisible();
+  test('tile tap still renders after a Custom -> Recipe round trip', async ({ page }) => {
+    // Mode-state interaction: setMode('custom') nulls currentPresetId; a tile
+    // tap after switching back must still load and render.
+    await page.goto('/');
+    await page.locator('.entry-mode-btn[data-mode="custom"]').tap();
+    await expect(page.locator('#custom-recipe-form')).toBeVisible();
+    await page.locator('.entry-mode-btn[data-mode="preset"]').tap();
+    await expect(page.locator('#preset-selector')).toBeVisible();
+
+    const tile = page.locator('.recipe-tile[data-recipe="margarita"]');
+    await tile.scrollIntoViewIfNeeded();
+    await tile.tap();
+    await expectInstructions(page, 'Margarita');
+  });
+
+  test('bottle-size tap after a tile keeps rendered results in sync', async ({ page }) => {
+    await page.goto('/');
+    const tile = page.locator('.recipe-tile[data-recipe="daiquiri"]');
+    await tile.scrollIntoViewIfNeeded();
+    await tile.tap();
+    await expectInstructions(page, 'Daiquiri');
+
+    const oneL = page.locator('.bottle-size-btn[data-size="1000"]');
+    await oneL.scrollIntoViewIfNeeded();
+    await oneL.tap();
+    await expect(page.locator('#preset-batch-instructions')).toContainText('1000ml batch');
+  });
+
+  test('recipe page preset renders on load and tolerates a bottle tap', async ({ page }) => {
+    await page.goto('/cocktails/vesper/');
+    await expectInstructions(page, 'Vesper');
+    const oneL = page.locator('.bottle-size-btn[data-size="375"]');
+    await oneL.scrollIntoViewIfNeeded();
+    await oneL.tap();
+    await expect(page.locator('#preset-batch-instructions')).toContainText('375ml batch');
   });
 });

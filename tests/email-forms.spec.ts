@@ -59,13 +59,15 @@ test.describe('Cold Open capture placement', () => {
     await expect(page.locator('batch-calculator')).toHaveCount(1);
     await expect(page.locator('batch-calculator email-signup-form')).toHaveCount(0);
 
+    // The homepage carries the same full card as recipe pages (swapped from
+    // the footer one-liner 2026-08-19): the offer must name the label sheet.
     await page.goto('/');
     const homeSignup = page.locator('email-signup-form');
     await expect(homeSignup).toHaveCount(1);
-    await expect(homeSignup).toHaveAttribute('data-variant', 'footer');
-    await expect(homeSignup.locator('.cold-open-footer')).toHaveCount(1);
-    await expect(homeSignup.locator('.cold-open-card')).toHaveCount(0);
-    await expect(homeSignup).toContainText('A recipe and a hosting timeline, monthly.');
+    await expect(homeSignup).toHaveAttribute('data-variant', 'card');
+    await expect(homeSignup.locator('.cold-open-card')).toHaveCount(1);
+    await expect(homeSignup.locator('.cold-open-footer')).toHaveCount(0);
+    await expect(homeSignup).toContainText('Get the free label sheet');
   });
 });
 
@@ -140,7 +142,7 @@ test.describe('same-origin email forms', () => {
     await form.locator('input[type="email"]').fill('person@example.com');
     await form.locator('button[type="submit"]').click();
 
-    await expect(form.getByRole('status')).toContainText('Add your ingredients first');
+    await expect(form.getByRole('status')).toContainText('Add an amount for each ingredient');
     // The request must never leave the browser.
     expect(requests).toHaveLength(0);
   });
