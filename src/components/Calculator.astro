@@ -631,8 +631,9 @@ const recipeTiles = cocktailsData.cocktails
     private startedTracked = false;
     private trackedResultKeys = new Set<string>();
     // `result_completed` provenance. `hasInteracted` is deliberately broader than
-    // `startedTracked`: any real input counts, so a result is never mislabelled
-    // `auto`. `nextResultTrigger` is a one-shot override for the hydration path.
+    // `startedTracked`: any real input counts. Getting this wrong now costs the
+    // event outright rather than just mislabelling it, because `auto` results are
+    // dropped. `nextResultTrigger` is a one-shot override for the hydration path.
     private hasInteracted = false;
     private nextResultTrigger: 'shared_link' | null = null;
 
@@ -703,10 +704,16 @@ const recipeTiles = cocktailsData.cocktails
       if (this.isHydrating) return;
       const trigger = this.nextResultTrigger ?? (this.hasInteracted ? 'user' : 'auto');
       this.nextResultTrigger = null;
+      // A preset rendering its own default on page load is not a completion —
+      // nobody asked for it. The `$pageview` on that recipe page already records
+      // the visit, and every analysis filters to `trigger = 'user'` regardless.
+      // It also fired before analytics had initialised, which put it ahead of
+      // `$pageview` and stamped it `$recording_status: disabled`.
+      if (trigger === 'auto') return;
       const recipe = this.mode === 'preset' ? (this.currentPresetId ?? 'unknown') : 'custom';
-      // `trigger` is part of the debounce key on purpose: a recipe page fires `auto`
-      // on load, and the visitor's first real interaction on that same combination
-      // must still produce a `user` event or the activation funnel reads as empty.
+      // `trigger` stays in the debounce key: opening a shared link and then
+      // interacting with that same combination are two distinct events, and the
+      // `user` one must survive or the activation funnel reads as empty.
       const key = `${trigger}|${this.mode}|${recipe}|${this.bottleSizeMl}`;
       if (this.trackedResultKeys.has(key)) return;
       this.trackedResultKeys.add(key);

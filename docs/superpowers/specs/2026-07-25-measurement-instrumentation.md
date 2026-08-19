@@ -35,7 +35,7 @@ Make the repaired acquisition loop observable. After this project we can answer,
 | `$pageview` | built-in, per page load | default PostHog props (URL, referrer, UTM) |
 | `calculator_started` | first meaningful interaction with the calculator per page load (mode toggle, recipe select, or input focus) | `mode`, `page_type` (home/recipe) |
 | `recipe_selected` | preset chosen | `recipe` (slug) |
-| `result_completed` | a valid calculation renders (debounced: once per distinct **trigger**+recipe+bottle+mode combination per page load) | `trigger` (auto/user/shared_link), `mode`, `recipe` (slug or "custom"), `bottle_ml`, `freezer_safe` (bool), `abv_band` (e.g. "20-25", not raw) |
+| `result_completed` | a valid calculation renders **from an interaction or a shared link** (debounced: once per distinct **trigger**+recipe+bottle+mode combination per page load) | `trigger` (user/shared_link), `mode`, `recipe` (slug or "custom"), `bottle_ml`, `freezer_safe` (bool), `abv_band` (e.g. "20-25", not raw) |
 | `share_created` | share URL successfully produced (Web Share invoked or clipboard copy) | `mode`, `method` (webshare/clipboard), `target` (canonical-recipe/homepage-custom) |
 | `share_failed_too_large` | the >1,800-char copy-recipe fallback triggers | `mode` |
 | `shared_link_opened` | URL state hydration attempt on page load | `mode`, `format` (batch-v1/legacy), `valid` (bool) |
@@ -43,11 +43,9 @@ Make the repaired acquisition loop observable. After this project we can answer,
 | `newsletter_optin` | 202 for subscribe | `page_type` |
 | `affiliate_click` | click on an outbound Amazon/StockTheEvent link | `retailer` (amazon/stocktheevent), `placement` (recipe-page/homepage/guide), `page` (path) |
 
-`trigger` records where a rendered result came from: `auto` (page defaults, no
-interaction — a recipe page renders its preset on load), `user` (after a real
-interaction), `shared_link` (hydrated `?batch=` or legacy URL state). Only `user`
-represents activation; `auto` would otherwise make every recipe-page pageview look like
-a conversion.
+`trigger` records where a rendered result came from: `user` (after a real interaction) or
+`shared_link` (hydrated `?batch=` or legacy URL state). A result rendered from page
+defaults alone is **not** emitted — see the 2026-08-19 revision.
 
 Reserved names for later phases (do not implement now): `plan_saved`, `host_mode_checkout`, `purchase`.
 
@@ -57,6 +55,19 @@ Reserved names for later phases (do not implement now): `plan_saved`, `host_mode
   date have no `trigger` property and should be treated as legacy (a handful of sessions
   only). The debounce key also became trigger-aware, so one page load can now emit both
   an `auto` and a `user` result for the same recipe+bottle+mode.
+- **2026-08-19 — `result_completed` no longer fires with `trigger: 'auto'`.** A preset
+  rendering its own default on page load is not a completion, and the `$pageview` on that
+  recipe page already records the visit. It also fired before `initAnalytics()` had
+  settled, landing ahead of `$pageview` and stamping the page load's first event
+  `$recording_status: disabled`. `auto` remains a legacy value in data captured before
+  this date; every analysis already filtered to `trigger = 'user'`, so none were affected.
+- **2026-08-19 — persistence changed from `memory` to `localStorage`.** `memory` reset
+  identity on every navigation, and this is a static site where every navigation is a full
+  load: one visitor was counted as many, replays fragmented into one recording per
+  pageview, and retention and cross-page funnels were unmeasurable. First-party
+  localStorage only — deliberately **not** `localStorage+cookie`, so nothing is attached to
+  a request. Every device gets one fresh identity at the deploy, which is the analysis
+  boundary for any before/after comparison.
 
 `unsubscribe` is deliberately **not** tracked — negligible analytical value, disproportionate privacy sensitivity.
 
@@ -66,7 +77,7 @@ Reserved names for later phases (do not implement now): `plan_saved`, `host_mode
 
 `src/lib/analytics.ts`:
 
-- `initAnalytics()` — no-op unless `import.meta.env.PUBLIC_POSTHOG_KEY` exists and DNT is unset; loads `posthog-js` async with `autocapture: false`, `capture_pageview: true`, `persistence: 'memory'`, `person_profiles: 'identified_only'`, host from `PUBLIC_POSTHOG_HOST`.
+- `initAnalytics()` — no-op unless `import.meta.env.PUBLIC_POSTHOG_KEY` exists and DNT is unset; loads `posthog-js` async with `autocapture: false`, `capture_pageview: true`, `persistence: 'localStorage'`, `person_profiles: 'identified_only'`, host from `PUBLIC_POSTHOG_HOST`.
 - `track(event: string, props?: Record<string, string | number | boolean>)` — safe wrapper: silently no-ops if PostHog absent/failed. All call sites use this; nothing imports posthog directly.
 - Unit tests: no-op without key; no-op under DNT; track forwards name+props; property values restricted to primitives.
 

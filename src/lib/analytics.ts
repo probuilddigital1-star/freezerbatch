@@ -14,6 +14,10 @@
  * - Session replay runs with every input masked, so a typed value cannot reach
  *   PostHog through a recording any more than it can through `track`. Page text
  *   stays visible on purpose: the point is to see what people read and tap.
+ * - Identity is a random id in first-party localStorage — no cookie, so it is
+ *   never attached to a request and no other site can read it. It exists so one
+ *   visitor reads as one visitor across a navigation; Do Not Track still stops
+ *   this module before PostHog loads, so nothing is written at all in that case.
  *
  * Nothing outside this module imports `posthog-js` directly.
  */
@@ -187,7 +191,11 @@ export async function initAnalytics(options: InitOptions = {}): Promise<void> {
         api_host: readEnvHost(),
         autocapture: false,
         capture_pageview: true,
-        persistence: 'memory',
+        // First-party localStorage, never a cookie: 'memory' reset identity on
+        // every navigation, and this is a static site where every navigation is a
+        // full load — one visitor read as N visitors, and replays fragmented into
+        // one recording per pageview. Nothing here is sent in request headers.
+        persistence: 'localStorage',
         person_profiles: 'identified_only',
         // Replay is on to diagnose where visitors drop out — mobile completes the
         // calculator but converts on nothing downstream. Inputs are masked so a

@@ -204,15 +204,15 @@ test.describe('analytics events', () => {
     expect(results[0].props).toMatchObject({ trigger: 'shared_link' });
   });
 
-  test('recipe page emits one auto result on load, then a user result on interaction', async ({ page }) => {
+  test('recipe page emits no result on load, then a user result on interaction', async ({ page }) => {
     await stubPostHog(page);
     await page.goto('/cocktails/vesper/');
     await expect(page.locator('#preset-batch-instructions')).toContainText('Vesper');
 
+    // A preset rendering its own default is not a completion — nobody asked for
+    // it, and the `$pageview` on this page already records the visit.
     let events = await captured(page);
-    const onLoad = events.filter((e) => e.event === 'result_completed');
-    expect(onLoad).toHaveLength(1);
-    expect(onLoad[0].props.trigger).toBe('auto');
+    expect(events.filter((e) => e.event === 'result_completed')).toHaveLength(0);
     expect(names(events)).not.toContain('calculator_started');
 
     // Same recipe, same bottle, but now a real interaction: must still emit.
@@ -225,7 +225,8 @@ test.describe('analytics events', () => {
 
     events = await captured(page);
     expect(names(events)).toContain('calculator_started');
-    expect(events.filter((e) => e.event === 'result_completed' && e.props.trigger === 'auto')).toHaveLength(1);
+    // `auto` is never emitted at all now, on this page or any other.
+    expect(events.filter((e) => e.event === 'result_completed' && e.props.trigger === 'auto')).toHaveLength(0);
   });
 
   test('affiliate_click reports retailer and placement', async ({ page }) => {
