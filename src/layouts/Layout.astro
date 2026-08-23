@@ -1,6 +1,14 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import {
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_TYPE,
+  OG_IMAGE_WIDTH,
+  ogImageForPath,
+  ogTypeForPath,
+  recipeSlugFromPath,
+} from '../lib/ogImage';
 import '../styles/global.css';
 
 export interface Props {
@@ -31,22 +39,19 @@ const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
  * Pinterest, Slack and iMessage all refuse SVG in a preview, so in practice
  * every link shared from this site previewed with no image at all.
  *
- * Recipe pages now point at their own 1200x630 JPEG: a photograph where one has
- * been shot, a generated typographic card otherwise
- * (scripts/generate-og-images.mjs). Both are written to the same filename, so
- * shooting a recipe swaps its preview with no change here. Derived from the
- * path rather than passed in, so a recipe page cannot be added without one.
- *
- * JPEG deliberately, not the WebP sibling: crawler WebP support is uneven and
- * this is the one place where the safe format beats the smaller bytes.
+ * Paths come from src/lib/ogImage.ts, which the recipe page's Recipe JSON-LD
+ * also reads — the structured-data image and the link preview have to be the
+ * same file, and deriving it twice is how they stop being.
  */
-const recipeSlug = Astro.url.pathname.match(/^\/cocktails\/([^/]+?)\/?$/)?.[1];
-const resolvedOgImage = ogImage ?? (recipeSlug ? `/images/cocktails/${recipeSlug}-og.jpg` : '/images/og-default.jpg');
+const recipeSlug = recipeSlugFromPath(Astro.url.pathname);
+const resolvedOgImage = ogImage ?? ogImageForPath(Astro.url.pathname);
 // Absolute, because several crawlers reject a relative og:image outright.
 const ogImageUrl = new URL(resolvedOgImage, Astro.site).href;
 const resolvedOgImageAlt = ogImageAlt ?? (
   recipeSlug ? fullTitle : 'Freezer Batch Cocktails — make-ahead cocktails poured straight from the freezer'
 );
+// The guides under /blog/ are articles; listings and tools stay `website`.
+const ogType = ogTypeForPath(Astro.url.pathname);
 ---
 
 <!DOCTYPE html>
@@ -61,14 +66,14 @@ const resolvedOgImageAlt = ogImageAlt ?? (
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content={OG_IMAGE_TYPE} />
+    <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
     <meta property="og:image:alt" content={resolvedOgImageAlt} />
     <meta property="og:site_name" content={siteName} />
 

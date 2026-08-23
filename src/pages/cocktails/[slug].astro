@@ -9,6 +9,7 @@ import GlassIcon from '../../components/GlassIcon.astro';
 import type { GlassType } from '../../components/GlassIcon.astro';
 import cocktailsData from '../../data/cocktails.json';
 import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../../lib/calculator';
+import { recipeOgImage } from '../../lib/ogImage';
 
 // Map each cocktail to the glass it's traditionally served in. Used to
 // give each recipe page a small piece of visual identity without photos.
@@ -75,6 +76,15 @@ const recipeSchema = {
   "@type": "Recipe",
   "name": `Freezer Batch ${cocktail.name}`,
   "description": cocktail.description,
+  // The same render the og tags advertise, so a crawler that already fetched
+  // the link preview is not asked for a second, different image. Absolute:
+  // Google will not resolve a relative path in structured data.
+  // Path comes from src/lib/ogImage.ts, which Layout.astro also reads.
+  // Known gap, accepted for now: Google prefers 16:9, 4:3 and 1:1 alongside
+  // this ~1.9:1 render. The 4:5 -card renders that would supply the others are
+  // still gitignored until all 18 photos are shot; that upgrade belongs to the
+  // publish commit.
+  "image": [new URL(recipeOgImage(cocktail.slug), Astro.site).href],
   "recipeCategory": "Cocktail",
   "recipeCuisine": "American",
   "recipeYield": `${cocktail.servings} servings`,
