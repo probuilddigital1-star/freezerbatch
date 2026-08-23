@@ -361,6 +361,17 @@ test.describe('same-origin email forms', () => {
     await expect.poll(() => requests).toHaveLength(2);
     expect(requests[1].requestId).toBe(requests[0].requestId);
 
+    // `requests` is appended by the route handler, so polling it only proves the
+    // request left the page — not that the component finished handling the
+    // response. On 202 it still has to clear the field, null the requestId and
+    // reset Turnstile. Setting up the next submit before that lands lets the
+    // in-flight handler wipe the email and token this test just supplied, and
+    // the third request never fires. Wait for the observable end state, the way
+    // the first retry above waits on its status text.
+    await expect(form.getByRole('status')).toHaveText("You've been unsubscribed.");
+    await expect(form.locator('input[type="email"]')).toHaveValue('');
+    await expect(submit).toBeDisabled();
+
     await form.locator('input[type="email"]').fill('new@example.com');
     await solveMockTurnstile(page);
     await submit.click();

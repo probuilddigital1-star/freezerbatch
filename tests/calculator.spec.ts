@@ -682,6 +682,21 @@ test.describe('Freezer Batch Calculator', () => {
 test.describe('Homepage preset on a phone (390x844)', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
+  test('the suite really runs with reduced motion, so taps do not race the reveal', async ({ page }) => {
+    // Guard for the config, not the app. Sections wrap their content in
+    // `.scroll-reveal` (opacity 0, translateY(20px), 0.6s). Playwright's
+    // toBeVisible() ignores opacity, so without reduced motion a test can act on
+    // a target that is still transparent and 20px from its final position, and
+    // every click races a moving element. If `contextOptions.reducedMotion` ever
+    // stops being applied — a rename, a merge, a Playwright change — this fails
+    // here instead of showing up as unrelated tests flaking under load.
+    await page.goto('/');
+    expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+    const wrapper = page.locator('.scroll-reveal', { has: page.locator('batch-calculator') });
+    await expect(wrapper).toHaveClass(/in-view/);
+    await expect(wrapper).toHaveCSS('opacity', '1');
+  });
+
   async function expectInstructions(page: Page, name: string) {
     const instructions = page.locator('#preset-batch-instructions');
     await expect(instructions).toBeVisible();

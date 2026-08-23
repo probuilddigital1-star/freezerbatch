@@ -27,6 +27,9 @@ export default defineConfig({
     // port where anything already listening fails the run loudly.
     baseURL: 'http://127.0.0.1:4382',
     trace: 'on-first-retry',
+    // Same reason as the default config: `.scroll-reveal` animates content in
+    // from opacity 0 / translateY(20px), and these specs click the same tiles.
+    contextOptions: { reducedMotion: 'reduce' },
   },
   projects: [
     {
