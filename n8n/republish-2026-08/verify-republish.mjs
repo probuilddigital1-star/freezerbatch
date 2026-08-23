@@ -82,6 +82,17 @@ assert.equal(hero.length, 1, `expected exactly one image row, found ${hero.lengt
 assert.match(hero[0], /src="https:\/\/freezerbatchcocktails\.com\/images\/cocktails\/negroni-og\.jpg"/, 'hero points at the deployed Negroni render');
 assert.match(hero[0], /alt="[^"]{10,}"/, 'hero carries alt text that survives blocked images');
 ok('image row restored: one hero, absolute URL, alt text present');
+// Dated Labor Day block (addendum 2026-08-23) — must render in BOTH parts, and
+// the template must carry the swap-date comment so it cannot quietly outlive
+// Sep 7. When the block is swapped for the evergreen guides version, update
+// these three checks in the same commit.
+const LD = 'https://freezerbatchcocktails.com/blog/batch-ahead-for-labor-day/';
+assert.ok(j.html.includes(LD) && j.html.includes('Batching for Labor Day?'), 'html carries the Labor Day block');
+ok('html carries the Labor Day block and its guide link');
+assert.ok(j.text.includes(LD), 'text alternative carries the Labor Day guide link');
+ok('text alternative carries the Labor Day guide link');
+assert.ok(j.html.includes('SWAP ON TUESDAY, SEPTEMBER 8, 2026'), 'swap-date comment present');
+ok('swap-date comment names Tue Sep 8 2026');
 assert.ok(!j.html.includes('PREFERENCES'), 'no preferences link');
 ok('no preferences link (no such page exists)');
 assert.ok(j.html.length < 100_000, `html is ${j.html.length} bytes, under the 100KB Gmail clip`);

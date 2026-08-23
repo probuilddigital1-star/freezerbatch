@@ -54,6 +54,11 @@ const TOKENS = {
   // Restored 2026-08-23. Deployed and verified image/jpeg, 1200x630; the row was
   // removed 08-01 only because no Negroni photograph existed yet.
   '{{IMAGE_URL}}': 'https://freezerbatchcocktails.com/images/cocktails/negroni-og.jpg',
+  // Dated block, live through Mon Sep 7 2026 — the swap comment in welcome.html
+  // names the replacement. The evergreen version links /blog/ literally, so
+  // removing this token at the swap needs no change here (unused map entries
+  // are harmless; only template tokens must be mapped).
+  '{{LABOR_DAY_URL}}': 'https://freezerbatchcocktails.com/blog/batch-ahead-for-labor-day/',
   '{{UNSUBSCRIBE_URL}}': 'https://freezerbatchcocktails.com/unsubscribe',
   '{{COMPANY_NAME}}': 'Freezer Batch Cocktails',
   '{{POSTAL_ADDRESS}}': POSTAL_ADDRESS,
@@ -103,6 +108,12 @@ function buildWelcomeCode() {
     '',
     'Also free - the batch timing sheet, how long each of the 18 recipes keeps in the freezer:',
     '  ' + TOKENS['{{TIMING_SHEET_URL}}'],
+    '',
+    // DATED — swap with the html block on Tue Sep 8 2026 (see welcome.html):
+    // 'Not sure where to start? The guides: https://freezerbatchcocktails.com/blog/'
+    'Batching for Labor Day? Friday, August 28 is the day - a margarita batched then',
+    'is at its best over the weekend of the 5th, with the lime still sharp:',
+    '  ' + TOKENS['{{LABOR_DAY_URL}}'],
     '',
     'What arrives, and how often',
     '  Monthly - one make-ahead recipe and a hosting timeline.',

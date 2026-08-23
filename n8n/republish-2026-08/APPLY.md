@@ -111,6 +111,8 @@ Sign up on the production site with a real address, then confirm:
 - [ ] Unsubscribe link present and correct
 - [ ] **Postal address renders** in both the HTML and the plain-text alternative
 - [ ] "Before you print" block present
+- [ ] **Restored hero renders** — the Negroni image loads rather than showing a broken-image box; alt text appears when images are blocked
+- [ ] **Labor Day block present** (addendum 2026-08-23) in html and plain text; its link resolves to the guide page (assert the headline renders — this site answers 200 text/html for missing paths). Dated copy: swap per the comment in welcome.html on Tue Sep 8, 2026
 - [ ] Send a recipe email from the calculator; confirm the utility line and 3-step timeline appear, and that it arrives for a recipient who did *not* tick the consent box
 
 Then poll `GET /executions?workflowId=oAutYB68sxicWzZZ` and record the execution id,
