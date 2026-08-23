@@ -8,8 +8,8 @@ import AffiliateLink from '../../components/AffiliateLink.astro';
 import GlassIcon from '../../components/GlassIcon.astro';
 import type { GlassType } from '../../components/GlassIcon.astro';
 import cocktailsData from '../../data/cocktails.json';
-import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../../lib/calculator';
 import { recipeOgImage } from '../../lib/ogImage';
+import { recipeStats, recipeYield, withRecipeStats } from '../../lib/recipeStats';
 
 // Map each cocktail to the glass it's traditionally served in. Used to
 // give each recipe page a small piece of visual identity without photos.
@@ -43,24 +43,23 @@ export function getStaticPaths() {
 
 const { cocktail } = Astro.props;
 
-// Single source of truth for ABV / servings: derive from the same
-// calculator the user interacts with below. Falls back to the JSON
-// value for cocktails that don't have a Milk Street batch defined.
-const liveBatch = MILK_STREET_BATCHES[cocktail.slug]
-  ? calculateMilkStreetBatch(cocktail.slug, 750)
-  : null;
-const displayAbv = liveBatch ? Math.round(liveBatch.finalAbv) : cocktail.finalAbv;
-const displayServings = liveBatch ? liveBatch.servings : cocktail.servings;
-const displayFreezeStatus = liveBatch ? liveBatch.freezeStatus : cocktail.freezeStatus;
+// Single source of truth for ABV / servings / freeze status, shared with the
+// homepage, the /cocktails grid, the related-recipe cards below, and this
+// page's Recipe JSON-LD. See src/lib/recipeStats.ts.
+const { finalAbv: displayAbv, servings: displayServings, freezeStatus: displayFreezeStatus } = recipeStats(cocktail);
 const glassType: GlassType = GLASS_BY_SLUG[cocktail.slug] ?? 'coupe';
 
 // Single source of truth for every storage claim on this page.
 const storage = cocktail.storage as Storage;
 
 // Get related cocktails
+// Stats-corrected, like every other card on the site. Reading the stored
+// fields here made a drink's own page and its card on a sibling page
+// advertise different ABVs.
 const relatedCocktails = cocktailsData.cocktails
   .filter(c => cocktail.relatedCocktails?.includes(c.slug))
-  .slice(0, 3);
+  .slice(0, 3)
+  .map(withRecipeStats);
 
 const statusLabels = {
   safe: { text: 'Freezer Safe', icon: '✓', class: 'status-safe' },
@@ -87,7 +86,15 @@ const recipeSchema = {
   "image": [new URL(recipeOgImage(cocktail.slug), Astro.site).href],
   "recipeCategory": "Cocktail",
   "recipeCuisine": "American",
-  "recipeYield": `${cocktail.servings} servings`,
+  // Derived, not the stored field: recipeYield disagreed with the rendered
+  // page on 5 of 18 recipes, which is exactly the visible-vs-markup mismatch
+  // structured data is not allowed to have.
+  "recipeYield": recipeYield(cocktail),
+  "author": {
+    "@type": "Organization",
+    "name": "Freezer Batch Cocktails",
+    "url": "https://freezerbatchcocktails.com"
+  },
   "prepTime": `PT${parseInt(cocktail.prepTime)}M`,
   "totalTime": `PT${parseInt(cocktail.prepTime) + 240}M`,
   "recipeIngredient": cocktail.recipe.single.map(

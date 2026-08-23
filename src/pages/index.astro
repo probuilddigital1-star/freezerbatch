@@ -4,22 +4,14 @@ import Calculator from '../components/Calculator.astro';
 import CocktailCard from '../components/CocktailCard.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import type { Storage } from '../components/CocktailCard.astro';
-import cocktailsData from '../data/cocktails.json';
-import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../lib/calculator';
+import { allWithRecipeStats } from '../lib/recipeStats';
 
 const title = 'Freezer Batch Cocktails';
 const description = 'Calculate exact measurements for freezer batch cocktails. Do the math once, drink well forever. Free batch calculator for pre-mixed cocktails.';
 
-// Derive ABV/freeze-status/servings from the same calculator users interact with.
-const enriched = cocktailsData.cocktails.map(c => {
-  const batch = MILK_STREET_BATCHES[c.slug] ? calculateMilkStreetBatch(c.slug, 750) : null;
-  return {
-    ...c,
-    finalAbv: batch ? Math.round(batch.finalAbv) : c.finalAbv,
-    servings: batch ? batch.servings : c.servings,
-    freezeStatus: batch ? batch.freezeStatus : c.freezeStatus,
-  };
-});
+// Stats come from the same calculator users interact with, never the stored
+// fields, which have drifted. See src/lib/recipeStats.ts.
+const enriched = allWithRecipeStats();
 
 // Feature the batches that keep longest — the least demanding place to start.
 const featuredCocktails = enriched

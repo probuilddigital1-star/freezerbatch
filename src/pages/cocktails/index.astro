@@ -2,23 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import CocktailCard from '../../components/CocktailCard.astro';
 import type { Storage } from '../../components/CocktailCard.astro';
-import cocktailsData from '../../data/cocktails.json';
-import { calculateMilkStreetBatch, MILK_STREET_BATCHES } from '../../lib/calculator';
+import { allWithRecipeStats } from '../../lib/recipeStats';
 
 const title = 'All Freezer Cocktail Recipes';
 const description = 'Browse our collection of freezer-ready cocktail recipes. Each recipe is calculated for perfect batching with ABV and freeze status.';
 
-// Derive ABV/servings/freeze-status from the calculator so cards stay in sync
-// with the live calculator output on the recipe pages.
-const enriched = cocktailsData.cocktails.map(c => {
-  const batch = MILK_STREET_BATCHES[c.slug] ? calculateMilkStreetBatch(c.slug, 750) : null;
-  return {
-    ...c,
-    finalAbv: batch ? Math.round(batch.finalAbv) : c.finalAbv,
-    servings: batch ? batch.servings : c.servings,
-    freezeStatus: batch ? batch.freezeStatus : c.freezeStatus,
-  };
-});
+// Stats come from the same calculator users interact with, never the stored
+// fields, which have drifted. See src/lib/recipeStats.ts.
+const enriched = allWithRecipeStats();
 
 // Group by quality window. This is storage.bestWithin — how long the batch is at
 // its best — not freezeStatus, which is the separate question of whether it freezes.
