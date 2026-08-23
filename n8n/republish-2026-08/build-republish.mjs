@@ -196,18 +196,56 @@ function stripFragment(raw) {
 }
 
 function buildRecipeCode(currentCode) {
+  let code = currentCode;
+
+  // Patch 1 — utility line + 3-step timeline (live since the 08-23 republish).
+  // Independent and idempotent: on a baseline that already carries it, this is
+  // a no-op and the next patch still applies.
   const fragment = stripFragment(fs.readFileSync(path.join(EMAILS, 'recipe-utility-line.html'), 'utf8'));
   if (/[`]|\$\{/.test(fragment)) {
     throw new Error('utility fragment contains a backtick or ${ — it would break the template literal');
   }
-  if (currentCode.includes(fragment)) {
+  if (code.includes(fragment)) {
     console.log('  recipe node: utility line already present, no change');
-    return currentCode;
+  } else {
+    const ANCHOR = "<p><a href='${escapeHtml(websiteUrl)}/cocktails'>Browse cocktails</a></p>";
+    const n = code.split(ANCHOR).length - 1;
+    if (n !== 1) throw new Error(`recipe node: expected 1 anchor occurrence, found ${n}`);
+    code = code.replace(ANCHOR, fragment + ANCHOR);
   }
-  const ANCHOR = "<p><a href='${escapeHtml(websiteUrl)}/cocktails'>Browse cocktails</a></p>";
-  const n = currentCode.split(ANCHOR).length - 1;
-  if (n !== 1) throw new Error(`recipe node: expected 1 anchor occurrence, found ${n}`);
-  return currentCode.replace(ANCHOR, fragment + ANCHOR);
+
+  // Patch 2 (2026-08-23, second republish) — recipe hero image.
+  // Same treatment as the welcome email's Start Here card: the recipe's own
+  // 1200x630 render at the top of the card, full width, real alt text. The URL
+  // is derived exactly the way src/lib/ogImage.ts derives it for the site
+  // (/images/cocktails/<slug>-og.jpg, absolute), and every slug has a live
+  // render as of tonight. Preset only: a custom recipe carries no slug, so it
+  // has no render to point at and keeps the imageless layout. The slug is
+  // remote input, so it must match the same shape the site's slugs have —
+  // anything else renders no image rather than an attacker-shaped URL.
+  if (code.includes('heroRowHtml')) {
+    console.log('  recipe node: hero already present, no change');
+  } else {
+    const DERIVE_ANCHOR = "const websiteUrl = 'https://freezerbatchcocktails.com';";
+    if (code.split(DERIVE_ANCHOR).length - 1 !== 1) {
+      throw new Error('recipe node: websiteUrl anchor not found exactly once');
+    }
+    const derive = [
+      DERIVE_ANCHOR,
+      "const heroSlug = recipe.mode === 'preset' && /^[a-z0-9][a-z0-9-]{0,78}$/.test(String(recipe.slug ?? '')) ? String(recipe.slug) : '';",
+      "const heroAlt = escapeHtml(recipeNamePlain + ' batched for the freezer, poured straight from the bottle');",
+      "const heroRowHtml = heroSlug ? \"<tr><td bgcolor='#0e0c0a' align='center' style='background-color:#0e0c0a;'><img src='\" + websiteUrl + '/images/cocktails/' + heroSlug + \"-og.jpg' width='598' alt='\" + heroAlt + \"' style='display:block;width:100%;max-width:598px;height:auto;border:0;color:#a69d93;font-family:monospace;font-size:12px;'></td></tr>\" : '';",
+    ].join('\n');
+    code = code.replace(DERIVE_ANCHOR, derive);
+
+    const ROW_ANCHOR = '</h1></td></tr>';
+    if (code.split(ROW_ANCHOR).length - 1 !== 1) {
+      throw new Error('recipe node: header-row anchor not found exactly once');
+    }
+    code = code.replace(ROW_ANCHOR, ROW_ANCHOR + '${heroRowHtml}');
+  }
+
+  return code;
 }
 
 // ── main ─────────────────────────────────────────────────────────────────────

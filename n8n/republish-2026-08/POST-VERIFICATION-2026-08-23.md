@@ -31,3 +31,21 @@ or use the base alias address, never a plus-tagged alias.
 Post-verification, `checkbox-flip.patch` was applied and deployed (`ab405b7`,
 live 22:41:11 UTC). The 22:54 delivery proves the send path works post-flip —
 the flip touched site copy only, as designed.
+
+## Second PUT, same evening: recipe-email hero
+
+`versionId 4873e53b -> f7c3bb87` at 23:22:55 UTC. Exactly one node changed —
+`Build Transactional Recipe Email` (5,752 -> 6,358 chars) — asserted against a
+fresh export before sending; the welcome node was deliberately left untouched
+because the live copy carries the injected postal address and PUTting the
+committed empty-token artifact over it would have wiped it.
+
+The hero uses the same treatment as the welcome's Start Here card: the recipe's
+own 1200x630 render at the top of the card, URL shaped exactly as
+src/lib/ogImage.ts shapes it, alt text from the recipe name. Preset only — a
+custom recipe has no slug, so it has no render to point at and keeps the
+imageless layout; a slug outside the site's `[a-z0-9-]` shape renders no image
+rather than an attacker-shaped URL. Verified by execution: live margarita send
+(execution 250596, 2.0s, no consent ticked) delivered 23:24:37 UTC with the
+hero row, correct src and alt, utility line and timeline intact, subject
+unchanged. verify-republish: 26 checks.

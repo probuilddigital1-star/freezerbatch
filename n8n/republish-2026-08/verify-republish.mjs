@@ -110,6 +110,23 @@ ok('recipe node carries the 3-step timeline');
 assert.ok(/subject: `Your \$\{recipeNamePlain\} recipe`/.test(recipeCode), 'recipe subject unchanged');
 ok('recipe subject unchanged');
 
+// Hero (second 08-23 republish): execute the node against a preset and a custom
+// payload rather than grepping for the code — behaviour, not text.
+{
+  const presetOut = run(recipeCode, { email: 'x@example.com', requestId: 'r', recipe: { mode: 'preset', slug: 'negroni', bottleMl: 750, unit: 'oz', display: { name: 'Negroni', abv: '28.3', servings: '7' } } })[0].json;
+  assert.match(presetOut.html, /<img src='https:\/\/freezerbatchcocktails\.com\/images\/cocktails\/negroni-og\.jpg'/, 'preset hero uses the ogImage.ts-shaped absolute URL');
+  assert.match(presetOut.html, /alt='Negroni batched for the freezer/, 'preset hero alt is built from the recipe name');
+  ok('preset recipe email carries its own hero with real alt text');
+
+  const customOut = run(recipeCode, { email: 'x@example.com', requestId: 'r', recipe: { mode: 'custom', bottleMl: 750, unit: 'oz', dilutionPercent: 20, ingredients: [{ name: 'Gin', amount: 2 }] } })[0].json;
+  assert.ok(!customOut.html.includes('<img'), 'custom recipe (no slug, no render) stays imageless');
+  ok('custom recipe email stays imageless — it has no slug to derive a render from');
+
+  const hostileOut = run(recipeCode, { email: 'x@example.com', requestId: 'r', recipe: { mode: 'preset', slug: "x' onerror='alert(1)", bottleMl: 750, unit: 'oz' } })[0].json;
+  assert.ok(!hostileOut.html.includes('<img'), 'a slug outside the site shape produces no image, not a shaped URL');
+  ok('hostile slug renders no hero rather than an attacker-shaped URL');
+}
+
 // ── 4. the repo's real static test, unmodified, against the proposed JSON ───
 // The static test executes the welcome node, so it needs an address to render at all —
 // check 1 above already proved the empty-address build refuses to send. Inject the same
