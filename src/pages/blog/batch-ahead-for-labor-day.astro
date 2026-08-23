@@ -27,6 +27,24 @@ const description = 'Fresh lime sets the clock on a margarita batch. Batch on Fr
         </p>
       </header>
 
+      <!-- Article hero. This is the page the welcome email now links to, so it
+           should not open as a wall of text. Source is the deployed 1200x630 og
+           render — the 4:5 card renders are still gitignored until the full set
+           is shot, so the og file is the correct source today. Explicit
+           dimensions reserve the box before the image arrives (no layout shift);
+           eager because it sits at the top of the page. -->
+      <figure class="mb-10 sm:mb-12">
+        <img
+          src="/images/cocktails/margarita-og.jpg"
+          alt="Margarita over ice with a salt-and-Tajín rim and a dried lime wheel, in a frosted rocks glass"
+          width="1200"
+          height="630"
+          loading="eager"
+          decoding="async"
+          class="w-full h-auto border border-study-border"
+        />
+      </figure>
+
       <div class="editorial editorial-lead">
         <p>
           Lime juice is at its best for the first two or three weeks in a freezer batch. After that it flattens, loses its edge, and starts tasting a little dull and papery. Everything else in a margarita holds fine. The lime is what you are racing.
