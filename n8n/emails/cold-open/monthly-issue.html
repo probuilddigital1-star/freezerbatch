@@ -32,6 +32,13 @@
     <tr><td>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="520" style="width:520px; border:1px solid #2e2720;">
         <tr><td bgcolor="#1e1a16" align="center" style="background-color:#1e1a16;" height="200">
+          <!-- Issue 01 hero, decided 2026-08-23: the Margarita was shot 08-22 and its
+               render is deployed, so this issue ships with an image rather than text-only.
+               {{IMAGE_URL}} -> https://freezerbatchcocktails.com/images/cocktails/margarita-og.jpg
+               Whoever composes the issue binds the token; nothing in the repo builds this
+               template yet. Any hero must be an absolute https URL to a deployed file —
+               the site answers 200 text/html for missing paths, so a typo renders as a
+               broken image instead of failing loudly. -->
           <img src="{{IMAGE_URL}}" width="518" alt="{{RECIPE_NAME}} in a swing-top bottle on the freezer shelf" style="display:block; width:100%; max-width:518px; height:auto; border:0; color:#9a8e7e; font-family:'Courier New', monospace; font-size:12px;">
         </td></tr>
         <tr><td style="padding:20px 24px 6px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#9a8e7e; text-transform:uppercase;">{{SPIRIT}} · {{METHOD}} · {{ABV}}% ABV</td></tr>

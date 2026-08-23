@@ -72,8 +72,16 @@ for (const [label, needle] of [
   ok(`text alternative carries the ${label}`);
 }
 
-assert.ok(!j.html.includes('<img'), 'no image row yet (waits on the Negroni photo)');
-ok('no image row (still waiting on the photo)');
+// Inverted 2026-08-23. The row was absent only because no Negroni photograph
+// existed; it was shot 08-22 and its render is deployed. What matters now is
+// that the hero is a real absolute URL with alt text — a relative or empty src
+// renders as a broken image in every inbox, and this site answers
+// 200 text/html for missing paths, so a bad URL would not fail loudly.
+const hero = j.html.match(/<img[^>]*>/g) || [];
+assert.equal(hero.length, 1, `expected exactly one image row, found ${hero.length}`);
+assert.match(hero[0], /src="https:\/\/freezerbatchcocktails\.com\/images\/cocktails\/negroni-og\.jpg"/, 'hero points at the deployed Negroni render');
+assert.match(hero[0], /alt="[^"]{10,}"/, 'hero carries alt text that survives blocked images');
+ok('image row restored: one hero, absolute URL, alt text present');
 assert.ok(!j.html.includes('PREFERENCES'), 'no preferences link');
 ok('no preferences link (no such page exists)');
 assert.ok(j.html.length < 100_000, `html is ${j.html.length} bytes, under the 100KB Gmail clip`);

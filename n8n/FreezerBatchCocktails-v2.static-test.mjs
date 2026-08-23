@@ -248,7 +248,18 @@ assert.match(
   /https:\/\/freezerbatchcocktails\.com\/downloads\/fbc-bottle-labels\.pdf/,
   'newsletter welcome delivers the label sheet, which is what it promises',
 );
-assert.doesNotMatch(newsletterWelcome.html, /<img/, 'newsletter welcome has no image row until the photo exists'); // republish: still true
+// Inverted 2026-08-23: the row was absent only because no Negroni photograph
+// existed. It was shot 08-22 and its 1200x630 render is deployed. Asserted as
+// the specific hero rather than "an <img> exists", so an injected tag could
+// never satisfy it — the hostile-input check above stays meaningful.
+const welcomeImgs = newsletterWelcome.html.match(/<img[^>]*>/g) || [];
+assert.equal(welcomeImgs.length, 1, 'newsletter welcome carries exactly one image row');
+assert.match(
+  welcomeImgs[0],
+  /src="https:\/\/freezerbatchcocktails\.com\/images\/cocktails\/negroni-og\.jpg"/,
+  'newsletter welcome hero points at the deployed Negroni render',
+);
+assert.match(welcomeImgs[0], /alt="[^"]{10,}"/, 'newsletter welcome hero carries alt text for blocked images');
 assert.doesNotMatch(newsletterWelcome.html, /PREFERENCES_URL|Email preferences/, 'no preferences link: no such page exists');
 
 // Recipe-consent welcome — original design, deliberately untouched by the Cold Open work.

@@ -71,10 +71,12 @@
     <tr><td style="border-top:1px solid #2e2720; padding:22px 0 14px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#c8a55c; text-transform:uppercase;">Start here</td></tr>
     <tr><td>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="520" style="width:520px; border:1px solid #2e2720;">
-        <!-- Image row intentionally absent until the Negroni is shot. To restore, re-add a
-             row here holding an image tag 518px wide over a #1e1a16 cell, with alt text that
-             carries the meaning when images are blocked. Deliberately not written as a live
-             token here: an unresolved merge token would trip the build node's guard. -->
+        <!-- Restored 2026-08-23: the Negroni was shot 08-22 and its 1200x630 render is
+             deployed, so {{IMAGE_URL}} now resolves. Alt text carries the meaning when
+             images are blocked, which is the common case in a cold inbox. -->
+        <tr><td bgcolor="#1e1a16" align="center" style="background-color:#1e1a16; font-family:'Courier New', monospace; font-size:12px; color:#9a8e7e;">
+          <img src="{{IMAGE_URL}}" width="518" alt="Negroni batch in a swing-top bottle, straight from the freezer" style="display:block; width:100%; max-width:518px; height:auto; border:0; color:#9a8e7e; font-family:'Courier New', monospace; font-size:12px;">
+        </td></tr>
         <tr><td style="padding:20px 24px 6px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:11px; letter-spacing:3px; color:#9a8e7e; text-transform:uppercase;">Gin · Stirred · Freezer safe</td></tr>
         <tr><td style="padding:0 24px; font-family:'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size:22px; color:#f0e8da; mso-line-height-rule:exactly; line-height:30px;">The Negroni</td></tr>
         <tr><td style="padding:8px 24px 18px; font-family:Outfit, Helvetica, Arial, sans-serif; font-size:14px; color:#e8e0d4; mso-line-height-rule:exactly; line-height:22px;">Equal parts, foolproof, and it improves in the freezer. The calculator scales it to your bottle.</td></tr>

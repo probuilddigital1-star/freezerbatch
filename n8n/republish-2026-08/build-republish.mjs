@@ -8,17 +8,33 @@
 // see APPLY.md.
 
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { redactNode, assertNoSecrets } from '../redact-workflow-secrets.mjs';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  THE ONE FILL-IN. Put the physical mailing address here and re-run.
-//  Until this is non-empty the build still succeeds, but the generated build node
-//  will refuse to send at runtime — deliberately. CAN-SPAM requires it.
+//  THE ONE FILL-IN — supplied at build time, never stored in this file.
+//
+//  This file is tracked and the repository is public. The CAN-SPAM footer value
+//  is a home address, so it is passed in rather than committed:
+//
+//    POSTAL_ADDRESS='…'          node n8n/republish-2026-08/build-republish.mjs
+//    POSTAL_ADDRESS_FILE=<path>  node n8n/republish-2026-08/build-republish.mjs
+//
+//  Until one is provided the build still succeeds, but the generated build node
+//  refuses to send at runtime — deliberately. CAN-SPAM requires the address.
 // ─────────────────────────────────────────────────────────────────────────────
-export const POSTAL_ADDRESS = '';
+function readPostalAddress() {
+  const file = process.env.POSTAL_ADDRESS_FILE;
+  if (file) {
+    if (!fs.existsSync(file)) throw new Error(`POSTAL_ADDRESS_FILE does not exist: ${file}`);
+    return fs.readFileSync(file, 'utf8').trim();
+  }
+  return (process.env.POSTAL_ADDRESS || '').trim();
+}
+export const POSTAL_ADDRESS = readPostalAddress();
 // ─────────────────────────────────────────────────────────────────────────────
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -35,6 +51,9 @@ const TOKENS = {
   '{{LABEL_SHEET_URL}}': 'https://freezerbatchcocktails.com/downloads/fbc-bottle-labels.pdf',
   '{{TIMING_SHEET_URL}}': 'https://freezerbatchcocktails.com/downloads/fbc-batch-timing.pdf',
   '{{RECIPE_URL}}': 'https://freezerbatchcocktails.com/cocktails/negroni',
+  // Restored 2026-08-23. Deployed and verified image/jpeg, 1200x630; the row was
+  // removed 08-01 only because no Negroni photograph existed yet.
+  '{{IMAGE_URL}}': 'https://freezerbatchcocktails.com/images/cocktails/negroni-og.jpg',
   '{{UNSUBSCRIBE_URL}}': 'https://freezerbatchcocktails.com/unsubscribe',
   '{{COMPANY_NAME}}': 'Freezer Batch Cocktails',
   '{{POSTAL_ADDRESS}}': POSTAL_ADDRESS,
@@ -129,6 +148,18 @@ if (!TOKENS['{{UNSUBSCRIBE_URL}}'] || !html.includes(TOKENS['{{UNSUBSCRIBE_URL}}
 }
 if (!TOKENS['{{TIMING_SHEET_URL}}'] || !html.includes(TOKENS['{{TIMING_SHEET_URL}}'])) {
   throw new Error('Welcome email is missing the batch timing sheet link');
+}
+// The hero must be an absolute https URL. A relative or empty src renders as a
+// broken image in every inbox, which is worse than the no-image version this
+// replaces — and the site answers 200 text/html for missing paths, so a typo
+// would not even fail loudly. Written without a regex on purpose: this string is
+// emitted through a template literal, which silently eats backslash escapes.
+const heroUrl = (TOKENS['{{IMAGE_URL}}'] || '').trim();
+if (!heroUrl.startsWith('https://') || heroUrl.includes(' ')) {
+  throw new Error('Welcome email hero image URL is missing or not an absolute https URL');
+}
+if (!html.includes(heroUrl)) {
+  throw new Error('Welcome email hero image did not render into the html');
 }
 // CAN-SPAM: a marketing email without a physical mailing address must not go out.
 const postal = (TOKENS['{{POSTAL_ADDRESS}}'] || '').trim();
@@ -251,5 +282,14 @@ for (const [name, before, after] of changes) {
 console.log(`  nodes changed: ${touched.length} of ${live.nodes.length} (${touched.join(', ') || 'none'})`);
 console.log(`  connections: unchanged   settings: unchanged   credentials: untouched`);
 console.log(`\n  welcome subject: ${JSON.stringify(SUBJECT)}`);
-console.log(`  POSTAL_ADDRESS: ${POSTAL_ADDRESS ? JSON.stringify(POSTAL_ADDRESS) : '(EMPTY — build node will refuse to send until filled)'}`);
+// Never echo the value: it is a home address, and this output lands in terminals,
+// CI logs and pasted reports. Confirm it resolved, and prove which one it is with a
+// short digest rather than the text.
+console.log(
+  `  POSTAL_ADDRESS: ${
+    POSTAL_ADDRESS
+      ? `set (${POSTAL_ADDRESS.length} chars, sha256 ${createHash('sha256').update(POSTAL_ADDRESS).digest('hex').slice(0, 12)}) — value not printed`
+      : '(EMPTY — build node will refuse to send until filled)'
+  }`,
+);
 console.log('\nwrote proposed-workflow.REVIEW-ONLY.json + the two jsCode payloads — nothing was sent to n8n.');
