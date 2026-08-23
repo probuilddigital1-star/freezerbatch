@@ -10,6 +10,7 @@ const STATIC_PAGES: Array<{ path: string; priority: string; changefreq: string }
   { path: '/blog', priority: '0.9', changefreq: 'weekly' },
   { path: '/how-it-works', priority: '0.8', changefreq: 'monthly' },
   { path: '/about', priority: '0.6', changefreq: 'monthly' },
+  { path: '/blog/batch-ahead-for-labor-day', priority: '0.8', changefreq: 'monthly' },
   { path: '/blog/why-your-batch-is-too-sweet', priority: '0.8', changefreq: 'monthly' },
   { path: '/blog/fresh-citrus-in-batches', priority: '0.8', changefreq: 'monthly' },
   { path: '/blog/choosing-vermouth', priority: '0.8', changefreq: 'monthly' },
