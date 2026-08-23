@@ -40,7 +40,7 @@ Make the repaired acquisition loop observable. After this project we can answer,
 | `share_failed_too_large` | the >1,800-char copy-recipe fallback triggers | `mode` |
 | `shared_link_opened` | URL state hydration attempt on page load | `mode`, `format` (batch-v1/legacy), `valid` (bool) |
 | `email_recipe_sent` | `/api/email` returns 202 for send_recipe | `consent` (bool), `mode` |
-| `newsletter_optin` | 202 for subscribe | `page_type` |
+| `newsletter_optin` | 202 for subscribe | `page_type`, `placement` (inline-post-calculator/page-bottom/homepage-footer/other) |
 | `affiliate_click` | click on an outbound Amazon/StockTheEvent link | `retailer` (amazon/stocktheevent), `placement` (recipe-page/homepage/guide), `page` (path) |
 
 `trigger` records where a rendered result came from: `user` (after a real interaction) or
@@ -70,6 +70,15 @@ Reserved names for later phases (do not implement now): `plan_saved`, `host_mode
   recordings with different `distinct_id`s. First-party localStorage only — deliberately
   **not** `localStorage+cookie`, so nothing is attached to a request. Every device gets one
   fresh identity at the deploy, which is the boundary for before/after comparisons.
+
+- **2026-08-23 — added `placement` to `newsletter_optin`.** Recipe pages now render the
+  capture module twice, one directly after the calculator and the original at the foot of
+  the page, so `page_type` alone can no longer identify which ask earned a signup. Events
+  captured before this date have no `placement` and are all `page-bottom` on recipe pages
+  and `homepage-footer` on the homepage, by construction — though note that all six
+  signups on record are homepage ones matching the owner's own test sessions, so the
+  recipe-page baseline is zero rather than small. Closed vocabulary: an unrecognised value
+  normalises to `other` rather than opening a free-text dimension.
 
 ### Open: batched event delivery is failing (2026-08-19)
 
@@ -109,7 +118,7 @@ posthog-js does with the queue.
 
 - `Layout.astro`: init once; delegated click listener for `affiliate_click` (match `amazon.com`/`amzn.to`/StockTheEvent hosts; derive `placement` from page type).
 - `Calculator.astro`: `calculator_started`, `recipe_selected`, `result_completed` (respect `isHydrating` — hydration then fires `shared_link_opened` + one `result_completed` with `mode` only after successful hydration), `share_created`, `share_failed_too_large`, `email_recipe_sent`.
-- `EmailSignup.astro`: `newsletter_optin` on 202.
+- `EmailSignup.astro`: `newsletter_optin` on 202, with the instance's `placement`.
 - Guard rails: event calls sit AFTER existing behavior succeeds; a thrown analytics error must never break the feature (wrapper catches).
 
 ### WP-3: environment & deploy (0.5 day, includes user account setup)

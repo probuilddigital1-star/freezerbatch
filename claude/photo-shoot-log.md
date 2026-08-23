@@ -1,208 +1,123 @@
-# Recipe photography — 18 shots, multiple days
+# Recipe photography: 18 shots, multiple days
 
-> **Canonical copy. Lives in the repo as of 2026-08-06; the claude.ai project-storage
-> copy is frozen — do not update it.**
+> **Canonical, and synced to two places.** This file lives both in the repo at
+> `claude/photo-shoot-log.md` (what Claude Code reads) and in claude.ai project storage
+> at `claude/photo-shoot-log.md` (what Cowork and chat read). They are kept
+> byte-identical. Whoever edits it updates both in the same session. The earlier header
+> declaring the project-storage copy frozen caused a real divergence; see the 2026-08-23
+> correction below.
 
 Started 2026-08-02. This doc is the memory across sessions. A chat session forgets;
 this does not.
 
 ## Status
 
-4 of 18 shot.
+8 of 18 shot. All eight fully processed (master + 8 renders each). Vieux Carré
+resolved 2026-08-22: the light-frost reshoot won; committed same night.
 
 | # | Slug | Recipe | Shot | Notes |
 |---|---|---|---|---|
-| 1 | `dirty-martini` | Dirty Martini | 2026-08-02 | On disk. Master is a ChatGPT retouch, see below. |
-| 2 | `negroni` | Negroni | | Welcome email's image row waits on this one (row removed 08-01; CC will restore it when the photo exists). |
-| 3 | `manhattan` | Manhattan | | |
-| 4 | `old-fashioned` | Old Fashioned | 2026-08-03 | On disk. Master built from a chat-downscaled upload — see note below. |
-| 5 | `boulevardier` | Boulevardier | | |
-| 6 | `margarita` | Margarita | | Wanted for Cold Open Issue 01; due ~Aug 18 (issue ships text-only if missed). |
+| 1 | `dirty-martini` | Dirty Martini | 2026-08-02 | Master is a ChatGPT retouch, see below. og regenerated under v2 rule 08-22. |
+| 2 | `negroni` | Negroni | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.25, frost; gains R0.941 G0.961 B1.129). Keeper `abf0f715` (25% headroom). Real Campari pour, cut-crystal rocks glass. **Welcome-email image row unblocked**; CC restores it in the republish. |
+| 3 | `manhattan` | Manhattan | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.06, gains R0.983 G0.995 B1.023). Keeper `748a0068`, best of six on BOTH axes (30% headroom, bowl sharpness 243); two rejected for visible blur. Coupe, cherry on pick, frosted stem. Card visually verified. |
+| 4 | `old-fashioned` | Old Fashioned | 2026-08-03 | Camera original STILL missing from `photos/originals/`; master is the chat-downscaled upload. og regenerated under v2 08-22. |
+| 5 | `boulevardier` | Boulevardier | | Campari now owned; shoot with Paper Plane. |
+| 6 | `margarita` | Margarita | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.05, gains R0.989 G0.992 B1.020). og regenerated under v2 after the v1 crop sliced mid-glass. Salt + Tajín rim, dried lime wheel; prose-agreement note below. |
 | 7 | `cosmopolitan` | Cosmopolitan | | |
 | 8 | `moscow-mule` | Moscow Mule | | |
 | 9 | `espresso-martini` | Espresso Martini | | |
-| 10 | `paper-plane` | Paper Plane | | Issue 01 alternate hero. |
+| 10 | `paper-plane` | Paper Plane | | Issue 01 alternate hero. **Top search-traffic recipe page on the site** (10 of 11 pageviews from search engines, 30 days to 08-23), so worth prioritising in the shoot order. |
 | 11 | `daiquiri` | Daiquiri | | |
 | 12 | `vesper` | Vesper | | |
-| 13 | `mint-julep` | Mint Julep | 2026-08-06 | On disk. Master built from the camera file at full resolution (3072×4096). |
-| 14 | `vieux-carre` | Vieux Carré | | |
+| 13 | `mint-julep` | Mint Julep | 2026-08-06 | Alternates `julep1/julip2/julip3` parked in `public/images/cocktails/`. MOVE BEFORE PUBLISH. v2 og is the set's best social image (mint crown + ice dome). |
+| 14 | `vieux-carre` | Vieux Carré | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.25, ice and speculars; gains R0.927 G0.994 B1.103). Keeper `05dd6f2d` from the light-frost reshoot, at **42.6% headroom, the set's closest to the 47% template**. Frosted first attempt superseded, nothing from it in the repo. Cut-crystal rocks glass, one large cube legible, lemon peel a clear yellow flash mid-glass. og + card visually verified. |
 | 15 | `hanky-panky` | Hanky-Panky | | |
 | 16 | `aviation` | Aviation | | |
-| 17 | `sazerac` | Sazerac | 2026-08-06 | On disk. Master built from the camera file at full resolution (3072×4096). |
-| 18 | `bijou` | Bijou | | |
+| 17 | `sazerac` | Sazerac | 2026-08-06 | Alternates `sazerac1–4` parked in `public/images/cocktails/`. MOVE BEFORE PUBLISH. og regenerated under v2 08-22. |
+| 18 | `bijou` | Bijou | | Least-trafficked; defer or stage with color blend (see staging guide). |
 
 Slugs verified against `src/data/cocktails.json` on 2026-08-02. Filenames must use
 these exact strings.
 
-Nothing is wired into a page yet, and that is deliberate. One photographed card next to
-seventeen blanks reads as broken. The grid changes in a single commit when the set is done.
+Nothing is wired into a page yet, and that is deliberate. The grid changes in a single
+commit when the set is done.
 
-## Git state changed 2026-08-02/04: photos are now IGNORED, not just untracked
+## The vieux carré session, 2026-08-22 (late). RESOLVED: reshoot won
 
-Per Claude Code's session (commit `503d29a`, pushed; relayed by the user 2026-08-04):
-Cloudflare builds from the GitHub repo, so nothing untracked was ever at risk of going
-live — but `git add .` would have published the in-progress set. The guard is now in
-`.gitignore`:
+**First attempt, five frames:** frost went from veil to curtain. The deep-frozen glass
+fogged over completely, the top half read as white fog, the drink showed only as a band
+in the bottom third, and the page's "single large ice cube" wasn't legible. Liquid
+color where visible was right (sat 0.61–0.72), so it was purely a visibility problem.
+Sharpness ran 79–135 (dim fog has no edges). Best frame `917a0a13` (38%/106). Cowork
+recommended a light-frost reshoot; the user shot it the same night.
 
-```gitignore
-/photos/
-/public/images/cocktails/
-/_to_delete/
-/public/images/IMG_*.jpg
-/public/images/IMG_*.jpeg
-```
+**Reshoot, three frames.** ONE variable changed per the brief (much lighter frost,
+one large cube visible). Full camera res (3072×4096, EXIF orientation 6; pipeline bakes
+it). Measured in one self-consistent run, references included:
 
-Verified there with `git check-ignore`; after the rule, `git add .` can stage only
-`.gitignore`, two `.claude/` files, and `scripts/photos/process.py`. The loose
-`public/images/IMG_20260801_170152054.jpg` (944KB phone photo, referenced nowhere) is
-caught by the IMG_* rule.
+| frame | headroom | sharpness | liquid sat |
+|---|---|---|---|
+| manhattan keeper (set ref) | 29.9% | 410 | 0.64 |
+| VC frosted best `917a0a13` | 37.7% | 313 | 0.64 |
+| reshoot `0c43e248` | 32.7% | 660 | 0.66 |
+| reshoot `2d977796` | 36.1% | 509 | 0.65 |
+| **reshoot `05dd6f2d`, KEEPER** | **42.6%** | **567** | **0.66** |
 
-**Publish flow when the set is done:** delete the `/public/images/cocktails/` line from
-`.gitignore` and commit the finished renders in one go. `scripts/photos/process.py`
-stays trackable (can't publish an image) — committed in `e200b6d` on 2026-08-04.
+Every reshoot frame beat the entire frosted batch on sharpness (lit crystal has edges,
+fog doesn't) and two beat the Manhattan keeper. `05dd6f2d` took it: closest headroom
+to the 47% template of any keeper in the project, drink legible top to bottom, cube
+reads, lemon peel visible. Committed (original, master, 8 renders). The frosted frames
+never entered the repo; the "frost is a veil, not a curtain" rule (below) is now
+validated by measurement, not just taste.
 
-**Consequence worth stating plainly: git no longer backs up the photos.** The original
-design intent in this log ("outside `public/`, so git keeps them") is dead — `/photos/`
-being ignored means originals and masters exist only on the user's disk until the ignore
-is lifted or they're backed up elsewhere. Four shot days of work currently have no second
-copy beyond the Downloads folder on the same machine. Worth a cloud/drive backup of
-`photos/` before the set grows much larger.
+## The manhattan session, 2026-08-22 (evening)
 
-## Corrections to earlier entries in this log (2026-08-04)
+Six frames at full camera res. Keeper `748a0068` at **30% / 243**, best on both axes.
+Backup `add67f80` (28%/217). Rejected: `26785d44` (17%/101, soft), `77d7b6d9` (12%/125),
+`3ae67d92` (17%/211), `4d3ee0ef` (20%/162). Anchor sat 0.06, gains R0.983 G0.995 B1.023.
+Committed (original, master, 8 renders).
 
-- "In repo … in git" (status table, storage section): the photos were never tracked, so
-  they were on disk but not in git, and still aren't — now by explicit rule. Wording
-  above updated to "on disk".
-- "`IMG_20260801_170152054.jpg` … ships to the CDN on every deploy": wrong mechanism —
-  Cloudflare builds from GitHub, not the local folder, so an untracked file in `public/`
-  never deployed. (CC's message also contained a garbled line suggesting it *was* live
-  at camera resolution — but the same message says the push was a content no-op, and an
-  untracked file can't have been in the GitHub build. If it matters, the check is:
-  `curl -sI https://freezerbatchcocktails.com/images/IMG_20260801_170152054.jpg` and
-  look at content-type — `image/*` = it's live, `text/html` = it's the 404 page.)
-- "Needs a commit" (open decisions): superseded — the photo dirs are deliberately
-  ignored; only `scripts/photos/process.py` still wanted committing (done in `e200b6d`,
-  2026-08-04).
-- Related soft-404 fact, independently confirmed by CC: the site returns HTTP 200 with
-  the 404 page's HTML (71,480 bytes, `text/html`) for nonexistent paths. Already in the
-  critical-fixes corrections log ("health checks must assert content-type"); Google
-  treats it as soft 404. Unfixed, known, parked.
+Four recipes shot 08-22 in one day (margarita, negroni, manhattan, vieux carré including
+its same-night reshoot), far ahead of the dated plan.
 
-## Where everything lives
+## og crop rule v2, 2026-08-22 (pipeline change, pending git commit)
 
-On the user's machine, on disk. Not in a chat session and not in this project, because
-project storage rejects image uploads. NOT in git — see the git-state section above.
+v1 aimed a fixed 16%-of-height window (tuned for the 47%-headroom template) and sliced
+mid-glass on tighter frames, flagged by the user on the margarita. **v2 anchors on the
+measured rim**: `find_rim()` = first row where the bright vessel mass starts against the
+dark wall (dense >0.45-value run in the centre band; v1 fallback if nothing triggers),
+placed ~22% from the strip top. One rule for every photo. Measured rims: martini 22%,
+julep 23%, negroni 25%, margarita 32%, old fashioned 41%, sazerac 49%, vieux carré 43%.
+All og pairs regenerated (older rebuilt from masters; grades reproduced to ±0.001).
+Visually checked: margarita, negroni, julep, vieux carré.
 
-- `photos/originals/<slug>.jpg` — the camera file. Nothing done to it.
-- `photos/masters/<slug>.jpg` — what the web files were built from. Upright, EXIF rotation
-  baked into pixels. May be the original or a retouched version of it.
-- `public/images/cocktails/<slug>*.{jpg,webp}` — four rendered sizes, jpg plus webp.
-- `scripts/photos/process.py` — the pipeline. One command per photo. Committed (`e200b6d`).
-- `photos/README.md` — how to run it and why it works the way it was.
+**`scripts/photos/process.py` in the working tree carries v2** (plus the 08-03 fixes,
+already awaiting commit). CC: commit the script.
 
-Run: `python3 scripts/photos/process.py <source.jpg> <slug>`
+## The negroni session, 2026-08-22
 
-The originals/masters split exists so a retouch is never destructive. If a cleanup ages
-badly, the camera file is still there to start over from. Both folders sit outside
-`public/`, so Cloudflare never ships them — and since 503d29a git ignores them too
-(see the backup consequence above).
+Four uploads, one duplicate; full camera res. Keeper `abf0f715` (25% headroom, sharpest
+centre). Rejected `c5d357df`/`a63bf22e` (same frame, 11%). Backup `360ff4ca`. Anchor sat
+0.25 (frost), gains R0.941 G0.961 B1.129.
 
-## Rules that keep 18 photos looking like one set
+## The margarita session, 2026-08-22
 
-Same grade for every photo, no per-image tuning. A photo corrected into matching the
-others looks corrected. Shot into matching, it just looks like a set. If one frame needs
-different treatment, reshoot it rather than forking the script.
+Four frames, full camera res. Keeper `69b95c9e` (33%/90%); backup `06e398ff`; two
+rejected (base 85% / low headroom). Anchor sat 0.05 (salt rim, cleanest in set), gains
+R0.989 G0.992 B1.020. v1 og sliced mid-glass, which prompted v2.
 
-Same wall, same wood, same lamp, every session. Indoor light is the asset here: unlike a
-window it does not shift with the weather or the hour, so day one and day six match.
+**Prose-agreement note (same class as the storage-honesty fix):** the margarita photo
+shows a **salt + Tajín rim and a dried lime wheel**; the live page says "salt rim
+optional. Garnish with lime wheel." Align the serving line in `cocktails.json` (CC
+one-liner; timing-sheet regen NOT needed, this is serving text rather than storage data)
+or reshoot plain-salt. Decide before the grid publishes.
 
-Lamp behind and above the camera, never off to the side. Side light lands in the glass as
-a bright vertical band.
-
-**No portrait mode.** Learned 2026-08-03: one of the three Old Fashioned frames was shot
-in portrait mode. The synthetic background blur is measurable (background wood detail
-crushed to 0.40 against 2.06 in the straight frames) and computational bokeh next to
-seventeen straight captures reads as a different camera. Straight captures only.
-
-Pour and garnish last. Frost beads and starts running inside about a minute out of the
-freezer.
-
-Leave the empty wall across the top of frame. That is where headline text goes.
-
-Step back further than looks right and crop in later. Frame one had the foot of the glass
-tight to the bottom edge, which left the crop nowhere to move. One of the 2026-08-03
-Old Fashioned frames repeated exactly this mistake (base on the bottom edge) and was
-rejected for it. The frame that was used had 47% headroom above the rim and the base at
-91% — that framing is the template.
-
-Send camera files, not chat uploads, when possible. The chat pipeline downscaled two of
-the three Old Fashioned frames from the camera's ~3054px to ~1946px and recompressed
-them. Enough for the 1200px renders, but the master should be the camera file. See the
-open item below. (The 2026-08-06 session did this right: both originals arrived as
-full-resolution camera files and were verified 4096×3072 and >2.5MB before processing.)
-
-## The white balance: anchor changed 2026-08-03
-
-The original rule — top 1.5% of luminance is the white reference, applied at 62% — rested
-on "frost is the brightest thing in frame and frost is neutral." That premise died on the
-Old Fashioned: in a clear rocks glass, the brightest thing in frame is the lit whiskey.
-The anchor measured saturation 0.51, R/B 2.07 — the script took half-saturated amber as
-white and asked for blue gain 1.36, turning the whole frame cold. It also failed to
-converge: the harder it corrected, the further from the martini it landed. Most of the
-remaining set is amber or red (Negroni, Manhattan, Boulevardier, Sazerac, Vieux Carré),
-so this was going to misfire on over half the set. Frame one's frost was itself only
-marginally neutral (sat 0.33); the 62% damping had been hiding it.
-
-**New rule, in the repo as of 2026-08-03:** the anchor is the least-saturated quarter of
-the brightest 1.5%. On a frosted glass that is the frost; on a clear glass it is the ice
-and the rim specular, which carry the lamp's colour rather than the drink's. Everything
-else (62% strength, black point, gamma) unchanged.
-
-Evidence it converges — same lamp should mean same correction, and now it does:
-
-| frame | blue gain, old rule | blue gain, new rule |
-|---|---|---|
-| martini original (logged 2026-08-02) | 1.156 | — |
-| martini master (shipped) | 1.092 | 1.041 |
-| old fashioned, all three frames | 1.33–1.36 | 1.139–1.149 |
-
-The three Old Fashioned frames, shot minutes apart, agree within 0.010 under the new
-rule. Validation: the test harness reproduced the 2026-08-02 logged martini numbers to
-the decimal before any comparison was trusted.
-
-The martini web renders were rebuilt under the new rule so the whole set is on one grade:
-global drift 1.5 levels out of 255 (a tenth of what the ChatGPT round-trip did to
-untouched regions). `photos/masters/dirty-martini.jpg` and
-`photos/originals/dirty-martini.jpg` were not touched.
-
-`process.py` now prints the anchor's saturation and warns above 0.35 — a frame with
-nothing neutral in it announces itself instead of grading wrong silently.
-
-**Also fixed in the same edit:** `process.py` wrote its outputs relative to its own
-directory (`scripts/photos/masters/`, `scripts/photos/web/`), not to `photos/masters/`
-and `public/images/cocktails/` where the README, this log, and frame one's actual files
-live. Frame one's files evidently reached the right places by hand. Output paths are now
-repo-rooted and match the README.
-
-## The white balance, frame-one record (old rule, kept for reference)
-
-Frame one, camera original: frost read R235.1 G195.7 B156.5, gains R0.896 G1.000 B1.156,
-post-grade R209.5 G194.2 B178.7 (R/B 1.173).
-
-Frame one, retouched master (what shipped): frost read R230.9 G203.0 B177.4, gains
-R0.927 G1.002 B1.092, post-grade R216.5 G202.7 B190.9 (R/B 1.134).
-
-## The old fashioned session, 2026-08-03
-
-Three frames sent through chat. The one used: `IMG_20260803_172407968` — straight
-capture, 47% headroom, base at 91%, clean background. Rejected: `IMG_20260803_172406533`
-(base on the bottom edge, frame one's mistake repeated) and the `_PORTRAIT` frame
-(synthetic bokeh, see rules). Processed with the new anchor: anchor sat 0.29, gains
-R0.923 G0.969 B1.149. Master and all eight renders on disk.
+**Portrait-mode check unconfirmed for all 08-22 sessions.** Photographer to confirm
+straight captures.
 
 ## The mint julep and sazerac session, 2026-08-06
 
-Two camera originals came off the phone at full resolution — the first session where
+Two camera originals came off the phone at full resolution, the first session where
 the "send camera files, not chat uploads" rule was followed from the start. Both
 verified 4096×3072 (3.00 MB / 2.88 MB) before processing, copied to
 `photos/originals/`, Downloads copies retained as the second on-machine copy.
@@ -214,12 +129,12 @@ Processed with the 08-03 anchor rule:
 | mint-julep | R253.8 G251.6 B240.4 | 0.06 | R0.987 G0.993 B1.021 |
 | sazerac | R248.2 G244.5 B218.0 | 0.12 | R0.972 G0.981 B1.054 |
 
-Both anchors far under the 0.35 warning line. The julep barely needed correction —
+Both anchors far under the 0.35 warning line. The julep barely needed correction;
 crushed ice over a silver cup is the friendliest anchor the rule will ever see.
 
 The sazerac was the second real test of the anchor rule on amber-in-clear-glass, the
 case it was built for. Result: correction in the same direction as the old fashioned
-(R down, B up) but about half the magnitude — B gain 1.054 against the old fashioned's
+(R down, B up) but about half the magnitude, B gain 1.054 against the old fashioned's
 1.149 under the same lamp. **The old fashioned's B1.149 reference is suspect until its
 camera original turns up**: those numbers were measured on the chat-downscaled master,
 and chat recompression plausibly shifted the measured cast. Re-measure when the camera
@@ -228,6 +143,134 @@ file arrives and the master rebuilds.
 Renders inspected visually at card size: amber reads amber, wood keeps its warmth, wall
 stays neutral, julep ice is clean white. No reshoot indicated. Masters and all eight
 renders per slug on disk.
+
+## The old fashioned session, 2026-08-03
+
+Three frames sent through chat. The one used: `IMG_20260803_172407968`, a straight
+capture, 47% headroom, base at 91%, clean background. This is the template frame.
+Rejected: `IMG_20260803_172406533` (base on the bottom edge, frame one's mistake
+repeated) and the `_PORTRAIT` frame (synthetic bokeh, see rules). Processed with the new
+anchor: anchor sat 0.29, gains R0.923 G0.969 B1.149. Master and all eight renders on disk.
+
+## 2026-08-23 correction: two divergent copies of this log
+
+Found while updating the backup status. The repo copy carried a header declaring itself
+canonical and the project-storage copy frozen, written 2026-08-06. Cowork sessions from
+08-21 onward updated only the project-storage copy. Result: the repo copy sat at 4/18
+with no record of the margarita, negroni, manhattan or vieux carré sessions, while the
+project copy had lost the full mint-julep/sazerac numbers and the retouch measurements.
+
+Neither copy was complete. This version is the merge, written to both. The header at the
+top now says so. Same class of error as the 08-21 reconciliation and critical-fixes
+correction 8: a doc that claimed a state the disk disagreed with.
+
+## 2026-08-21 reconciliation (Cowork, via connected repo folder)
+
+This log said 2/18; the disk said 4/18. Mint-julep and sazerac were shot 08-06 but
+never logged. Corrected. Also:
+
+- **Seven alternate/reject frames live in `public/images/cocktails/`** (`sazerac1–4`,
+  `julep1`, `julip2`, `julip3`). Gitignored today, but the publish flow lifts the ignore,
+  so **clean these out before the publish commit**. Bridge can't move files; user or CC.
+- `originals/old-fashioned.jpg` still absent.
+- Backup state: **RESOLVED 2026-08-23.** Originals and masters are backed up in Google
+  Cloud (user-confirmed). No longer single-copy.
+
+Shoot plan and staging recipes for the remaining recipes: `claude/photo-staging-guide.md`.
+
+## Git state changed 2026-08-02/04: photos are IGNORED, not just untracked
+
+Per Claude Code's session (commit `503d29a`, pushed): Cloudflare builds from the GitHub
+repo, so nothing untracked was ever at risk of going live, but `git add .` would have
+published the in-progress set. The guard is in `.gitignore`:
+
+```
+/photos/
+/public/images/cocktails/
+/_to_delete/
+/public/images/IMG_*.jpg
+/public/images/IMG_*.jpeg
+```
+
+**Publish flow when the set is done:** delete the `/public/images/cocktails/` line from
+`.gitignore` and commit the finished renders in one go, after the alternate-frame
+cleanup. `scripts/photos/process.py` stays trackable and **now carries the v2 og rule and
+wants a commit** (see the v2 section).
+
+**Git does not back up the photos**, and that is fine as of 2026-08-23: originals and
+masters are backed up in Google Cloud. The ignore is a publish guard, not a backup
+question.
+
+## Corrections to earlier entries in this log (2026-08-04)
+
+- "In repo … in git": photos were never tracked; wording corrected to "on disk".
+- "`IMG_20260801_170152054.jpg` ships to the CDN": wrong mechanism. Cloudflare builds
+  from GitHub, not the local folder. Check method if it matters: `curl -sI` and read
+  content-type (`image/*` = live, `text/html` = the 404 page).
+- "Needs a commit": superseded, photo dirs deliberately ignored.
+- Soft-404 fact (site returns 200 + 404-page HTML for nonexistent paths): known, parked.
+- (08-22) Earlier notes in this log and the staging guide said Vieux Carré takes a
+  cherry garnish; the live page says **lemon peel**. Corrected, the page is the spec.
+
+## Where everything lives
+
+Repo root: `C:\Users\zckpe\Documents\claude-projects\freezer-batch-cocktails`.
+
+- `photos/originals/<slug>.jpg`: the camera file. Nothing done to it.
+- `photos/masters/<slug>.jpg`: upright, EXIF baked, what web files are built from.
+- `public/images/cocktails/<slug>*.{jpg,webp}`: four rendered sizes, jpg + webp.
+- `scripts/photos/process.py`: the pipeline. One command per photo.
+- `photos/README.md`: how to run it.
+
+Run: `python3 scripts/photos/process.py <source.jpg> <slug>`
+
+## Rules that keep 18 photos looking like one set
+
+Same grade for every photo, no per-image tuning. Same wall, same wood, same lamp. Lamp
+behind and above the camera, never off to the side. **No portrait mode** (synthetic
+bokeh measurably differs; straight captures only). Pour and garnish last, frost runs
+within a minute. Leave empty wall across the top of frame for headline text. **Step back
+further than looks right**: the template is 47% headroom, base at 91%; the VC reshoot
+keeper hit 42.6%, the project's best. Send camera files when possible; check upload
+resolution per batch. **(08-22) Frost is a veil, not a curtain.** A deep-frozen thick
+glass fogs over completely and hides the drink; shorter freeze, pour, shoot immediately.
+Validated same night by the VC reshoot: sharpness 313 → 567 with the drink fully legible.
+
+**New (08-23): shoot the pour before the still.** Instagram is the chosen growth channel
+and still photos are its lowest-reach format. Every remaining recipe gets a short video of
+the pour out of the frozen bottle, shot on the same set before the still frame: phone
+propped, one take, six to fifteen seconds, no talking. A cold batch pours slow and viscous
+and the glass fogs on contact, which is the most distinctive thing this project owns and
+the one asset it has never captured. Plan: `claude/instagram-plan-2026-08-23.md`.
+
+## The white balance: anchor changed 2026-08-03
+
+v1 (top 1.5% luminance as white) died on the Old Fashioned: lit amber liquid topped the
+luminance stack and the grade cooled the frame trying to neutralise whiskey. **v2 rule:
+the anchor is the least-saturated quarter of the brightest 1.5%**, meaning frost, ice, rim
+speculars, salt. 62% strength, black point, gamma unchanged. `process.py` warns above
+0.35 anchor saturation.
+
+Convergence evidence (same lamp → same correction):
+
+| frame | blue gain |
+|---|---|
+| martini master | 1.041 |
+| old fashioned (three frames) | 1.139–1.149 |
+| mint julep | 1.022 |
+| sazerac | 1.054 |
+| margarita | 1.020 |
+| negroni | 1.129 |
+| manhattan | 1.023 |
+| vieux carré | 1.103 |
+
+## The white balance, frame-one record (old rule, kept for reference)
+
+Frame one, camera original: frost read R235.1 G195.7 B156.5, gains R0.896 G1.000 B1.156,
+post-grade R209.5 G194.2 B178.7 (R/B 1.173).
+
+Frame one, retouched master (what shipped): frost read R230.9 G203.0 B177.4, gains
+R0.927 G1.002 B1.092, post-grade R216.5 G202.7 B190.9 (R/B 1.134).
 
 ## The reflection on frame one
 
@@ -267,10 +310,10 @@ from your own photo is ordinary retouching, and it does not undercut the site's 
 
 ## Measured costs of the ChatGPT route
 
-Worth knowing before using it on the remaining 14. None of it is disqualifying for one
+Worth knowing before using it on the remaining ten. None of it is disqualifying for one
 photo; across eighteen it is worth avoiding, and the way to avoid it is lamp position.
 
-**The whole frame passes through the model, not just the part being fixed.** Areas with
+**The whole frame passes through the model, not only the part being fixed.** Areas with
 nothing to edit came back different. Version 2 drifted further than version 1 did:
 
 | Region | v1 drift | v2 drift (shipped) |
@@ -291,28 +334,13 @@ against 48KB. At 18 cards that is real page weight.
 
 ## Open decisions
 
-**Cold Open Issue 01 hero.** Currently drafted around the Margarita. That was a drafting
-choice made on 2026-08-02 for Labor Day timing plus the "fresh lime holds two to three
-weeks" hook, not a decision the user made. Nothing is locked. The Old Fashioned now has a
-photograph, which changes the calculus if leading with a photographed drink matters — as
-do the Mint Julep and Sazerac as of 08-06. Awaiting his call. Margarita shoot due
-~Aug 18 either way; the issue ships text-only if missed.
-
-**Old fashioned camera file.** `photos/originals/old-fashioned.jpg` does not exist yet,
-and the master was built from a chat-downscaled upload (1459x1946 against the camera's
-~2290x3054). When the camera file comes off the phone: drop it in `photos/originals/`,
-rerun `python3 scripts/photos/process.py photos/originals/old-fashioned.jpg old-fashioned`,
-and the master and all renders rebuild at full resolution. Nothing else to redo — that
-rebuild-from-one-command property is why masters exist. Its logged gains
-(R0.923 G0.969 B1.149) are also suspect until then — see the 08-06 session note.
-
-**Photo backup.** Now that `/photos/` is gitignored, originals and masters live only on
-the user's disk. Decide a second copy (external drive, cloud folder) before the set grows.
-Four of eighteen shot as of 08-06; the only second copies are the camera-file duplicates
-still sitting in Downloads on the same machine.
-
-**Housekeeping.** `_to_delete/` is now gitignored and holds (verified still present
-2026-08-06): `fbc-photos-drop.zip`, `fbc-repo-snapshot.tar.gz`, `stale-index.lock`,
-`tmp_obj_sfdt3B` — all waiting on the user to delete; the device bridge cannot remove
-files. `public/images/IMG_20260801_170152054.jpg` is caught by the IMG_* ignore rule;
-delete or wire it up at leisure.
+**Issue 01 hero.** Margarita hero + og EXIST; if the send hasn't gone, the image row is
+on the table. Send window closes Mon Aug 24; postal address still the gate.
+**Margarita prose agreement.** See session note.
+**Old fashioned camera file.** Still wanted; rebuild rerenders at full res and settles
+the suspect B1.149 reference.
+**Alternate-frame cleanup.** sazerac1–4, julep1, julip2/3 out of the web dir pre-publish.
+**Pending git commit.** `scripts/photos/process.py` (08-03 fixes + 08-22 og v2).
+**Shoot order.** paper-plane is the top search-traffic recipe page and still has no photo.
+**Housekeeping.** `_to_delete/` contents (4 files) still await manual deletion;
+`IMG_20260801_170152054.jpg` delete or wire at leisure.
