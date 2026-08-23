@@ -34,12 +34,14 @@ first, then the still.
 ## Setup, once
 
 **Handle and name field.** Instagram's search indexes the Name field as well as the
-handle, and most people never fill it in. Handle: something short and unambiguous. Name field: `Freezer Batch Cocktails |
-Make-Ahead Drinks`. That's where the keywords earn their keep.
+handle, and most people never fill it in. It caps at 30 characters, so the two fields
+should cover different terms rather than repeat each other: brand in the handle, search
+phrasing in the name field. Handle `@freezerbatchcocktails`, name field
+`Make-Ahead Freezer Cocktails` (28 characters).
 
-**Bio.** Say the mechanism, not the vibe. Something close to: "Cocktails you batch on
-Friday and pour from the freezer. No ice, no shaking, no bartending at your own party.
-Free label sheet below."
+**Bio.** 150 characters. Say the mechanism, not the vibe, because the mechanism is the
+surprising part. Recommended: "Cocktails that live in your freezer and pour like a bar
+made them. 18 recipes, a calculator for any bottle, free labels below." (126 characters)
 
 **Link.** Point it at the site with a tracking tag so PostHog can actually see it:
 `https://freezerbatchcocktails.com/?utm_source=instagram&utm_medium=bio&utm_campaign=profile`.

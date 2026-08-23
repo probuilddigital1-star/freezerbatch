@@ -43,34 +43,52 @@ place early for next year.
 
 ## Instagram caption (carousel)
 
-> A margarita batched this Friday is at its best over Labor Day weekend.
+> A cocktail that lives in your freezer and pours like it just came off a bar.
 >
-> Fresh lime is the clock. It is brightest for the first two or three weeks in the
-> freezer, so Friday the 28th puts the bottle at day 8 to 10 on the holiday, citrus
-> still sharp.
+> That is the whole idea here. Batch it once, keep it above 22% ABV so it never sets
+> solid, and it goes freezer to glass. No ice, no shaking, no measuring while people
+> stand around waiting.
 >
-> No water in this one. The lime is already doing that job. Keep it at 22% ABV or higher
-> and it pours straight from the freezer instead of setting into a block.
+> Starting with a margarita, because Labor Day is close. Fresh lime is the clock:
+> brightest for the first two or three weeks, so batching Friday the 28th puts the bottle
+> at day 8 to 10 on the holiday with the citrus still sharp. No added water, the lime is
+> already doing that job.
 >
-> Ten minutes of work on Friday, then nothing until you pour. Swipe for the three dates.
+> Swipe for the three dates.
 >
-> What are you batching for Labor Day?
+> More of these to come, one recipe at a time with the timing that makes it work. What
+> are you batching for Labor Day?
 >
 > #freezercocktails #batchcocktails #makeaheadcocktails #margarita #cocktailrecipes
 > #homebar #laborday #entertainingathome
 
-The question at the end is doing real work. Comments count for more than likes, and a
-question people can answer in three words is the cheapest way to get them.
+**Written for a cold audience, because this is the first post on the account.** The
+earlier draft opened with "batched this Friday", which only means something to a reader
+who already knows what a freezer batch is. Nobody following this account does yet. Line
+one now states the premise instead of assuming it, and the mechanism (above 22% ABV so
+it never sets solid) is the part strangers actually find surprising. The closing line
+signals what the account will be without the throat-clearing of announcing a new page.
+
+The question at the end is doing real work too. Comments count for more than likes, and a
+question people can answer in three words is the cheapest way to earn them.
+
+Slide 1's on-image subline changed for the same reason. It now reads "Pours straight from
+the freezer. No ice, no shaking." rather than "One bottle. Ten minutes. Done by Friday
+night." Roughly half of feed viewers never read the caption, so the image has to carry
+the premise on its own.
 
 ## Instagram caption (single image, if you skip the carousel)
 
-> Batched this Friday, best over Labor Day weekend.
+> A cocktail that lives in your freezer and pours like it just came off a bar.
 >
-> Fresh lime is the clock on a margarita batch, brightest in the first two or three weeks.
-> Friday the 28th puts the bottle at day 8 to 10 on the holiday. No added water, 22% ABV
-> or higher, and it pours straight from the freezer.
+> Batch it once, keep it above 22% ABV so it never sets solid, and it goes freezer to
+> glass. No ice, no shaking.
 >
-> Recipe and a calculator for your bottle size at the link in bio.
+> Starting with a margarita, because Labor Day is close. Fresh lime is the clock:
+> brightest for the first two or three weeks, so batching Friday the 28th puts the bottle
+> at day 8 to 10 on the holiday.
+>
+> Recipe and a calculator for your bottle size at the link in bio. More of these to come.
 >
 > What are you batching for Labor Day?
 >
