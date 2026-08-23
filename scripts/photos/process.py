@@ -86,6 +86,21 @@ def emit(im, outdir, name):
                                              os.path.getsize(w) >> 10))
 
 
+def find_rim(im):
+    """Top of the vessel: the first row where the bright glass/frost mass starts.
+
+    The set's framing is constant — dark wall above, lit vessel below — so the
+    first row with a dense run of bright pixels in the centre band is the rim.
+    Returns None if nothing triggers (then the caller falls back to the v1
+    fixed offset)."""
+    v = np.asarray(im).astype(np.float32).max(axis=2) / 255.0
+    w = im.width
+    band = v[:, int(w * 0.30):int(w * 0.70)]
+    hits = (band > 0.45).sum(axis=1) > band.shape[1] * 0.10
+    idx = np.flatnonzero(hits)
+    return int(idx[0]) if idx.size else None
+
+
 def crops(im, slug, outdir):
     fw, fh = im.size
 
@@ -99,7 +114,14 @@ def crops(im, slug, outdir):
     emit(card.resize((760, 950), Image.LANCZOS), outdir, f"{slug}-card-760")
 
     oh = int(fw / 1.9048)                       # 1200x630
-    oy = int(fh * 0.16)
+    # v2 (2026-08-22): anchor the social crop on the measured rim instead of a
+    # fixed 16% offset. The fixed offset assumed the 47%-headroom template
+    # framing; on tighter frames it sliced through the middle of the glass
+    # (found on the margarita). Rim sits ~22% from the strip top so the banner
+    # reads rim-and-drink with headline air above. Same rule for every photo.
+    rim = find_rim(im)
+    oy = int(rim - 0.22 * oh) if rim is not None else int(fh * 0.16)
+    oy = max(0, min(oy, fh - oh))
     og = im.crop((0, oy, fw, oy + oh)).resize((1200, 630), Image.LANCZOS)
     emit(og, outdir, f"{slug}-og")
 
