@@ -301,3 +301,73 @@ test.describe('analytics events', () => {
     expect(analyticsRequests).toEqual([]);
   });
 });
+
+/**
+ * Minimal Turnstile + /api/email stand-ins. The analytics dev server has no
+ * Turnstile site key, so without this the submit button is disabled and the
+ * opt-in path is unreachable.
+ */
+async function enableSignupPath(page: Page) {
+  await page.addInitScript(() => {
+    type Options = { callback: (token: string) => void };
+    (window as unknown as { turnstile: unknown }).turnstile = {
+      render: (_container: Element, options: Options) => {
+        options.callback('test-turnstile-token');
+        return 1;
+      },
+      reset: () => undefined,
+    };
+    const setTestKey = () => {
+      document.querySelectorAll('email-signup-form').forEach((el) => el.setAttribute('data-turnstile-site-key', 'test-site-key'));
+    };
+    new MutationObserver(setTestKey).observe(document, { childList: true, subtree: true });
+    setTestKey();
+  });
+  await page.route('**/api/email', (route) =>
+    route.fulfill({ status: 202, contentType: 'application/json', body: JSON.stringify({ ok: true }) }),
+  );
+}
+
+async function subscribeAt(page: Page, placement: string) {
+  const form = page.locator(`email-signup-form[data-placement="${placement}"]`);
+  await form.locator('input[type="email"]').fill('person@example.com');
+  await form.locator('button[type="submit"]').click();
+  await expect(form.getByRole('status')).toContainText("You're in.");
+}
+
+test.describe('newsletter_optin placement', () => {
+  test('each capture module reports which one earned the signup', async ({ page }) => {
+    await stubPostHog(page);
+    await enableSignupPath(page);
+
+    // Two instances on a recipe page: page_type alone cannot tell them apart,
+    // which is the entire reason `placement` exists.
+    await page.goto('/cocktails/negroni/');
+    await subscribeAt(page, 'inline-post-calculator');
+    let optin = first(await captured(page), 'newsletter_optin');
+    expect(optin?.props).toMatchObject({ page_type: 'recipe', placement: 'inline-post-calculator' });
+
+    await page.goto('/cocktails/negroni/');
+    await subscribeAt(page, 'page-bottom');
+    optin = first(await captured(page), 'newsletter_optin');
+    expect(optin?.props).toMatchObject({ page_type: 'recipe', placement: 'page-bottom' });
+
+    await page.goto('/');
+    await subscribeAt(page, 'homepage-footer');
+    optin = first(await captured(page), 'newsletter_optin');
+    expect(optin?.props).toMatchObject({ page_type: 'home', placement: 'homepage-footer' });
+
+    // Still no address, by any route.
+    const serialized = JSON.stringify(await captured(page));
+    expect(serialized).not.toContain('person@example.com');
+  });
+
+  test('an opt-in carries no properties beyond page_type and placement', async ({ page }) => {
+    await stubPostHog(page);
+    await enableSignupPath(page);
+    await page.goto('/cocktails/negroni/');
+    await subscribeAt(page, 'inline-post-calculator');
+    const optin = first(await captured(page), 'newsletter_optin');
+    expect(Object.keys(optin?.props ?? {}).sort()).toEqual(['page_type', 'placement']);
+  });
+});

@@ -200,6 +200,22 @@ const recipeSchema = {
         <Calculator cocktailSlug={cocktail.slug} />
       </section>
 
+      <!-- Cold Open — inline capture, directly after the calculator.
+           Added 2026-08-23. Someone who has just sized a batch to their own
+           bottle is the most qualified reader on the page, and a printable
+           bottle-label sheet is the literal next thing they need. The card at
+           the foot of the page stays: it costs nothing, and `placement` on
+           newsletter_optin now tells the two apart. -->
+      <section class="mb-12">
+        <EmailSignup
+          variant="card"
+          placement="inline-post-calculator"
+          headline="Label the bottle before it goes in."
+          promise="Free printable label sheet, plus one make-ahead recipe and a hosting timeline each month."
+          ctaLabel="Get the free label sheet"
+        />
+      </section>
+
       <!-- How to Serve -->
       <section class="mb-10 p-6 sm:p-8 bg-study-card border border-study-border">
         <p class="section-eyebrow mb-3">At Serve</p>
@@ -292,7 +308,7 @@ const recipeSchema = {
          Sits well below the calculator's own email form so the two never
          compete in one viewport. -->
     <section class="mt-16 px-6 sm:px-10 lg:px-20">
-      <EmailSignup variant="card" />
+      <EmailSignup variant="card" placement="page-bottom" />
     </section>
 
     <!-- Related Cocktails -->

@@ -4,7 +4,16 @@
 // homepage one-liner. Both post to /api/email with action 'subscribe'; the behaviour
 // below (Turnstile gating, honeypot, requestId reuse, analytics) is load-bearing and
 // is shared verbatim by both variants.
+//
+// `placement` is required, and does double duty. It is the analytics dimension
+// that tells two instances on one page apart (`page_type` cannot), and it scopes
+// this instance's element ids. A page may render this component more than once —
+// recipe pages do, since 2026-08-23 — and duplicate ids would be invalid HTML and
+// would silently mis-target every `<label for>` on the page at the first instance.
+import type { SignupPlacement } from '../lib/analytics';
+
 export interface Props {
+  placement: SignupPlacement;
   variant?: 'card' | 'footer';
   programName?: string;
   ctaLabel?: string;
@@ -14,6 +23,7 @@ export interface Props {
 }
 
 const {
+  placement,
   variant = 'card',
   programName = 'Cold Open',
   ctaLabel = variant === 'footer' ? 'Join' : 'Get the free label sheet',
@@ -21,6 +31,11 @@ const {
   promise = 'One make-ahead recipe and a hosting timeline, monthly — plus the free printable bottle-label sheet when you join.',
   reassurance = 'No spam. Unsubscribe anytime.',
 } = Astro.props;
+
+// Instance-scoped ids. The placement vocabulary is a closed set of id-safe
+// slugs, so these are stable across builds rather than randomised per render.
+const emailId = `email-input-${placement}`;
+const statusId = `form-status-${placement}`;
 
 const footerBlurb = 'A recipe and a hosting timeline, monthly.';
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
@@ -31,7 +46,7 @@ const buttonBase =
   'bg-study-accent text-study-card font-sans font-semibold uppercase hover:bg-study-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors';
 ---
 
-<email-signup-form class="block" data-turnstile-site-key={turnstileSiteKey} data-variant={variant}>
+<email-signup-form class="block" data-turnstile-site-key={turnstileSiteKey} data-variant={variant} data-placement={placement}>
   {variant === 'card' ? (
     <div class="cold-open-card max-w-[720px] mx-auto bg-study-card border border-study-border-light px-6 sm:px-[44px] py-8 sm:py-10 flex flex-col gap-5">
       <div class="flex flex-col items-start gap-3">
@@ -43,18 +58,18 @@ const buttonBase =
         <p class="text-[15px] text-study-text leading-[1.6] max-w-[520px]">{promise}</p>
       </div>
 
-      <form id="signup-form" class="flex gap-2.5 items-stretch flex-wrap">
-        <label class="sr-only" for="email-input">Email address</label>
-        <input type="email" id="email-input" name="email" placeholder="Email address" autocomplete="email" required
+      <form class="flex gap-2.5 items-stretch flex-wrap">
+        <label class="sr-only" for={emailId}>Email address</label>
+        <input type="email" id={emailId} name="email" placeholder="Email address" autocomplete="email" required
           class={`flex-1 min-w-[220px] px-4 py-[13px] text-[15px] ${inputBase}`} />
-        <button type="submit" id="submit-btn" class={`px-[26px] py-[13px] text-[12px] tracking-[0.16em] ${buttonBase}`}>{ctaLabel}</button>
+        <button type="submit" class={`px-[26px] py-[13px] text-[12px] tracking-[0.16em] ${buttonBase}`}>{ctaLabel}</button>
         <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
       </form>
 
       <div>
         <div class="turnstile-container" aria-label="Verification challenge"></div>
         <p class="turnstile-note mt-2 text-[13px] text-study-muted" aria-live="polite"></p>
-        <p id="form-status" class="hidden mt-3 text-[13px]" role="status" aria-live="polite" tabindex="-1"></p>
+        <p id={statusId} class="hidden mt-3 text-[13px]" role="status" aria-live="polite" tabindex="-1"></p>
       </div>
 
       <p class="text-[13px] text-study-muted">{reassurance} <a href="/privacy" class="underline underline-offset-4 hover:text-study-accent transition-colors">Privacy</a></p>
@@ -66,11 +81,11 @@ const buttonBase =
         <span class="font-display text-[16px] tracking-[0.16em] text-study-cream uppercase whitespace-nowrap leading-none">{programName}</span>
         <span class="text-[14px] text-study-muted">{footerBlurb}</span>
 
-        <form id="signup-form" class="flex gap-2 flex-1 min-w-[280px] justify-end flex-wrap">
-          <label class="sr-only" for="email-input">Email address</label>
-          <input type="email" id="email-input" name="email" placeholder="Email address" autocomplete="email" required
+        <form class="flex gap-2 flex-1 min-w-[280px] justify-end flex-wrap">
+          <label class="sr-only" for={emailId}>Email address</label>
+          <input type="email" id={emailId} name="email" placeholder="Email address" autocomplete="email" required
             class={`w-[200px] px-3 py-[9px] text-[14px] ${inputBase}`} />
-          <button type="submit" id="submit-btn" class={`px-[18px] py-[9px] text-[11px] tracking-[0.16em] ${buttonBase}`}>{ctaLabel}</button>
+          <button type="submit" class={`px-[18px] py-[9px] text-[11px] tracking-[0.16em] ${buttonBase}`}>{ctaLabel}</button>
           <label class="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
         </form>
       </div>
@@ -78,7 +93,7 @@ const buttonBase =
       <div class="mt-3 flex flex-col items-start gap-2 sm:items-end">
         <div class="turnstile-container" aria-label="Verification challenge"></div>
         <p class="turnstile-note text-[13px] text-study-muted" aria-live="polite"></p>
-        <p id="form-status" class="hidden text-[13px]" role="status" aria-live="polite" tabindex="-1"></p>
+        <p id={statusId} class="hidden text-[13px]" role="status" aria-live="polite" tabindex="-1"></p>
         <p class="text-[13px] text-study-muted">{reassurance} <a href="/privacy" class="underline underline-offset-4 hover:text-study-accent transition-colors">Privacy</a></p>
       </div>
     </div>
@@ -86,7 +101,7 @@ const buttonBase =
 </email-signup-form>
 
 <script>
-  import { pageType, track } from '../lib/analytics';
+  import { pageType, signupPlacement, track } from '../lib/analytics';
 
   class EmailSignupForm extends HTMLElement {
     private form: HTMLFormElement | null = null;
@@ -97,10 +112,14 @@ const buttonBase =
     private widgetId: string | number | null = null;
 
     connectedCallback() {
-      this.form = this.querySelector('#signup-form');
-      this.emailInput = this.querySelector('#email-input');
-      this.submitBtn = this.querySelector('#submit-btn');
-      this.status = this.querySelector('#form-status');
+      // Structural, not id-based: `querySelector` is already scoped to this
+      // element, but selecting on ids would re-introduce a cross-instance
+      // coupling the moment two of these share a page. Each instance owns
+      // exactly one form, one email field, one submit button, one status line.
+      this.form = this.querySelector('form');
+      this.emailInput = this.querySelector('input[type="email"]');
+      this.submitBtn = this.querySelector('button[type="submit"]');
+      this.status = this.querySelector('[role="status"]');
       this.form?.addEventListener('submit', (event) => { event.preventDefault(); void this.handleSubmit(); });
       this.form?.addEventListener('input', () => { this.requestId = null; });
       this.initializeTurnstile();
@@ -191,9 +210,12 @@ const buttonBase =
           if (response.status === 400) this.requestId = null;
           throw new Error(typeof body.code === 'string' ? body.code : 'email_request_failed');
         }
-        // Analytics: page type only — never the address.
+        // Analytics: page type and which instance earned it — never the address.
         if (response.status === 202) {
-          track('newsletter_optin', { page_type: pageType(window.location.pathname) });
+          track('newsletter_optin', {
+            page_type: pageType(window.location.pathname),
+            placement: signupPlacement(this.dataset.placement),
+          });
         }
 
         this.emailInput!.value = '';

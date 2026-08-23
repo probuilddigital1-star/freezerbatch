@@ -106,6 +106,27 @@ export function pageType(pathname: string): 'home' | 'recipe' | 'guide' | 'other
   return 'other';
 }
 
+/**
+ * Where on the page a Cold Open capture module sits.
+ *
+ * `page_type` cannot separate two instances on the same page, and as of
+ * 2026-08-23 recipe pages carry two: one directly under the calculator, where
+ * intent peaks, and the original one at the foot of the page. Without this we
+ * could see that recipe pages convert but not which ask earned it.
+ *
+ * Closed vocabulary on purpose, same rule as `pageType` and
+ * `affiliatePlacement`: an unrecognised value becomes 'other' rather than
+ * opening a free-text dimension in the analytics payload.
+ */
+export type SignupPlacement = 'inline-post-calculator' | 'page-bottom' | 'homepage-footer';
+
+const SIGNUP_PLACEMENTS: readonly string[] = ['inline-post-calculator', 'page-bottom', 'homepage-footer'];
+
+/** Normalise a rendered `data-placement` into the known vocabulary. */
+export function signupPlacement(raw: string | null | undefined): SignupPlacement | 'other' {
+  return typeof raw === 'string' && SIGNUP_PLACEMENTS.includes(raw) ? (raw as SignupPlacement) : 'other';
+}
+
 /** Affiliate placement uses its own vocabulary per the event schema. */
 export function affiliatePlacement(pathname: string): 'homepage' | 'recipe-page' | 'guide' | 'other' {
   const type = pageType(pathname);

@@ -8,6 +8,7 @@ import {
   resetAnalytics,
   retailerFromUrl,
   sanitizeProps,
+  signupPlacement,
   track,
   type AnalyticsClient,
   type EventProps,
@@ -211,6 +212,19 @@ describe('property helpers', () => {
     expect(affiliatePlacement('/cocktails/negroni/')).toBe('recipe-page');
     expect(affiliatePlacement('/blog/dilution-guide/')).toBe('guide');
     expect(affiliatePlacement('/terms/')).toBe('other');
+  });
+
+  it('maps signup placements, and closes the vocabulary', () => {
+    expect(signupPlacement('inline-post-calculator')).toBe('inline-post-calculator');
+    expect(signupPlacement('page-bottom')).toBe('page-bottom');
+    expect(signupPlacement('homepage-footer')).toBe('homepage-footer');
+    // Anything unrecognised collapses to 'other' rather than opening a
+    // free-text dimension — a recipe page renders two of these, and a typo in
+    // one `placement` attribute must not silently create a new bucket.
+    expect(signupPlacement('page_bottom')).toBe('other');
+    expect(signupPlacement('')).toBe('other');
+    expect(signupPlacement(undefined)).toBe('other');
+    expect(signupPlacement(null)).toBe('other');
   });
 
   it('identifies affiliate retailers', () => {
