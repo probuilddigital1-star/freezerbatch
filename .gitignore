@@ -47,3 +47,6 @@ nul
 # Raw camera drops that landed in public/ unprocessed.
 /public/images/IMG_*.jpg
 /public/images/IMG_*.jpeg
+
+# Python bytecode from scripts/photos/
+__pycache__/
