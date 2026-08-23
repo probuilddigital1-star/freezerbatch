@@ -152,6 +152,42 @@ Rejected: `IMG_20260803_172406533` (base on the bottom edge, frame one's mistake
 repeated) and the `_PORTRAIT` frame (synthetic bokeh, see rules). Processed with the new
 anchor: anchor sat 0.29, gains R0.923 G0.969 B1.149. Master and all eight renders on disk.
 
+## 2026-08-23 correction: generated cards contradicted their own pages
+
+Cowork generated ten typographic og placeholders for the unshot recipes and pulled ABV,
+servings and base spirit from `finalAbv` / `servings` in `src/data/cocktails.json`. The
+CC prompt even stated the numbers were "read from cocktails.json, not typed by hand", as
+though sourcing them proved they were right.
+
+They were not. **The site does not display those stored fields.** Both `/cocktails` and
+the recipe pages compute ABV and servings from `calculateMilkStreetBatch()` at render
+time, and there is a comment in `cocktails/index.astro` saying so. The stored fields have
+drifted. Seven of the ten cards disagreed with the page they were previewing:
+
+| slug | card said | page says |
+|---|---|---|
+| cosmopolitan | 22% | 32% |
+| espresso-martini | 24% | 31% |
+| moscow-mule | 25% | 30% |
+| paper-plane | 20% | 23% |
+| daiquiri | 25% | 29% |
+| boulevardier | 28% | 32% |
+| vesper | 32% | 35% |
+
+Servings were wrong on three more. The paper plane one was worse than a mismatch: 20% is
+**below the 22% freeze floor the site itself tells readers to stay above**, advertised on
+the highest search-traffic page on the site.
+
+CC caught it before it shipped and fixed the class rather than the instance: a generator
+(`generate-og-images.mjs`) that reads the same calculator the pages read, so a card cannot
+contradict its page again. It also refuses to run when `photos/masters/` is absent, so it
+can never overwrite real photographs with typography, and it stops generating for a recipe
+once that recipe is shot.
+
+**The rule this earns:** a data file is not the source of truth just because it is the
+source of the data. Check what the page renders, not where the value came from. Same class
+as the margarita prose-agreement note and the divergent-log correction below.
+
 ## 2026-08-23 correction: two divergent copies of this log
 
 Found while updating the backup status. The repo copy carried a header declaring itself
