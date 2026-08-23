@@ -50,3 +50,13 @@ nul
 
 # Python bytecode from scripts/photos/
 __pycache__/
+
+# The owner's home address is the CAN-SPAM footer value for the Cold Open
+# republish. It belongs in the email footer and nowhere else, and this
+# repository is public — so the prompt that carries it stays out of git.
+claude/cc-prompt-2026-08-23-send.md
+
+# NOTE: /social/ is deliberately NOT ignored. The rules above exist because
+# anything under public/ ships on the next deploy; social/ sits outside
+# public/ and cannot deploy, and unlike the recipe set these images are
+# finished work with no second copy. Do not "tidy up" by adding it here.
