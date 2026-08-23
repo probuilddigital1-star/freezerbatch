@@ -865,5 +865,5 @@
     "templateCredsSetupCompleted": false
   },
   "tags": [],
-  "_warning": "REVIEW AND STATIC-TEST ONLY. Credential bindings have been stripped so this file is safe to commit. Do NOT PUT this JSON: it would unbind Resend and Google Sheets from 0 nodes. Apply welcome-node.jsCode.js and recipe-node.jsCode.js on top of a fresh live export instead — see APPLY.md."
+  "_warning": "REVIEW AND STATIC-TEST ONLY. Credential bindings have been stripped so this file is safe to commit. Do NOT PUT this JSON: it would unbind Resend and Google Sheets from 6 nodes. Apply welcome-node.jsCode.js and recipe-node.jsCode.js on top of a fresh live export instead — see APPLY.md."
 }

@@ -179,7 +179,7 @@ Servings were wrong on three more. The paper plane one was worse than a mismatch
 the highest search-traffic page on the site.
 
 CC caught it before it shipped and fixed the class rather than the instance: a generator
-(`generate-og-images.mjs`) that reads the same calculator the pages read, so a card cannot
+(`scripts/generate-og-images.mjs`) that reads the same calculator the pages read, so a card cannot
 contradict its page again. It also refuses to run when `photos/masters/` is absent, so it
 can never overwrite real photographs with typography, and it stops generating for a recipe
 once that recipe is shot.
@@ -187,6 +187,18 @@ once that recipe is shot.
 **The rule this earns:** a data file is not the source of truth just because it is the
 source of the data. Check what the page renders, not where the value came from. Same class
 as the margarita prose-agreement note and the divergent-log correction below.
+
+**It recurred the same day, in the structured data.** `recipeYield` in the Recipe JSON-LD
+was built from the same stale `cocktail.servings` field and disagrees with the page on 5
+of 18 recipes: negroni, boulevardier, cosmopolitan and vesper claim 8 where the page
+computes 7; aviation claims 7 where the page computes 8. Verified independently on the
+live negroni page, which displays 7 Drinks. That is markup telling Google something the
+visible page contradicts, which Google's own structured-data guidelines treat as grounds
+for losing rich results. Fixed by deriving from `calculateMilkStreetBatch()`, the same
+remedy as the og cards.
+
+Anywhere `cocktail.servings` or `cocktail.finalAbv` is read, assume it is stale until
+proven otherwise.
 
 ## 2026-08-23 correction: two divergent copies of this log
 
