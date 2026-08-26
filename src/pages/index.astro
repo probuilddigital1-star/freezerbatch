@@ -5,6 +5,7 @@ import CocktailCard from '../components/CocktailCard.astro';
 import EmailSignup from '../components/EmailSignup.astro';
 import type { Storage } from '../components/CocktailCard.astro';
 import { allWithRecipeStats } from '../lib/recipeStats';
+import { hasPhoto } from '../lib/recipePhotos';
 
 const title = 'Freezer Batch Cocktails';
 const description = 'Calculate exact measurements for freezer batch cocktails. Do the math once, drink well forever. Free batch calculator for pre-mixed cocktails.';
@@ -14,8 +15,10 @@ const description = 'Calculate exact measurements for freezer batch cocktails. D
 const enriched = allWithRecipeStats();
 
 // Feature the batches that keep longest — the least demanding place to start.
+// Also requires a photograph: a photoless card in the featured six would be
+// the one blank tile on the page most likely to be seen.
 const featuredCocktails = enriched
-  .filter(c => c.storage.bestWithin === 'months')
+  .filter(c => c.storage.bestWithin === 'months' && hasPhoto(c.slug))
   .slice(0, 6);
 
 const schema = {

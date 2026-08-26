@@ -12,8 +12,10 @@ this does not.
 
 ## Status
 
-8 of 18 shot. All eight fully processed (master + 8 renders each). Vieux Carré
-resolved 2026-08-22: the light-frost reshoot won; committed same night.
+10 of 18 shot. All ten fully processed (master + 8 renders each — vesper's is a
+stand-in image rather than a shoot, see below). Vieux Carré resolved 2026-08-22:
+the light-frost reshoot won; committed same night. Boulevardier shot and the
+vesper stand-in added 2026-08-26.
 
 | # | Slug | Recipe | Shot | Notes |
 |---|---|---|---|---|
@@ -21,14 +23,14 @@ resolved 2026-08-22: the light-frost reshoot won; committed same night.
 | 2 | `negroni` | Negroni | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.25, frost; gains R0.941 G0.961 B1.129). Keeper `abf0f715` (25% headroom). Real Campari pour, cut-crystal rocks glass. **Welcome-email image row unblocked**; CC restores it in the republish. |
 | 3 | `manhattan` | Manhattan | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.06, gains R0.983 G0.995 B1.023). Keeper `748a0068`, best of six on BOTH axes (30% headroom, bowl sharpness 243); two rejected for visible blur. Coupe, cherry on pick, frosted stem. Card visually verified. |
 | 4 | `old-fashioned` | Old Fashioned | 2026-08-03 | Camera original STILL missing from `photos/originals/`; master is the chat-downscaled upload. og regenerated under v2 08-22. |
-| 5 | `boulevardier` | Boulevardier | | Campari now owned; shoot with Paper Plane. |
+| 5 | `boulevardier` | Boulevardier | 2026-08-26 | Master + all 8 renders on disk. Keeper `094f2c80` (31.3% headroom, bowl sharpness 217) over `f1eed49f` (29.7%/165) and `e62d77bf` (13.5%, too tight). Anchor sat 0.07, gains R0.985 G1.004 B1.011. Coupe, served up, orange peel expressed over the surface and rested on the rim. Serve line in cocktails.json corrected to match (was rocks glass); see session note below. |
 | 6 | `margarita` | Margarita | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.05, gains R0.989 G0.992 B1.020). og regenerated under v2 after the v1 crop sliced mid-glass. Salt + Tajín rim, dried lime wheel; prose-agreement note below. |
 | 7 | `cosmopolitan` | Cosmopolitan | | |
 | 8 | `moscow-mule` | Moscow Mule | | |
 | 9 | `espresso-martini` | Espresso Martini | | |
 | 10 | `paper-plane` | Paper Plane | | Issue 01 alternate hero. **Top search-traffic recipe page on the site** (10 of 11 pageviews from search engines, 30 days to 08-23), so worth prioritising in the shoot order. |
 | 11 | `daiquiri` | Daiquiri | | |
-| 12 | `vesper` | Vesper | | |
+| 12 | `vesper` | Vesper | 2026-08-26 | Stand-in, not a shoot — owner-supplied `photos/originals/vesper.png`, same class as the dirty-martini retouch. card md5 `858ba4c79fdf7864b0062b6d9e54f7e3`, og md5 `e4ed900ec399c119603a907ee67e248a`. |
 | 13 | `mint-julep` | Mint Julep | 2026-08-06 | Alternates `julep1/julip2/julip3` parked in `public/images/cocktails/`. MOVE BEFORE PUBLISH. v2 og is the set's best social image (mint crown + ice dome). |
 | 14 | `vieux-carre` | Vieux Carré | 2026-08-22 | Master + all 8 renders on disk (anchor sat 0.25, ice and speculars; gains R0.927 G0.994 B1.103). Keeper `05dd6f2d` from the light-frost reshoot, at **42.6% headroom, the set's closest to the 47% template**. Frosted first attempt superseded, nothing from it in the repo. Cut-crystal rocks glass, one large cube legible, lemon peel a clear yellow flash mid-glass. og + card visually verified. |
 | 15 | `hanky-panky` | Hanky-Panky | | |
@@ -39,8 +41,74 @@ resolved 2026-08-22: the light-frost reshoot won; committed same night.
 Slugs verified against `src/data/cocktails.json` on 2026-08-02. Filenames must use
 these exact strings.
 
-Nothing is wired into a page yet, and that is deliberate. The grid changes in a single
-commit when the set is done.
+The grid was wired to the -card renders 2026-08-26, once the ignore was lifted for
+the ten shot so far — see the correction below. It updates automatically as each
+remaining recipe is shot.
+
+## The boulevardier session, 2026-08-26
+
+Three uploads, full camera res. Keeper `094f2c80` (31.3% headroom, bowl sharpness
+217) over `f1eed49f` (29.7% headroom, sharpness 165) and `e62d77bf` (13.5% headroom,
+too tight a crop). Anchor sat 0.07 — the grade barely moved the frame — gains
+R0.985 G1.004 B1.011. Coupe, served up, orange peel expressed over the surface and
+rested on the rim. Master md5 `cd21c1a40cc9bd01f9d261ddc8b731b4`, card md5
+`10846032324de66743dc169defa965bf`, og md5 `d5356cd184017d1109b5ff7bfe9bd7e1`.
+Master + all 8 renders on disk.
+
+**Serve line corrected to match the photo.** `cocktails.json` said rocks glass;
+the recipe carries `dilutionPercent: 20` already batched in, and every other
+pre-diluted recipe on the site (dirty-martini 18%, cosmopolitan 25%,
+espresso-martini 22%, paper-plane 25%, daiquiri 8%) serves into a chilled glass
+with no ice — pouring a pre-diluted batch over ice waters it twice. Same class as
+the margarita prose-agreement note below. Now reads "Pour into a chilled coupe.
+Express an orange peel over the surface and rest it on the rim."
+
+**Open:** `affiliateProducts` for this recipe still lists a Rocks Glasses Set,
+which now contradicts the corrected serve line. Not changed here — flagged for
+the owner to decide (swap for a coupe set, or drop the line).
+
+## The vesper stand-in, 2026-08-26
+
+Not a shoot. The owner supplied a stand-in image, `photos/originals/vesper.png`,
+to unblock the card grid ahead of Vesper's real photography — same class as the
+dirty-martini retouch, a processed image in the web set that is not a straight
+camera photograph. card md5 `858ba4c79fdf7864b0062b6d9e54f7e3`, og md5
+`e4ed900ec399c119603a907ee67e248a`.
+
+Dirty-martini and vesper's serve lines both now read "chilled martini glass or
+coupe" (previously "chilled martini glass" only), since the dirty-martini photo
+is a coupe and the owner wants both to name either glass.
+
+## Negroni frost, clarified 2026-08-26
+
+All three frames from the 08-22 negroni session (see below) carry the same frost;
+there was never a clear one to pick. `photos/originals/negroni.jpg` is md5
+`0944a66720889db1900c7bc387d2e739`, which is the keeper the log already records —
+nothing was lost or mixed up. The light-frost reshoot remembered from that period
+was the Vieux Carré, not the negroni; the two sessions ran the same week. Owner's
+decision 2026-08-26: leave the negroni frame as shot, revisit once gin is back in
+the house rather than reshoot now.
+
+## 2026-08-26 correction: card renders were gitignored and never deployed
+
+Same class as the two 08-23 corrections below: a file existing on disk was taken
+for a file the site could show. `.gitignore`'s allow-list for
+`/public/images/cocktails/` admitted only `*-og.jpg`; every `-card.jpg` /
+`-card.webp` / `-card-760.*` render for all ten shot recipes had been sitting in
+the working tree, untracked and never deployed, since whenever each recipe was
+processed. `CocktailCard.astro` had no `<img>` at all, so the grid had been
+photo-free in production this whole time regardless.
+
+Fixed 2026-08-26: the allow-list now admits the four `-card` variants, and
+`src/lib/recipePhotos.ts` gives the grid one build-time answer to "does this
+slug have a photo" — checking the committed `-card.jpg`, not `photos/masters/`
+(gitignored, absent on Cloudflare's clone, the same mistake `generate-og-images.mjs`
+correctly avoids for its own purpose but that would have been wrong here).
+
+**The rule this earns, again:** a file on disk is not a file on the site. Same
+lesson as the og-card correction and the divergent-log correction below, now hit
+a third time by three different mechanisms (stale data field, stale doc header,
+gitignore allow-list).
 
 ## The vieux carré session, 2026-08-22 (late). RESOLVED: reshoot won
 

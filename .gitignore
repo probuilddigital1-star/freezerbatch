@@ -44,18 +44,24 @@ nul
 /photos/
 /_to_delete/
 
-# Recipe renders stay out until all 18 are shot — with one exception, the og
-# cards. Every page's link preview depends on one, and all 18 are correct to
-# ship today: a photograph for the 8 that are shot, a generated typographic
-# card for the 10 that are not (scripts/generate-og-images.mjs).
+# Recipe renders stay out until all 18 are shot — with two exceptions. The og
+# cards: every page's link preview depends on one, and all 18 are correct to
+# ship today: a photograph for the 10 that are shot, a generated typographic
+# card for the 8 that are not (scripts/generate-og-images.mjs). And the -card
+# renders (the 4:5 crop the recipe grid displays): published for the 10 shot
+# recipes now that CocktailCard.astro renders them, per-recipe as each is shot.
 #
 # The trailing /* matters. Git never descends into an excluded *directory*, so
 # a negation inside `/public/images/cocktails/` could not re-include anything.
 # Excluding the contents instead leaves the directory readable, and the
-# negation works. This is an allow-list: -card, -card-760, full renders, webp
-# and anything added later stay ignored unless a rule names them.
+# negation works. This is an allow-list: full renders (bare .jpg/.webp) and
+# anything added later stay ignored unless a rule names them.
 /public/images/cocktails/*
 !/public/images/cocktails/*-og.jpg
+!/public/images/cocktails/*-card.jpg
+!/public/images/cocktails/*-card.webp
+!/public/images/cocktails/*-card-760.jpg
+!/public/images/cocktails/*-card-760.webp
 # Raw camera drops that landed in public/ unprocessed.
 /public/images/IMG_*.jpg
 /public/images/IMG_*.jpeg
