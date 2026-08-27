@@ -161,6 +161,7 @@ const schema = {
             storage={cocktail.storage as Storage}
             finalAbv={cocktail.finalAbv}
             freezeStatus={cocktail.freezeStatus as 'freeze' | 'slushy' | 'safe'}
+            nearLine={cocktail.nearLine}
             servings={cocktail.servings}
             technique={cocktail.recipe?.dilutionType}
           />

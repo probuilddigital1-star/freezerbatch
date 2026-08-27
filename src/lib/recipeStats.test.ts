@@ -75,6 +75,15 @@ describe('displayed recipe stats', () => {
     }
   });
 
+  it('exactly paper-plane sits in the close-to-the-line band at 750 ml', () => {
+    // Spelled out so a new recipe landing in the band fails here by name and
+    // forces the conversation — rebalance it, or accept the amber badge —
+    // rather than quietly shipping a green one. Same idea as the drifted-
+    // servings pin above.
+    const nearLine = allWithRecipeStats().filter((c) => c.nearLine);
+    expect(nearLine.map((c) => c.slug)).toEqual(['paper-plane']);
+  });
+
   it('keeps every other field of the record intact when substituting stats', () => {
     const cocktail = cocktails.find((c) => c.slug === 'negroni')!;
     const merged = withRecipeStats(cocktail);

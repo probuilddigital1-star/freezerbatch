@@ -47,6 +47,8 @@ export interface BatchResult {
   // Freeze status
   freezeStatus: 'freeze' | 'slushy' | 'safe';
   freezeMessage: string;
+  /** Safe, but clears the 22% line by less than NEAR_LINE_MARGIN points. */
+  nearLine: boolean;
 
   // Base spirit info
   baseSpiritName: string;
@@ -72,6 +74,9 @@ export const SERVING_SIZE_ML = 90; // ~3oz per serving
 // ABV thresholds
 export const FREEZE_THRESHOLD = 15;   // Below this = solid freeze
 export const SLUSHY_THRESHOLD = 22;   // Below this = slushy (22%+ is safe)
+// Above the line by less than this many points, the batch pours but thick,
+// and a cold freezer will put ice flakes in it.
+export const NEAR_LINE_MARGIN = 3;
 
 // Unit conversions to ml
 const UNIT_TO_ML: Record<Unit, number> = {
@@ -103,22 +108,35 @@ export function convertToMl(amount: number, unit: Unit): number {
 export function getFreezeStatus(abv: number): {
   status: 'freeze' | 'slushy' | 'safe';
   message: string;
+  nearLine: boolean;
 } {
   if (abv < FREEZE_THRESHOLD) {
     return {
       status: 'freeze',
-      message: `${abv.toFixed(1)}% ABV will freeze solid. Add more spirits or reduce mixers.`
+      message: `${abv.toFixed(1)}% ABV will freeze solid. Add more spirits or reduce mixers.`,
+      nearLine: false
     };
   }
   if (abv < SLUSHY_THRESHOLD) {
     return {
       status: 'slushy',
-      message: `${abv.toFixed(1)}% ABV will be thick/slushy. Still drinkable but not ideal.`
+      message: `${abv.toFixed(1)}% ABV will be thick/slushy. Still drinkable but not ideal.`,
+      nearLine: false
+    };
+  }
+  // Not a fourth status: the three-value enum is read in about ten places and
+  // the e2e suite reads status-* class names. nearLine qualifies 'safe'.
+  if (abv < SLUSHY_THRESHOLD + NEAR_LINE_MARGIN) {
+    return {
+      status: 'safe',
+      message: `${abv.toFixed(1)}% ABV clears the line, but only just. Expect a thick pour with some ice flakes. A higher-proof base spirit, or a lighter hand with the citrus, adds margin.`,
+      nearLine: true
     };
   }
   return {
     status: 'safe',
-    message: `${abv.toFixed(1)}% ABV will stay perfectly pourable.`
+    message: `${abv.toFixed(1)}% ABV will stay perfectly pourable.`,
+    nearLine: false
   };
 }
 
@@ -235,7 +253,7 @@ export function calculateBatchFromBottle(
   const finalAbv = (totalAlcoholMl / actualVolumeMl) * 100;
 
   // Step 11: Get freeze status
-  const { status: freezeStatus, message: freezeMessage } = getFreezeStatus(finalAbv);
+  const { status: freezeStatus, message: freezeMessage, nearLine } = getFreezeStatus(finalAbv);
 
   // Step 12: Calculate servings from the actual volume
   const servings = Math.floor(actualVolumeMl / SERVING_SIZE_ML);
@@ -252,6 +270,7 @@ export function calculateBatchFromBottle(
     servings,
     freezeStatus,
     freezeMessage,
+    nearLine,
     baseSpiritName: baseSpiritScaled.name,
     baseSpiritInBottleMl,
     baseSpiritInBottleOz
@@ -271,6 +290,7 @@ function emptyResult(): BatchResult {
     servings: 0,
     freezeStatus: 'freeze',
     freezeMessage: 'Add ingredients to calculate',
+    nearLine: false,
     baseSpiritName: '',
     baseSpiritInBottleMl: 0,
     baseSpiritInBottleOz: 0
@@ -284,6 +304,7 @@ export function calculateBatch(ingredients: Ingredient[]): {
   totalVolumeOz: number;
   freezeStatus: 'freeze' | 'slushy' | 'safe';
   freezeMessage: string;
+  nearLine: boolean;
   servings: number;
 } {
   if (!ingredients || ingredients.length === 0) {
@@ -293,6 +314,7 @@ export function calculateBatch(ingredients: Ingredient[]): {
       totalVolumeOz: 0,
       freezeStatus: 'freeze',
       freezeMessage: 'Add ingredients to calculate',
+      nearLine: false,
       servings: 0
     };
   }
@@ -300,7 +322,7 @@ export function calculateBatch(ingredients: Ingredient[]): {
   const totalVolumeMl = ingredients.reduce((sum, ing) => sum + ing.volumeMl, 0);
   const totalAlcoholMl = ingredients.reduce((sum, ing) => sum + (ing.volumeMl * ing.abv / 100), 0);
   const finalAbv = totalVolumeMl > 0 ? (totalAlcoholMl / totalVolumeMl) * 100 : 0;
-  const { status: freezeStatus, message: freezeMessage } = getFreezeStatus(finalAbv);
+  const { status: freezeStatus, message: freezeMessage, nearLine } = getFreezeStatus(finalAbv);
 
   return {
     finalAbv: Math.round(finalAbv * 10) / 10,
@@ -308,6 +330,7 @@ export function calculateBatch(ingredients: Ingredient[]): {
     totalVolumeOz: mlToOz(totalVolumeMl),
     freezeStatus,
     freezeMessage,
+    nearLine,
     servings: Math.floor(totalVolumeMl / SERVING_SIZE_ML)
   };
 }
@@ -599,7 +622,7 @@ export function calculateMilkStreetBatch(
   const finalAbv = (totalAlcoholMl / actualVolumeMl) * 100;
 
   // Get freeze status
-  const { status: freezeStatus, message: freezeMessage } = getFreezeStatus(finalAbv);
+  const { status: freezeStatus, message: freezeMessage, nearLine } = getFreezeStatus(finalAbv);
 
   return {
     pourOffMl,
@@ -613,6 +636,7 @@ export function calculateMilkStreetBatch(
     servings: Math.floor(actualVolumeMl / SERVING_SIZE_ML),
     freezeStatus,
     freezeMessage,
+    nearLine,
     baseSpiritName: recipe.baseSpirit,
     baseSpiritInBottleMl: baseSpiritMl,
     baseSpiritInBottleOz: baseSpiritOz

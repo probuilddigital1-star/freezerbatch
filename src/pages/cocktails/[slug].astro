@@ -46,7 +46,7 @@ const { cocktail } = Astro.props;
 // Single source of truth for ABV / servings / freeze status, shared with the
 // homepage, the /cocktails grid, the related-recipe cards below, and this
 // page's Recipe JSON-LD. See src/lib/recipeStats.ts.
-const { finalAbv: displayAbv, servings: displayServings, freezeStatus: displayFreezeStatus } = recipeStats(cocktail);
+const { finalAbv: displayAbv, servings: displayServings, freezeStatus: displayFreezeStatus, nearLine: displayNearLine } = recipeStats(cocktail);
 const glassType: GlassType = GLASS_BY_SLUG[cocktail.slug] ?? 'coupe';
 
 // Single source of truth for every storage claim on this page.
@@ -67,7 +67,11 @@ const statusLabels = {
   freeze: { text: 'Will Freeze', icon: '✗', class: 'status-freeze' }
 };
 
-const status = statusLabels[displayFreezeStatus as keyof typeof statusLabels];
+// Safe-but-near-the-line keeps the check and the status-safe class (the e2e
+// suite reads it) but says so, in amber.
+const status = displayFreezeStatus === 'safe' && displayNearLine
+  ? { text: 'Pourable, close to the line', icon: '✓', class: 'status-safe status-near' }
+  : statusLabels[displayFreezeStatus as keyof typeof statusLabels];
 
 // Recipe schema for SEO
 const recipeSchema = {
@@ -345,6 +349,7 @@ const recipeSchema = {
                 storage={related.storage as Storage}
                 finalAbv={related.finalAbv}
                 freezeStatus={related.freezeStatus as 'freeze' | 'slushy' | 'safe'}
+                nearLine={related.nearLine}
                 servings={related.servings}
               />
             ))}

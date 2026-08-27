@@ -1,5 +1,6 @@
 /**
- * ABV, servings and freeze status as the site actually displays them.
+ * ABV, servings, freeze status and the near-line flag as the site actually
+ * displays them.
  *
  * `cocktails.json` stores `finalAbv`, `servings` and `freezeStatus`, and those
  * stored values have drifted from what the site computes. Every visible surface
@@ -23,6 +24,8 @@ export interface RecipeStats {
   finalAbv: number;
   servings: number;
   freezeStatus: string;
+  /** Safe, but clears the 22% line by less than NEAR_LINE_MARGIN points. */
+  nearLine: boolean;
 }
 
 type StoredCocktail = (typeof cocktailsData.cocktails)[number];
@@ -39,6 +42,7 @@ export function recipeStats(cocktail: StoredCocktail): RecipeStats {
     finalAbv: batch ? Math.round(batch.finalAbv) : cocktail.finalAbv,
     servings: batch ? batch.servings : cocktail.servings,
     freezeStatus: batch ? batch.freezeStatus : cocktail.freezeStatus,
+    nearLine: batch ? batch.nearLine : false,
   };
 }
 

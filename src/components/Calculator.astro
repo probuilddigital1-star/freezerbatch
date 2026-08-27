@@ -1149,8 +1149,10 @@ const recipeTiles = cocktailsData.cocktails
         `;
       }
 
-      // Add extras note if present
+      // Add extras note if present. The near-line band note shares the slot:
+      // extras first, then the band message, each its own line.
       const extrasNote = recipe.extras ? `<p class="text-xs text-gray-500 mt-2 italic">Also add: ${recipe.extras}</p>` : '';
+      const nearLineNote = result.nearLine ? `<p class="text-xs text-gray-500 mt-2 italic">${result.freezeMessage}</p>` : '';
 
       // Composition bar — visual breakdown of the bottle's makeup
       const compositionParts = [
@@ -1158,10 +1160,12 @@ const recipeTiles = cocktailsData.cocktails
         ...result.ingredientsToAdd.map(i => ({ name: i.name, ml: i.amountMl, abv: i.abv })),
         ...(result.waterToAddMl > 0 ? [{ name: 'Water', ml: result.waterToAddMl, abv: 0 }] : []),
       ];
-      // Freeze status styling
-      const statusClass = result.freezeStatus === 'safe' ? 'status-safe' : result.freezeStatus === 'slushy' ? 'status-slushy' : 'status-freeze';
+      // Freeze status styling. nearLine qualifies 'safe' rather than being a
+      // fourth status — status-safe stays on the element (e2e reads it) and
+      // status-near rides alongside.
+      const statusClass = result.freezeStatus === 'safe' ? (result.nearLine ? 'status-safe status-near' : 'status-safe') : result.freezeStatus === 'slushy' ? 'status-slushy' : 'status-freeze';
       const statusIcon = result.freezeStatus === 'safe' ? '✓' : result.freezeStatus === 'slushy' ? '⚠' : '✗';
-      const statusLabel = result.freezeStatus === 'safe' ? 'Perfect for Freezer' : result.freezeStatus === 'slushy' ? 'Will Be Slushy' : 'May Freeze Solid';
+      const statusLabel = result.freezeStatus === 'safe' ? (result.nearLine ? 'Pourable, close to the line' : 'Perfect for Freezer') : result.freezeStatus === 'slushy' ? 'Will Be Slushy' : 'May Freeze Solid';
 
       presetInstructions.innerHTML = `
         <div style="background: #161310; border: 1px solid #2e2720; padding: 2rem;">
@@ -1180,7 +1184,7 @@ const recipeTiles = cocktailsData.cocktails
               <span style="display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #9a8e7e; margin-top: 0.5rem; font-weight: 500;">Drinks</span>
             </div>
             <div style="text-align: center;">
-              <span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.25rem; font-weight: 400; color: ${result.freezeStatus === 'safe' ? '#10b981' : result.freezeStatus === 'slushy' ? '#fbbf24' : '#ef4444'}; line-height: 1;">${statusIcon}</span>
+              <span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.25rem; font-weight: 400; color: ${result.freezeStatus === 'safe' ? (result.nearLine ? '#fbbf24' : '#10b981') : result.freezeStatus === 'slushy' ? '#fbbf24' : '#ef4444'}; line-height: 1;">${statusIcon}</span>
               <span style="display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #9a8e7e; margin-top: 0.5rem; font-weight: 500;">${statusLabel}</span>
             </div>
           </div>
@@ -1210,7 +1214,7 @@ const recipeTiles = cocktailsData.cocktails
                 <div style="margin-top: 0.75rem; background: #1e1a16; border: 1px solid #2e2720; padding: 0.75rem 1rem;">
                   ${ingredientsHtml}
                 </div>
-                ${extrasNote}
+                ${extrasNote}${nearLineNote}
               </div>
             </div>
 
@@ -1334,8 +1338,11 @@ const recipeTiles = cocktailsData.cocktails
       const statusLabel = this.querySelector('#status-label');
       const statusMessage = this.querySelector('#status-message');
 
+      const nearLine = result.freezeStatus === 'safe' && result.nearLine;
+
       if (statusEl) {
-        statusEl.className = `p-4 rounded-lg border-2 mb-6 status-${result.freezeStatus}`;
+        // status-safe stays even near the line (e2e reads it); status-near rides alongside.
+        statusEl.className = `p-4 rounded-lg border-2 mb-6 status-${result.freezeStatus}${nearLine ? ' status-near' : ''}`;
       }
 
       if (statusIcon) {
@@ -1344,12 +1351,14 @@ const recipeTiles = cocktailsData.cocktails
       }
 
       if (statusLabel) {
-        statusLabel.textContent = result.freezeStatus === 'safe' ? 'Safe to Freeze'
+        statusLabel.textContent = result.freezeStatus === 'safe' ? (nearLine ? 'Pourable, close to the line' : 'Safe to Freeze')
           : result.freezeStatus === 'slushy' ? 'Slushy Zone' : 'Will Freeze!';
       }
 
       if (statusMessage) {
-        statusMessage.textContent = result.freezeStatus === 'safe'
+        statusMessage.textContent = nearLine
+          ? result.freezeMessage
+          : result.freezeStatus === 'safe'
           ? 'This will stay perfectly pourable in your freezer'
           : result.freezeStatus === 'slushy'
           ? 'This will get slushy but still be enjoyable'
@@ -1663,13 +1672,15 @@ const recipeTiles = cocktailsData.cocktails
       if (abv) abv.textContent = result.finalAbv.toFixed(1);
       if (servings) servings.textContent = String(result.servings);
 
-      // Status pill colors mirror the freeze status
+      // Status pill colors mirror the freeze status. Safe-but-near-the-line
+      // keeps the check but goes amber, like the batch it describes.
       const palette: Record<string, { cls: string; icon: string; label: string }> = {
         safe: { cls: 'bg-success/15 text-success', icon: '✓', label: 'Freezer-safe' },
+        near: { cls: 'bg-warning/15 text-amber-700', icon: '✓', label: 'Close to the line' },
         slushy: { cls: 'bg-warning/15 text-amber-700', icon: '⚠', label: 'Slushy zone' },
         freeze: { cls: 'bg-danger/15 text-danger', icon: '✗', label: 'Will freeze solid' },
       };
-      const p = palette[result.freezeStatus] ?? palette.freeze;
+      const p = (result.freezeStatus === 'safe' && result.nearLine ? palette.near : palette[result.freezeStatus]) ?? palette.freeze;
       if (status) {
         status.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${p.cls}`;
       }
@@ -1703,8 +1714,11 @@ const recipeTiles = cocktailsData.cocktails
       const statusLabel = this.querySelector('#status-label');
       const statusMessage = this.querySelector('#status-message');
 
+      const nearLine = result.freezeStatus === 'safe' && result.nearLine;
+
       if (statusEl) {
-        statusEl.className = `p-4 rounded-lg border-2 mb-6 status-${result.freezeStatus}`;
+        // status-safe stays even near the line (e2e reads it); status-near rides alongside.
+        statusEl.className = `p-4 rounded-lg border-2 mb-6 status-${result.freezeStatus}${nearLine ? ' status-near' : ''}`;
       }
 
       if (statusIcon) {
@@ -1713,7 +1727,7 @@ const recipeTiles = cocktailsData.cocktails
       }
 
       if (statusLabel) {
-        statusLabel.textContent = result.freezeStatus === 'safe' ? 'Safe to Freeze'
+        statusLabel.textContent = result.freezeStatus === 'safe' ? (nearLine ? 'Pourable, close to the line' : 'Safe to Freeze')
           : result.freezeStatus === 'slushy' ? 'Slushy Zone' : 'Will Freeze!';
       }
 

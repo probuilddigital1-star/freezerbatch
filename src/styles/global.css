@@ -206,6 +206,14 @@
     background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.03) 100%);
   }
 
+  /* Safe, but clearing the 22% line by only a few points. Rides alongside
+     .status-safe (which stays for the e2e suite) and must come after it in
+     this file so the amber wins the cascade. */
+  .status-near {
+    @apply text-amber-400 border-l-2 border-amber-500;
+    background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.03) 100%);
+  }
+
   .status-empty {
     @apply text-study-muted border-l-2 border-study-border-light;
     background: linear-gradient(135deg, rgba(154,142,126,0.06) 0%, transparent 100%);

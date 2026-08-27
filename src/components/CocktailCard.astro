@@ -23,6 +23,8 @@ export interface Props {
   storage: Storage;
   finalAbv: number;
   freezeStatus: 'freeze' | 'slushy' | 'safe';
+  /** Safe, but clears the 22% line by only a few points. */
+  nearLine?: boolean;
   servings: number;
   technique?: 'stirred' | 'shaken' | string;
 }
@@ -35,6 +37,7 @@ const {
   storage,
   finalAbv,
   freezeStatus,
+  nearLine = false,
   servings,
   technique,
 } = Astro.props;
@@ -45,7 +48,11 @@ const statusConfig = {
   freeze: { label: 'Will Freeze', class: 'text-danger border-danger/30' }
 };
 
-const status = statusConfig[freezeStatus];
+// Safe-but-near-the-line keeps the freezer-safe claim honest: pourable, but
+// only just, so the pill goes amber and says so.
+const status = freezeStatus === 'safe' && nearLine
+  ? { label: 'Close to the line', class: 'text-amber-400 border-warning/30' }
+  : statusConfig[freezeStatus];
 const photo = photoSources(slug);
 
 // The label itself is the claim — rendered verbatim so no surface can drift from
