@@ -355,6 +355,11 @@ export interface MilkStreetBatch {
     abv: number;
   }>;
   waterOz: number;
+  /**
+   * Rendered verbatim as "Also add: ..." under the ingredients. Only
+   * ingredient or serve instructions belong here — never notes about texture
+   * or ABV, which the calculator now derives (see getFreezeStatus/nearLine).
+   */
   extras?: string;
 }
 
@@ -479,7 +484,7 @@ export const MILK_STREET_BATCHES: Record<string, MilkStreetBatch> = {
       { name: 'Fresh Lemon Juice', oz: 6.25, abv: 0 }
     ],
     waterOz: 0,
-    extras: 'Equal parts cocktail - will be slushy due to ~20% ABV'
+    extras: undefined
   },
   'moscow-mule': {
     baseSpirit: 'Vodka',

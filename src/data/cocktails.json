@@ -554,17 +554,17 @@
         "dilutionType": "shaken",
         "dilutionPercent": 25
       },
-      "finalAbv": 20,
-      "freezeStatus": "slushy",
+      "finalAbv": 23,
+      "freezeStatus": "safe",
       "tips": [
-        "This lands in the slushy zone - that's okay, it's still delicious",
-        "For firmer texture, increase bourbon ratio slightly",
+        "Use a 100-proof bourbon if you want margin above the line",
+        "Measure the lemon rather than free-pouring it; an extra ounce in a 750 ml batch takes it under the line",
         "Equal parts makes it easy to remember and scale",
         "Shake well before pouring to recombine ingredients"
       ],
       "serve": "Pour into a coupe glass. No garnish needed.",
       "commonMistakes": [
-        "Expecting it to be fully liquid (it'll be slightly slushy)",
+        "Free-pouring the lemon (an extra ounce in a 750 ml batch takes it under the line)",
         "Using a different amaro (Nonino is specific to this drink)"
       ],
       "affiliateProducts": [
