@@ -16,7 +16,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SOURCE = path.join(HERE, 'label-sheet', 'label-sheet.html');
 const OUTPUT = path.join(HERE, '..', 'public', 'downloads', 'fbc-bottle-labels.pdf');
 
-const QR_TARGET = 'https://freezerbatchcocktails.com/?utm_source=label_sheet&utm_medium=qr';
+// Trailing slash deliberately: the site 308-redirects /cocktails to /cocktails/
+// (verified 2026-08-27), and a scan should land directly with the query intact.
+const QR_TARGET = 'https://freezerbatchcocktails.com/cocktails/?utm_source=label_sheet&utm_medium=qr';
 
 // 1in at print resolution. Generous pixel width keeps the modules crisp rather than
 // letting the PDF rasterise a small bitmap up to an inch square.
