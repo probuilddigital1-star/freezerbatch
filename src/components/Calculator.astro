@@ -7,7 +7,7 @@
  * users can scan rather than read a dropdown.
  */
 import cocktailsData from '../data/cocktails.json';
-import { MILK_STREET_BATCHES } from '../lib/calculator';
+import { INGREDIENT_ABVS, MILK_STREET_BATCHES } from '../lib/calculator';
 
 export interface Props {
   /** Pre-fill with a specific cocktail slug */
@@ -399,27 +399,11 @@ const recipeTiles = cocktailsData.cocktails
   </div>
 </template>
 
-<!-- Ingredient Suggestions Datalist -->
+<!-- Ingredient Suggestions Datalist. Generated from INGREDIENT_ABVS rather than
+     hand-written, so the names offered here are exactly the names the ABV
+     autofill can resolve — the two lists had already drifted once. -->
 <datalist id="ingredient-suggestions">
-  <option value="Vodka">
-  <option value="Gin">
-  <option value="Bourbon">
-  <option value="Rye Whiskey">
-  <option value="Tequila">
-  <option value="White Rum">
-  <option value="Dark Rum">
-  <option value="Triple Sec">
-  <option value="Cointreau">
-  <option value="Campari">
-  <option value="Sweet Vermouth">
-  <option value="Dry Vermouth">
-  <option value="Kahlua">
-  <option value="Lime Juice">
-  <option value="Lemon Juice">
-  <option value="Simple Syrup">
-  <option value="Orange Juice">
-  <option value="Cranberry Juice">
-  <option value="Olive Brine">
+  {INGREDIENT_ABVS.map(ingredient => <option value={ingredient.name} />)}
 </datalist>
 
 <style is:global>

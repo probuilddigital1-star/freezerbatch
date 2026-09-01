@@ -769,105 +769,199 @@ export const DILUTION_RECOMMENDATIONS: Record<string, number> = {
 // ABV SUGGESTIONS
 // ============================================
 
-export const ABV_DEFAULTS: Record<string, number> = {
+export interface IngredientABV {
+  /** Title-cased display name. This is the value offered in the datalist. */
+  name: string;
+  /** Alcohol by volume, percent. */
+  abv: number;
+  /**
+   * Extra lowercase spellings that resolve to the same number — dropped
+   * accents, shortened brand names — but do not deserve their own datalist row.
+   */
+  aliases?: string[];
+}
+
+/**
+ * The single source for both the ingredient datalist in Calculator.astro and
+ * the `ABV_DEFAULTS` lookup below. These used to be two hand-kept lists and
+ * they drifted; drift between hand-kept lists has already cost this repo the
+ * og cards and the Recipe `recipeYield` (claude/photo-shoot-log.md), so the
+ * display order lives here and everything else is derived from it.
+ *
+ * Every number an actual recipe uses is pinned to src/data/cocktails.json and
+ * guarded by a test in calculator.test.ts.
+ */
+export const INGREDIENT_ABVS: IngredientABV[] = [
   // Spirits
-  'vodka': 40,
-  'gin': 40,
-  'bourbon': 45,
-  'rye': 45,
-  'rye whiskey': 45,
-  'whiskey': 40,
-  'scotch': 43,
-  'rum': 40,
-  'white rum': 40,
-  'dark rum': 40,
-  'tequila': 40,
-  'mezcal': 43,
-  'brandy': 40,
-  'cognac': 40,
+  { name: 'Vodka', abv: 40 },
+  { name: 'Gin', abv: 40 },
+  { name: 'Sloe Gin', abv: 26 },
+  { name: 'Bourbon', abv: 45 },
+  { name: 'Rye Whiskey', abv: 45, aliases: ['rye'] },
+  { name: 'Whiskey', abv: 40 },
+  { name: 'Scotch', abv: 43 },
+  { name: 'Rum', abv: 40 },
+  { name: 'White Rum', abv: 40 },
+  { name: 'Dark Rum', abv: 40 },
+  { name: 'Coconut Rum', abv: 21 },
+  { name: 'Tequila', abv: 40 },
+  { name: 'Mezcal', abv: 43 },
+  { name: 'Brandy', abv: 40 },
+  { name: 'Cognac', abv: 40 },
 
   // Liqueurs
-  'cointreau': 40,
-  'triple sec': 30,
-  'grand marnier': 40,
-  'campari': 25,
-  'aperol': 11,
-  'kahlua': 20,
-  'amaretto': 28,
-  'st germain': 20,
-  'maraschino': 32,
-  'maraschino liqueur': 32,
-  'amaro': 30,
-  'amaro nonino': 35,
-  'fernet': 39,
-  'fernet-branca': 39,
-  'fernet branca': 39,
-  'benedictine': 40,
-  'bénédictine': 40,
-  'creme de violette': 20,
-  'crème de violette': 20,
-  'green chartreuse': 55,
-  'yellow chartreuse': 40,
-  'chartreuse': 55,
+  { name: 'Cointreau', abv: 40 },
+  { name: 'Triple Sec', abv: 30 },
+  { name: 'Orange Liqueur', abv: 40 },
+  { name: 'Grand Marnier', abv: 40 },
+  { name: 'Campari', abv: 25 },
+  { name: 'Aperol', abv: 11 },
+  { name: 'Kahlua', abv: 20 },
+  { name: 'Coffee Liqueur', abv: 20 },
+  { name: 'Amaretto', abv: 28 },
+  { name: 'St-Germain', abv: 20, aliases: ['st germain'] },
+  { name: 'Maraschino Liqueur', abv: 32, aliases: ['maraschino'] },
+  { name: 'Melon Liqueur', abv: 20 },
+  { name: 'Irish Cream', abv: 17 },
+  { name: 'Crème de Cacao', abv: 24, aliases: ['creme de cacao'] },
+  { name: 'Crème de Violette', abv: 20, aliases: ['creme de violette'] },
+  { name: 'Amaro', abv: 30 },
+  { name: 'Amaro Nonino', abv: 35 },
+  { name: 'Fernet-Branca', abv: 39, aliases: ['fernet', 'fernet branca'] },
+  { name: 'Bénédictine', abv: 40, aliases: ['benedictine'] },
+  { name: 'Green Chartreuse', abv: 55 },
+  { name: 'Yellow Chartreuse', abv: 40 },
+  { name: 'Chartreuse', abv: 55 },
 
   // Fortified
-  'sweet vermouth': 16,
-  'dry vermouth': 18,
+  { name: 'Sweet Vermouth', abv: 16 },
+  { name: 'Dry Vermouth', abv: 18 },
+  { name: 'Bianco Vermouth', abv: 16, aliases: ['blanc vermouth'] },
+  { name: 'Cocchi Americano', abv: 16.5 },
+  { name: 'Sherry', abv: 17 },
 
-  // Bitters (high ABV but used in dashes)
-  'angostura': 45,
-  'angostura bitters': 45,
-  'bitters': 45,
+  // Bitters (high ABV, but used in dashes). 44 rather than the round 45 these
+  // used to carry, because 44 is what cocktails.json bills Angostura at.
+  { name: 'Angostura Bitters', abv: 44, aliases: ['angostura'] },
+  { name: 'Bitters', abv: 44 },
 
   // Mixers (0%)
-  'lime juice': 0,
-  'lemon juice': 0,
-  'orange juice': 0,
-  'pineapple juice': 0,
-  'grapefruit juice': 0,
-  'cranberry juice': 0,
-  'tomato juice': 0,
-  'simple syrup': 0,
-  'honey syrup': 0,
-  'ginger syrup': 0,
-  'agave syrup': 0,
-  'agave': 0,
-  'maple syrup': 0,
-  'grenadine': 0,
-  'olive brine': 0,
-  'cream of coconut': 0,
-  'coconut cream': 0,
-  'coconut milk': 0,
-  'cream': 0,
-  'half and half': 0,
-  'milk': 0,
-  'water': 0,
-  'club soda': 0,
-  'soda water': 0,
-  'tonic': 0,
-  'tonic water': 0,
-  'ginger beer': 0,
-  'ginger ale': 0,
-  'cold brew': 0,
-  'cold brew concentrate': 0,
-  'espresso': 0,
-  'coffee': 0
-};
+  { name: 'Lime Juice', abv: 0 },
+  { name: 'Lemon Juice', abv: 0 },
+  { name: 'Orange Juice', abv: 0 },
+  { name: 'Pineapple Juice', abv: 0 },
+  { name: 'Grapefruit Juice', abv: 0 },
+  { name: 'Cranberry Juice', abv: 0 },
+  { name: 'Tomato Juice', abv: 0 },
+  { name: 'Simple Syrup', abv: 0 },
+  { name: 'Honey Syrup', abv: 0 },
+  { name: 'Ginger Syrup', abv: 0 },
+  { name: 'Mint Syrup', abv: 0 },
+  { name: 'Cherry Syrup', abv: 0 },
+  { name: 'Agave Syrup', abv: 0, aliases: ['agave'] },
+  { name: 'Maple Syrup', abv: 0 },
+  { name: 'Grenadine', abv: 0 },
+  { name: 'Olive Brine', abv: 0 },
+  { name: 'Cream of Coconut', abv: 0 },
+  { name: 'Coconut Cream', abv: 0 },
+  { name: 'Coconut Milk', abv: 0 },
+  { name: 'Cream', abv: 0 },
+  { name: 'Half and Half', abv: 0 },
+  { name: 'Milk', abv: 0 },
+  { name: 'Water', abv: 0 },
+  { name: 'Club Soda', abv: 0 },
+  { name: 'Soda Water', abv: 0 },
+  { name: 'Tonic Water', abv: 0, aliases: ['tonic'] },
+  { name: 'Ginger Beer', abv: 0 },
+  { name: 'Ginger Ale', abv: 0 },
+  { name: 'Cold Brew Concentrate', abv: 0, aliases: ['cold brew'] },
+  { name: 'Espresso', abv: 0 },
+  { name: 'Coffee', abv: 0 }
+];
 
+function buildAbvLookup(entries: IngredientABV[]): Record<string, number> {
+  const lookup: Record<string, number> = {};
+  for (const { name, abv, aliases } of entries) {
+    lookup[name.toLowerCase()] = abv;
+    for (const alias of aliases ?? []) {
+      lookup[alias] = abv;
+    }
+  }
+  return lookup;
+}
+
+/** Lowercase name (and alias) to ABV, derived from `INGREDIENT_ABVS`. */
+export const ABV_DEFAULTS: Record<string, number> = buildAbvLookup(INGREDIENT_ABVS);
+
+/**
+ * Split a name into lowercase word tokens so matching happens on whole words:
+ * `gin` must not match inside `ginger`, nor `rum` inside `rumchata`. Splitting
+ * on everything that is not a letter or digit also makes `fernet-branca` and
+ * `fernet branca` the same two words, and the Unicode classes keep `crème` a
+ * single token.
+ */
+function wordsOf(name: string): string[] {
+  return name.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+}
+
+/** Index at which `needle` appears as a run of whole words in `haystack`, or -1. */
+function phraseIndex(haystack: string[], needle: string[]): number {
+  if (needle.length === 0) return -1;
+  for (let i = 0; i + needle.length <= haystack.length; i++) {
+    let hit = true;
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) {
+        hit = false;
+        break;
+      }
+    }
+    if (hit) return i;
+  }
+  return -1;
+}
+
+/** Keys pre-tokenised, longest first, so the first phrase hit is also the
+ *  longest key: `irish cream` beats `cream`, `green chartreuse` beats
+ *  `chartreuse`. Declaration order must not decide this — spirits are declared
+ *  first, which is how every modified spirit used to inherit a base proof. */
+const ABV_MATCH_KEYS: { key: string; words: string[] }[] = Object.keys(ABV_DEFAULTS)
+  .map(key => ({ key, words: wordsOf(key) }))
+  .sort((a, b) => b.key.length - a.key.length);
+
+/**
+ * Best-guess ABV for a typed ingredient name, or null where the table cannot
+ * answer honestly.
+ *
+ * Null is the safe answer here and a wrong number is not. This autofills the
+ * ABV box directly, and an overstated ABV makes the calculator report a batch
+ * as clearing the 22% freezer line when it will in fact set to slush. That is
+ * the one number this site exists to get right, so the matcher only answers
+ * when it is confident.
+ */
 export function suggestABV(name: string): number | null {
   const normalized = name.toLowerCase().trim();
 
-  // Direct match
+  // Exact match
   if (ABV_DEFAULTS[normalized] !== undefined) {
     return ABV_DEFAULTS[normalized];
   }
 
-  // Partial match
-  for (const [key, value] of Object.entries(ABV_DEFAULTS)) {
-    if (normalized.includes(key) || key.includes(normalized)) {
-      return value;
-    }
+  // Whole-word match on the longest key. Qualifiers around a phrase the table
+  // knows are fine: `rich simple syrup` is still simple syrup.
+  const typed = wordsOf(normalized);
+  const match = ABV_MATCH_KEYS
+    .map(entry => ({ entry, at: phraseIndex(typed, entry.words) }))
+    .find(candidate => candidate.at !== -1);
+  if (!match) return null;
+
+  // A modifier the table does not know, sitting in front of a base spirit
+  // (`sloe gin`, `coconut rum`), names a different product at a different
+  // proof. Blank the box rather than inherit the base spirit's number: a blank
+  // makes the user think, a confident wrong number does not.
+  const bareBaseWord = typed.length > 1 && match.entry.words.length === 1 && match.at > 0;
+  if (bareBaseWord && typed.slice(0, match.at).every(word => ABV_DEFAULTS[word] === undefined)) {
+    return null;
   }
 
-  return null;
+  return ABV_DEFAULTS[match.entry.key];
 }
