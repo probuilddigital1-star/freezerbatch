@@ -98,7 +98,25 @@ describe('suggestABV', () => {
   it('blanks rather than guesses when an unknown modifier fronts a base spirit', () => {
     // A blank box makes the user think; a confident wrong number does not.
     expect(suggestABV('Damson Gin')).toBeNull();
-    expect(suggestABV('Spiced Rum')).toBeNull();
+    expect(suggestABV('Aged Rum')).toBeNull();
+  });
+
+  it('resolves the named variants the table carries outright', () => {
+    // The rule above is a fallback, not a preference: where the table knows the
+    // real number, a correct number beats a blank.
+    expect(suggestABV('London Dry Gin')).toBe(40);
+    expect(suggestABV('Spiced Rum')).toBe(35);
+    expect(suggestABV('Dry Sherry')).toBe(17);
+  });
+
+  it('leaves the genuinely ambiguous names blank on purpose', () => {
+    // Bare `Bitters` spans Angostura at 44 and Peychaud's at 35; bare
+    // `Vermouth` is 16 sweet or 18 dry. Answering either means picking one and
+    // sounding certain. `Ginger Liqueur` has no entry at all and must not fall
+    // back to gin.
+    expect(suggestABV('Bitters')).toBeNull();
+    expect(suggestABV('Vermouth')).toBeNull();
+    expect(suggestABV('Ginger Liqueur')).toBeNull();
   });
 
   it('returns null for a name it does not know at all', () => {

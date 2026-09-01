@@ -776,7 +776,8 @@ export interface IngredientABV {
   abv: number;
   /**
    * Extra lowercase spellings that resolve to the same number — dropped
-   * accents, shortened brand names — but do not deserve their own datalist row.
+   * accents, shortened brand names, a fuller name for the same bottle — but
+   * that do not deserve their own datalist row.
    */
   aliases?: string[];
 }
@@ -794,7 +795,7 @@ export interface IngredientABV {
 export const INGREDIENT_ABVS: IngredientABV[] = [
   // Spirits
   { name: 'Vodka', abv: 40 },
-  { name: 'Gin', abv: 40 },
+  { name: 'Gin', abv: 40, aliases: ['london dry gin'] },
   { name: 'Sloe Gin', abv: 26 },
   { name: 'Bourbon', abv: 45 },
   { name: 'Rye Whiskey', abv: 45, aliases: ['rye'] },
@@ -803,6 +804,7 @@ export const INGREDIENT_ABVS: IngredientABV[] = [
   { name: 'Rum', abv: 40 },
   { name: 'White Rum', abv: 40 },
   { name: 'Dark Rum', abv: 40 },
+  { name: 'Spiced Rum', abv: 35 },
   { name: 'Coconut Rum', abv: 21 },
   { name: 'Tequila', abv: 40 },
   { name: 'Mezcal', abv: 43 },
@@ -839,11 +841,13 @@ export const INGREDIENT_ABVS: IngredientABV[] = [
   { name: 'Bianco Vermouth', abv: 16, aliases: ['blanc vermouth'] },
   { name: 'Cocchi Americano', abv: 16.5 },
   { name: 'Sherry', abv: 17 },
+  { name: 'Dry Sherry', abv: 17 },
 
-  // Bitters (high ABV, but used in dashes). 44 rather than the round 45 these
-  // used to carry, because 44 is what cocktails.json bills Angostura at.
+  // Bitters (high ABV, but used in dashes). 44 rather than the round 45 this
+  // used to carry, because 44 is what cocktails.json bills Angostura at. There
+  // is deliberately no bare `Bitters` row: Angostura is 44 and Peychaud's is
+  // 35, so a generic answer would be picking one of them and sounding sure.
   { name: 'Angostura Bitters', abv: 44, aliases: ['angostura'] },
-  { name: 'Bitters', abv: 44 },
 
   // Mixers (0%)
   { name: 'Lime Juice', abv: 0 },
