@@ -581,6 +581,7 @@ const recipeTiles = cocktailsData.cocktails
 
 <script>
   import {
+    abvAutofillAction,
     calculateBatchFromBottle,
     calculateMilkStreetBatch,
     mlToOz,
@@ -869,12 +870,23 @@ const recipeTiles = cocktailsData.cocktails
       this.querySelector('#ingredients-container')?.addEventListener('input', (e) => {
         const target = e.target as HTMLInputElement;
         if (target.name === 'name') {
-          const suggested = suggestABV(target.value);
-          if (suggested !== null) {
-            const row = target.closest('.ingredient-row');
-            const abvInput = row?.querySelector('[name="abv"]') as HTMLInputElement;
-            if (abvInput && !abvInput.value) {
-              abvInput.value = String(suggested);
+          const row = target.closest('.ingredient-row');
+          const abvInput = row?.querySelector('[name="abv"]') as HTMLInputElement | null;
+          if (abvInput) {
+            // dataset.suggested is the receipt for the last number the autofill
+            // wrote here. Rows built by addIngredientRow() carry no receipt, so
+            // their ABV reads as the user's and a rename leaves it alone.
+            const decision = abvAutofillAction(
+              abvInput.value,
+              abvInput.dataset.suggested,
+              suggestABV(target.value)
+            );
+            if (decision.action === 'write') {
+              abvInput.value = String(decision.value);
+              abvInput.dataset.suggested = abvInput.value;
+            } else if (decision.action === 'clear') {
+              abvInput.value = '';
+              delete abvInput.dataset.suggested;
             }
           }
         }

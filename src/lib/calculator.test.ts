@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import cocktailsData from '../data/cocktails.json';
-import { getFreezeStatus, NEAR_LINE_MARGIN, SLUSHY_THRESHOLD, suggestABV } from './calculator';
+import {
+  abvAutofillAction,
+  getFreezeStatus,
+  NEAR_LINE_MARGIN,
+  SLUSHY_THRESHOLD,
+  suggestABV
+} from './calculator';
 
 /**
  * The three-value status enum is load-bearing (about ten readers, plus e2e
@@ -139,5 +145,83 @@ describe('suggestABV', () => {
           .toBe(ingredient.abv);
       }
     }
+  });
+});
+
+/**
+ * The autofill used to write once and never again: it only touched an empty
+ * box, so renaming an ingredient left the previous name's number sitting there.
+ * Gin then Ginger Syrup read 40, and 40 for a syrup overstates the batch, which
+ * is the direction that calls an unsafe batch freezer-safe.
+ *
+ * The rule now is ownership. The autofill may overwrite what the autofill
+ * wrote; a number the user typed is theirs and is never touched.
+ */
+describe('abvAutofillAction', () => {
+  /**
+   * Stand-in for one ABV box. `suggested` is what `dataset.suggested` holds in
+   * the DOM, and the branches below are the branches the component wires up.
+   */
+  function box() {
+    let value = '';
+    let suggested: string | undefined;
+    const self = {
+      get value() {
+        return value;
+      },
+      /** Renaming the ingredient, which is what runs the decision. */
+      rename(name: string) {
+        const decision = abvAutofillAction(value, suggested, suggestABV(name));
+        if (decision.action === 'write') {
+          value = String(decision.value);
+          suggested = value;
+        } else if (decision.action === 'clear') {
+          value = '';
+          suggested = undefined;
+        }
+        return self;
+      },
+      /** The user typing into the ABV box themselves. */
+      type(typed: string) {
+        value = typed;
+        return self;
+      }
+    };
+    return self;
+  }
+
+  it('fills an empty box from the name', () => {
+    expect(box().rename('Grenadine').value).toBe('0');
+    expect(box().rename('Gin').value).toBe('40');
+  });
+
+  it('replaces its own suggestion when the name changes', () => {
+    expect(box().rename('Gin').rename('Ginger Syrup').value).toBe('0');
+  });
+
+  it('clears its own suggestion when the new name is one it will not guess on', () => {
+    // Returning null was supposed to mean "make the user think". Leaving 40 in
+    // the box meant it never got to.
+    expect(box().rename('Gin').rename('Xyzzy Cordial').value).toBe('');
+  });
+
+  it('never touches a number the user typed', () => {
+    expect(box().rename('Gin').type('50').rename('Vodka').value).toBe('50');
+  });
+
+  it('follows a rename chain while the box stays autofill-owned', () => {
+    expect(box().rename('Gin').rename('Sloe Gin').value).toBe('26');
+    expect(box().rename('Gin').rename('Sloe Gin').rename('Gin').value).toBe('40');
+  });
+
+  it('re-arms once the user clears the box by hand', () => {
+    expect(box().rename('Gin').type('').rename('Campari').value).toBe('25');
+  });
+
+  it('leaves a programmatically filled row alone', () => {
+    // addIngredientRow() writes a value with no dataset.suggested behind it —
+    // the sample Negroni and every share-state restore. As far as the autofill
+    // is concerned that number is the user's, so a rename must not move it.
+    expect(abvAutofillAction('40', undefined, 25)).toEqual({ action: 'leave' });
   });
 });

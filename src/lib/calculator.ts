@@ -677,7 +677,7 @@ export const RECIPES: Record<string, RecipeIngredient[]> = {
   'old-fashioned': [
     { name: 'Bourbon', amount: 3, unit: 'oz', abv: 45, isBaseSpirit: true },
     { name: 'Agave Syrup', amount: 0.125, unit: 'oz', abv: 0, isBaseSpirit: false },
-    { name: 'Angostura Bitters', amount: 2, unit: 'dash', abv: 45, isBaseSpirit: false }
+    { name: 'Angostura Bitters', amount: 2, unit: 'dash', abv: 44, isBaseSpirit: false }
   ],
   // Milk Street: 750ml - 6oz = 19.4oz vodka, + 4oz vermouth + 2.5oz water + 1.5oz brine
   'dirty-martini': [
@@ -968,4 +968,42 @@ export function suggestABV(name: string): number | null {
   }
 
   return ABV_DEFAULTS[match.entry.key];
+}
+
+/** What the ABV autofill is allowed to do to a box on this keystroke. */
+export type AbvAutofillAction =
+  | { action: 'write'; value: number }
+  | { action: 'clear' }
+  | { action: 'leave' };
+
+/**
+ * Decide whether the ABV autofill may touch a box when the ingredient name
+ * changes.
+ *
+ * The autofill owns a box only while the box is empty or still holds the exact
+ * number the autofill last put there. Anything else is a number the user typed,
+ * and their number is never overwritten.
+ *
+ * The old wiring only ever filled an empty box, so the suggestion from the
+ * previous name survived a rename: Gin, then Ginger Syrup, still read 40. A
+ * stale spirit proof on a syrup overstates the batch, and overstating is the
+ * direction that reports an unsafe batch as freezer-safe.
+ *
+ * @param currentValue  what the ABV box reads now
+ * @param lastSuggested what the autofill last wrote there, if anything
+ * @param suggestion    what the new name suggests, or null for "will not guess"
+ */
+export function abvAutofillAction(
+  currentValue: string,
+  lastSuggested: string | undefined,
+  suggestion: number | null
+): AbvAutofillAction {
+  const ownedByAutofill = currentValue === '' || currentValue === lastSuggested;
+  if (!ownedByAutofill) return { action: 'leave' };
+
+  // Null means the table will not guess. Clearing is the whole point of that:
+  // a blank box makes the user think, a leftover number does not.
+  if (suggestion === null) return { action: 'clear' };
+
+  return { action: 'write', value: suggestion };
 }
