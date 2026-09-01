@@ -1,0 +1,42 @@
+# Line endings.
+#
+# core.autocrlf is true on at least one machine here, which means the working
+# tree it checks out gets CRLF while the repository stores LF. That is fine
+# until a tool writes a file back with the endings it found, and then a commit
+# carries a whole-file ending change nobody made. Declaring the rule in the
+# repo takes the decision away from each clone's local config.
+#
+# LF everywhere: in the repository and in the working tree, on every platform.
+
+* text=auto
+
+# Source and content — LF in the working tree too, not just in the repository.
+*.ts        text eol=lf
+*.js        text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.astro     text eol=lf
+*.json      text eol=lf
+*.css       text eol=lf
+*.html      text eol=lf
+*.svg       text eol=lf
+*.xml       text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+*.py        text eol=lf
+*.patch     text eol=lf
+.gitignore    text eol=lf
+.gitattributes text eol=lf
+
+# Binaries — never inspected, never converted.
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.gz    binary
+*.woff  binary
+*.woff2 binary
